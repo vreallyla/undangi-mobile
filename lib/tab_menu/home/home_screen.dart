@@ -58,8 +58,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   addClick: () {},
                   changeIndex: (int index) {
                     if (index == 0) {
-                      print(0);
+                      Navigator.pushNamed(context, '/proyek_list');
                     } else if (index == 1) {
+                      Navigator.pushNamed(context, '/layanan_list');
                     } else if (index == 2) {
                       Navigator.pushNamed(context, '/user_list');
                     }

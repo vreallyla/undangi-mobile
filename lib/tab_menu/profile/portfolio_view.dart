@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:undangi/Constant/app_theme.dart';
 
+import 'sub/portfolio_tambah_screen.dart';
+
 class PortfolioView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -54,7 +56,13 @@ class PortfolioView extends StatelessWidget {
                       RaisedButton(
                         shape: new RoundedRectangleBorder(
                             borderRadius: new BorderRadius.circular(20.0)),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      PortfolioTambahScreen()));
+                        },
                         color: AppTheme.primaryBlue,
                         child: Row(
                           children: [

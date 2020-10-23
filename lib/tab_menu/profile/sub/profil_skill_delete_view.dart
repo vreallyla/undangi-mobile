@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_widget.dart';
 
-class ProfilSkillView extends StatefulWidget {
+class ProfilSkillDeleteView extends StatefulWidget {
   @override
-  _ProfilSkillViewState createState() => _ProfilSkillViewState();
+  _ProfilSkillDeleteViewState createState() => _ProfilSkillDeleteViewState();
 }
 
-class _ProfilSkillViewState extends State<ProfilSkillView> {
+class _ProfilSkillDeleteViewState extends State<ProfilSkillDeleteView> {
   TextEditingController skillInput = new TextEditingController();
   String dropdownValue;
 
@@ -17,7 +17,7 @@ class _ProfilSkillViewState extends State<ProfilSkillView> {
     final paddingPhone = MediaQuery.of(context).padding;
 
     return Scaffold(
-        appBar: appActionHead(paddingPhone, 'Skill dan Bahasa', 'Tambah', () {
+        appBar: appActionHead(paddingPhone, 'Skill dan Bahasa', 'Simpan', () {
           Navigator.pop(context);
         }, () {
           //event act save
@@ -66,10 +66,17 @@ class _ProfilSkillViewState extends State<ProfilSkillView> {
                   ),
                   20),
               Container(
-                margin: EdgeInsets.only(top: 20),
-                height: 35,
-                color: AppTheme.biruLaut,
-              )
+                  margin: EdgeInsets.only(top: 20),
+                  height: 35,
+                  color: AppTheme.primaryRed,
+                  alignment: Alignment.center,
+                  child: Text(
+                    'HAPUS',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ))
             ],
           ),
         ));

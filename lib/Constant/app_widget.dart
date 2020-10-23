@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 
 import 'app_theme.dart';
 
+Widget appBarColloring() {
+  return PreferredSize(
+      preferredSize: Size.fromHeight(0.0),
+      child: AppBar(
+        elevation: 0,
+        backgroundColor: AppTheme.primaryBlue,
+      ));
+}
+
 Widget appPolosBack(paddingPhone, Function event) {
   return PreferredSize(
     preferredSize: Size.fromHeight(70.0),

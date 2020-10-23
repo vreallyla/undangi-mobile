@@ -6,10 +6,15 @@ import 'package:flutter/services.dart';
 import 'package:undangi/auth/login_screen.dart';
 import 'package:undangi/auth/register_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/chat/chat_screen.dart';
+import 'package:undangi/tab_menu/home/sub_menu/proyek_list/proyek_list_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/user_list/user_list_screen.dart';
+import 'package:undangi/tab_menu/profile/sub/profil_skill_delete_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_skill_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_summary_view.dart';
 import 'package:undangi/tab_menu/tab_screen.dart';
+
+import 'tab_menu/home/sub_menu/layanan_list/layanan_list_screen.dart';
+import 'tab_menu/search/search_tab_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -39,10 +44,15 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
         '/': (context) => TabScreen(),
+        '/search_kategori': (context) => SearchTabScreen(),
+
         '/user_list': (context) => UserListScreen(),
+        '/proyek_list': (context) => ProyekListScreen(),
+        '/layanan_list': (context) => LayananListScreen(),
         '/chat': (context) => ChatScreen(),
         '/profil_summary': (context) => ProfilSummaryScreen(),
         '/profil_skill': (context) => ProfilSkillView(),
+        '/profil_skill_delete': (context) => ProfilSkillDeleteView(),
       },
       title: 'Undagi',
       debugShowCheckedModeBanner: false,

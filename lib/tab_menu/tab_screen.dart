@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 // import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/tab_menu/home/home_screen.dart';
 import 'package:undangi/tab_menu/profile/profile_screen.dart';
 
@@ -76,6 +77,7 @@ class _TabScreenState extends State<TabScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     routeOther(context);
     return Scaffold(
+      appBar: appBarColloring(),
       body: SlidingUpPanel(
         minHeight: 30,
         maxHeight: 90,
@@ -110,8 +112,18 @@ class _TabScreenState extends State<TabScreen> with TickerProviderStateMixin {
                 addClick: () {},
                 changeIndex: (int index) {
                   if (routeIndex != index) {
-                    Navigator.pushNamed(context, '/',
-                        arguments: {"index_route": index});
+                    if ([0, 4].contains(index)) {
+                      Navigator.pushNamed(context, '/',
+                          arguments: {"index_route": index});
+                      print('hello');
+                    } else {
+                      if (index == 1) {
+                        Navigator.pushNamed(
+                          context,
+                          '/search_kategori',
+                        );
+                      }
+                    }
                   }
                 })
           ],

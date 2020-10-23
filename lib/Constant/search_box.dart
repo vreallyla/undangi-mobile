@@ -3,28 +3,32 @@ import 'package:flutter/material.dart';
 import 'app_theme.dart';
 
 class SearcBox extends StatefulWidget {
-  const SearcBox({
-    Key key,
-    this.controll,
-    this.marginn,
-    this.paddingg,
-    this.widthh,
-    this.heightt,
-    this.widthText,
-    this.textL,
-    this.placeholder,
-    this.radiusBorder: 9,
-    this.eventtChange,
-    this.eventtSubmit,
-  }) : super(key: key);
+  const SearcBox(
+      {Key key,
+      this.controll,
+      this.marginn,
+      this.paddingg,
+      this.widthh,
+      this.heightt,
+      this.widthText,
+      this.textL,
+      this.placeholder,
+      this.radiusBorder: 9,
+      this.eventtChange,
+      this.eventtSubmit,
+      this.fontSize: 16,
+      this.iconWidth: 30})
+      : super(key: key);
 
   final TextEditingController controll;
   final EdgeInsets marginn;
   final EdgeInsets paddingg;
+  final double fontSize;
   final double widthh;
   final double heightt;
   final double widthText;
   final double radiusBorder;
+  final double iconWidth;
   final int textL;
   final String placeholder;
   final Function(String v) eventtChange;
@@ -63,6 +67,7 @@ class _SearcBoxState extends State<SearcBox> {
               },
               maxLength: widget.textL,
               controller: widget.controll,
+              style: new TextStyle(fontSize: widget.fontSize),
               // focusNode: focusCariKategori,
               decoration: InputDecoration(
                 counterText: "",
@@ -73,9 +78,13 @@ class _SearcBoxState extends State<SearcBox> {
             ),
           ),
           SizedBox(
-            width: 30,
+            width: widget.iconWidth,
             child: IconButton(
-              icon: Icon(Icons.search, color: AppTheme.geyCustom),
+              icon: Icon(
+                Icons.search,
+                color: AppTheme.geyCustom,
+                size: widget.fontSize + 5,
+              ),
               // color: Colors.white,
               onPressed: () {},
             ),

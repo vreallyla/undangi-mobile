@@ -6,11 +6,15 @@ class AppTheme {
   static const Color primaryWhite = Color(0xFFffffff);
   static const Color primaryBg = Color(0xFFf9f9f9);
   static const Color primarymenu = Color(0xFF4a82df);
+  static const Color primaryRed = Color(0xFFf90706);
 
   static const Color biruLaut = Color(0xFF29a9ff);
 
   static const Color primaryBlue = Color(0xFF29adfe);
   static const Color softBlue = Color(0xFFefffff);
+
+  static const Color cardWhite = Color(0xFFf9f9f9);
+  static const Color cardBlue = Color(0xFFdee6ef);
 
   static const Color geyCustom = Colors.black45;
   static const Color geySolidCustom = Colors.black54;

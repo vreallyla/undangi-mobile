@@ -62,7 +62,7 @@ class _TabBarNavigationViewState extends State<TabBarNavigationView>
               width: (sizeu.width - 50) / 5,
               child: InkWell(
                 onTap: () {
-                  setRemoveAllSelection(widget.tabIconsList[index]);
+                  // setRemoveAllSelection(widget.tabIconsList[index]);
                   widget.changeIndex(index);
                 },
                 child: SizedBox(

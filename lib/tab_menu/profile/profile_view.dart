@@ -144,7 +144,7 @@ class ProfileView extends StatelessWidget {
                       //delete skill
                       InkWell(
                         onTap: () {
-                          Navigator.pushNamed(context, '/profil_skill');
+                          Navigator.pushNamed(context, '/profil_skill_delete');
                         },
                         child: Container(
                           width: 20,

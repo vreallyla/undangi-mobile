@@ -54,6 +54,7 @@ flutter:
     - assets/tab_icons/
     - assets/more_icon/
     - assets/home/
+    - assets/kategori_icon/
  
 
   # An image asset can refer to one or more resolution-specific "variants", see
