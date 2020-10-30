@@ -56,24 +56,59 @@ class _TabBarNavigationViewState extends State<TabBarNavigationView>
           //         curve: Interval((1 / count) * index, 1.0,
           //             curve: Curves.fastOutSlowIn)));
           // animationController.forward();
+          print(widget.tabIconsList[index].sub);
+          print(index);
 
-          return Container(
-              alignment: Alignment.center,
-              width: (sizeu.width - 50) / 5,
-              child: InkWell(
-                onTap: () {
-                  // setRemoveAllSelection(widget.tabIconsList[index]);
-                  widget.changeIndex(index);
-                },
-                child: SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: (Image.asset(widget.tabIconsList[index].isSelected
-                        ? widget.tabIconsList[index].selectedImagePath
-                        : widget.tabIconsList[index].imagePath))),
-              ));
+          return widget.tabIconsList[index].sub != null
+              ? withSub(index, sizeu)
+              : withoutSub(index, sizeu);
         },
       ),
+    );
+  }
+
+  Widget withoutSub(int index, sizeu) {
+    return Container(
+        alignment: Alignment.center,
+        width: (sizeu.width - 50) / 5,
+        child: InkWell(
+          onTap: () {
+            // setRemoveAllSelection(widget.tabIconsList[index]);
+            widget.changeIndex(index);
+          },
+          child: SizedBox(
+              width: 80,
+              height: 80,
+              child: (Image.asset(widget.tabIconsList[index].isSelected
+                  ? widget.tabIconsList[index].selectedImagePath
+                  : widget.tabIconsList[index].imagePath))),
+        ));
+  }
+
+  Widget withSub(int index, sizeu) {
+    return PopupMenuButton(
+      child: Container(
+        alignment: Alignment.center,
+        width: (sizeu.width - 50) / 5,
+        child: SizedBox(
+            width: 80,
+            height: 80,
+            child: (Image.asset(widget.tabIconsList[index].isSelected
+                ? widget.tabIconsList[index].selectedImagePath
+                : widget.tabIconsList[index].imagePath))),
+      ),
+      onSelected: (newValue) {
+        Navigator.pushNamed(
+          context,
+          widget.tabIconsList[index].sub[newValue]['route'],
+        );
+      },
+      itemBuilder: (context) => widget.tabIconsList[index].sub.map((e) {
+        return PopupMenuItem(
+          child: Text(e['name']),
+          value: e['index'],
+        );
+      }).toList(),
     );
   }
 

@@ -154,17 +154,39 @@ class PortfolioView extends StatelessWidget {
                 ),
               ),
               //other option
+
               Padding(
-                padding: EdgeInsets.only(left: (sizeu.width - 60) - 10, top: 5),
-                child: InkWell(
-                  onTap: () {},
-                  child: SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: Icon(Icons.more_vert),
+                padding: EdgeInsets.only(left: (sizeu.width - 60) - 10 - 80),
+                child: PopupMenuButton(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 80, top: 5),
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Icon(Icons.more_vert),
+                    ),
                   ),
+                  onSelected: (newValue) {
+                    if (newValue == 0) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  PortfolioTambahScreen()));
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: Text("Edit Portfolio"),
+                      value: 0,
+                    ),
+                    PopupMenuItem(
+                      child: Text("Hapus Portfolio"),
+                      value: 1,
+                    ),
+                  ],
                 ),
-              )
+              ),
             ]),
           ),
         ],

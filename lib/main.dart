@@ -8,6 +8,10 @@ import 'package:undangi/auth/register_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/chat/chat_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/proyek_list/proyek_list_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/user_list/user_list_screen.dart';
+import 'package:undangi/tab_menu/owner/layanan/owner_layanan_screen.dart';
+import 'package:undangi/tab_menu/owner/proyek/owner_proyek_screen.dart';
+import 'package:undangi/tab_menu/profile/sub/ganti_password_view.dart';
+import 'package:undangi/tab_menu/profile/sub/profil_edit_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_skill_delete_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_skill_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_summary_view.dart';
@@ -52,7 +56,14 @@ class MyApp extends StatelessWidget {
         '/chat': (context) => ChatScreen(),
         '/profil_summary': (context) => ProfilSummaryScreen(),
         '/profil_skill': (context) => ProfilSkillView(),
+        '/profil_edit': (context) => ProfilEditView(),
+
         '/profil_skill_delete': (context) => ProfilSkillDeleteView(),
+        '/ganti_password': (context) => GantiPasswordView(),
+
+        //owner tab
+        '/owner_layanan': (context) => OwnerLayananScreen(),
+        '/owner_proyek': (context) => OwnerProyekScreen(),
       },
       title: 'Undagi',
       debugShowCheckedModeBanner: false,

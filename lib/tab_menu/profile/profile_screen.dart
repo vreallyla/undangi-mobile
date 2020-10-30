@@ -38,26 +38,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               //icon menu
-              InkWell(
-                onTap: () {
-                  print('hel');
-                  setState(() {});
-                },
-                child: Container(
-                  width: 45,
-                  height: 45,
-                  margin:
-                      EdgeInsets.fromLTRB(sizeu.width - 15 - 45, 15, 15, 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: AppTheme.primarymenu,
+              Container(
+                margin: EdgeInsets.only(left: sizeu.width - 15 - 45 - 80),
+                child: PopupMenuButton(
+                  child: Container(
+                    width: 45,
+                    height: 45,
+                    margin: EdgeInsets.fromLTRB(80, 15, 15, 10),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      color: AppTheme.primarymenu,
+                    ),
+                    child: Icon(
+                      Icons.menu,
+                      color: Colors.white,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.menu,
-                    color: Colors.white,
-                  ),
+                  onSelected: (newValue) {
+                    if (newValue == 0) {
+                      Navigator.pushNamed(context, '/ganti_password');
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      child: Text("Ganti Password"),
+                      value: 0,
+                    ),
+                    PopupMenuItem(
+                      child: Text("Logout"),
+                      value: 1,
+                    ),
+                  ],
                 ),
               ),
+
               //photo
               Container(
                 alignment: Alignment.center,
@@ -98,7 +112,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: EdgeInsets.only(left: 15),
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(context, '/profil_edit');
+                  },
                   child: Container(
                     width: 20,
                     height: 20,

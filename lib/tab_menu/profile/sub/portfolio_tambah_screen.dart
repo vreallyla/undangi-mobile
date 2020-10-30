@@ -27,7 +27,7 @@ class _PortfolioTambahScreenState extends State<PortfolioTambahScreen> {
         }),
         body: Container(
           padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
-          child: Column(
+          child: ListView(
             children: [
               containerInput(
                   TextField(

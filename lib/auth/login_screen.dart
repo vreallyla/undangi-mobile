@@ -78,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: RaisedButton(
                               color: AppTheme.primaryBlue,
                               onPressed: () {
-                                Navigator.pushNamed(context, '/');
+                                Navigator.pushNamed(context, '/',
+                                    arguments: {"index_route": 0});
                               },
                               child: Text(
                                 'MASUK',

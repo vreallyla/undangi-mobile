@@ -108,3 +108,62 @@ Widget appActionHead(paddingPhone, String judul, String textAct,
     ),
   );
 }
+
+Widget appDashboard(context, String photo, Widget btnMenu) {
+  final sizeu = MediaQuery.of(context).size;
+
+  return Stack(
+    children: [
+      //bg
+      Container(
+        height: 80,
+        width: sizeu.width,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            bottomRight: Radius.circular(30.0),
+            bottomLeft: Radius.circular(30.0),
+          ),
+          color: AppTheme.primaryBlue,
+        ),
+      ),
+      //icon menu
+      btnMenu,
+      //icon home
+      InkWell(
+        onTap: () {
+          Navigator.pop(context);
+        },
+        child: Container(
+            margin: EdgeInsets.only(
+              left: 15,
+              top: 18,
+            ),
+            child: Container(
+              height: 40,
+              width: 40,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: (AssetImage('assets/tab_icons/tab_1s.png')),
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+            )),
+      ),
+
+      //photo
+      Container(
+        alignment: Alignment.center,
+        height: 120,
+        width: 120,
+        margin: EdgeInsets.only(top: 20, left: sizeu.width / 2 - 60),
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: (AssetImage(photo)),
+            fit: BoxFit.fitWidth,
+          ),
+          borderRadius: BorderRadius.circular(60),
+        ),
+      ),
+    ],
+  );
+}
