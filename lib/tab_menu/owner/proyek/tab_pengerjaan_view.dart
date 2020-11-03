@@ -1,147 +1,353 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_widget.dart';
 
 class TabPengerjaanView extends StatefulWidget {
+   const TabPengerjaanView({Key key, this.bottomKey =0,this.toProgress,this.toProgressFunc}) : super(key: key);
+
+  final double bottomKey;
+  final Function toProgressFunc;
+  final bool toProgress;
   @override
   _TabPengerjaanViewState createState() => _TabPengerjaanViewState();
 }
 
 class _TabPengerjaanViewState extends State<TabPengerjaanView> {
+ 
+
+  changeToProgress() {
+    widget.toProgressFunc();
+  }
+
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
+    double _width = sizeu.width;
     double marginLeftRight = 10;
     double marginCard = 5;
+    final heightKey = MediaQuery.of(context).viewInsets;
+
 
     return Container(
       child: Column(
         children: [
-          //tool
-          Container(
-            margin:
-                EdgeInsets.fromLTRB(marginLeftRight, 25, marginLeftRight, 0),
-            padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppTheme.bgBlueSoft,
+         
+          //content proyek
+//
+         (widget.toProgress? Container(
+            height:sizeu.height - 350-widget.bottomKey,
+            child: ListView(
+              children: [progressScreen(marginLeftRight, marginCard, _width)],
             ),
-            child: Column(
+          ):
+          pengejaanList(sizeu, marginLeftRight, marginCard)),
+        ],
+      ),
+    );
+  }
+  
+
+  Widget progressScreen(marginLeftRight, marginCard, _width) {
+    return Container(
+      margin: EdgeInsets.only(left: marginLeftRight, right: marginLeftRight),
+      padding: EdgeInsets.all(marginCard),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(
+          width: .5,
+          color: Colors.black,
+        ),
+      ),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+        decoration: BoxDecoration(
+          color: AppTheme.bgBlue2Soft,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                //btn tool
                 Container(
-                    // padding: EdgeInsets.only(
-                    //   left: (sizeu.width - 30) / 2 - 190,
-                    //   right: (sizeu.width - 30) / 2 - 190,
-                    // ),
-                    child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                          width: 100,
-                          height: 30,
-                          margin: EdgeInsets.only(left: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(
-                              width: .5,
-                              color: AppTheme.nearlyBlack,
-                            ),
+                  height: 50,
+                  width: 50,
+                  margin: EdgeInsets.only(right: 10),
+                  child: Image.asset('assets/general/ilustration_desain.jpg'),
+                ),
+                Container(
+                  width: _width - 121,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //judul
+
+                      RichText(
+                        text: TextSpan(
+                          text: 'UI UX DESIGN ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
+                            color: AppTheme.primarymenu,
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FaIcon(
-                                FontAwesomeIcons.plusCircle,
-                                size: 16,
-                                color: AppTheme.geySolidCustom,
-                              ),
-                              Text(' ' + 'TAMBAH',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppTheme.geySolidCustom,
-                                  )),
-                            ],
-                          )),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        margin: EdgeInsets.only(right: 5),
-                        width: sizeu.width,
-                        alignment: Alignment.centerRight,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Cari : ',
+                          children: <TextSpan>[
+                            TextSpan(
+                              text: '7 DAY',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: AppTheme.geySolidCustom,
-                              ),
-                            ),
-                            Container(
-                              height: 25,
-                              width: 140,
-                              padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  width: .5,
-                                  color: AppTheme.geySolidCustom,
-                                ),
-                                color: Colors.white,
-                              ),
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: '',
-                                  suffixStyle: TextStyle(color: Colors.black),
-                                  counterStyle: TextStyle(
-                                    height: double.minPositive,
-                                  ),
-                                  counterText: "",
-                                ),
+                                color: AppTheme.nearlyBlack,
                               ),
                             ),
                           ],
                         ),
                       ),
-                    )
-                  ],
-                )),
+
+                      //harga
+                      RichText(
+                          text: TextSpan(
+                        text: 'Rp5.000.000',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 13,
+                          color: AppTheme.nearlyBlack,
+                        ),
+                      )),
+
+                      //status
+                      InkWell(
+                                              child: Container(
+                          margin: EdgeInsets.only(top: 3),
+                          width: 150,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primarymenu,
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Menunggu Konfirmasi',
+                            style: TextStyle(
+                              color: AppTheme.nearlyWhite,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+
+                      // progress
+                      progressBar(_width - 121 - 50, 30),
+                    ],
+                  ),
+                )
               ],
             ),
-          ),
-          //content proyek
-          Container(
-            margin:
-                EdgeInsets.only(left: marginLeftRight, right: marginLeftRight),
-            padding: EdgeInsets.all(marginCard),
-            alignment: Alignment.topLeft,
-            height: sizeu.height - 360,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                width: .5,
-                color: Colors.black,
+            Container(
+              margin: EdgeInsets.only(top: 40),
+              decoration: BoxDecoration(
+                border: Border(
+                    top: BorderSide(
+                  width: 1,
+                  color: AppTheme.primarymenu,
+                )),
               ),
             ),
-            child:
-                // Text('Belum ada data Proyek...'),
-                ListView(
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget progressBar(double width, double persen) {
+    double marginLeft = 3;
+    return Container(
+      margin: EdgeInsets.only(top: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 3, left: marginLeft),
+            child: Text(
+              'PROGRESS PEKERJAAN ANDA',
+              style: TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.geySolidCustom,
+                  fontWeight: FontWeight.w300),
+            ),
+          ),
+          Container(
+            height: 50,
+            child: Stack(
               children: [
-                TabPengerjaanCard(
-                  marginLeftRight: marginLeftRight,
-                  marginCard: marginCard,
+                //putih
+                Container(
+                  margin: EdgeInsets.only(left: marginLeft),
+                  height: 30,
+                  width: width,
+                  decoration: BoxDecoration(
+                    color: AppTheme.nearlyWhite,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      width: 1,
+                      color: AppTheme.nearlyBlack,
+                    ),
+                  ),
+                ),
+
+                //biru
+                Container(
+                  margin: EdgeInsets.only(left: marginLeft),
+                  height: 30,
+                  width: width * persen / 100,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primarymenu,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      width: 1,
+                      color: AppTheme.nearlyWhite,
+                    ),
+                  ),
+                ),
+
+                // pparams
+                Container(
+                  margin: EdgeInsets.only(top: 33, left: marginLeft),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //25
+                      Container(
+                        height: 7,
+                        width: width * 25 / 100,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                            top: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                          ),
+                        ),
+                      ),
+                      //50
+                      Container(
+                        height: 7,
+                        width: width * 25 / 100,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                            top: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                          ),
+                        ),
+                      ),
+                      //75
+                      Container(
+                        height: 7,
+                        width: width * 25 / 100,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                            top: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                          ),
+                        ),
+                      ),
+                      //100
+                      Container(
+                        height: 7,
+                        width: width * 25 / 100,
+                        decoration: BoxDecoration(
+                          border: Border(
+                            left: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                            right: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                            top: BorderSide(
+                                width: .5, color: AppTheme.geySolidCustom),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                //0%
+                Container(
+                  margin: EdgeInsets.only(top: 40),
+                  child: Text(
+                    '0%',
+                    style: TextStyle(fontSize: 11, color: AppTheme.primarymenu),
+                  ),
+                ),
+                //25%
+                Container(
+                  margin: EdgeInsets.only(top: 40, left: width * 24 / 100),
+                  child: Text(
+                    '25%',
+                    style: TextStyle(fontSize: 11, color: AppTheme.primarymenu),
+                  ),
+                ),
+                //50%
+                Container(
+                  margin: EdgeInsets.only(top: 40, left: width * 48 / 100),
+                  child: Text(
+                    '50%',
+                    style: TextStyle(fontSize: 11, color: AppTheme.primarymenu),
+                  ),
+                ),
+                //75%
+                Container(
+                  margin: EdgeInsets.only(top: 40, left: width * 73 / 100),
+                  child: Text(
+                    '75%',
+                    style: TextStyle(fontSize: 11, color: AppTheme.primarymenu),
+                  ),
+                ),
+                //75%
+                Container(
+                  margin:
+                      EdgeInsets.only(top: 40, left: width - (width * 3 / 100)),
+                  child: Text(
+                    '100%',
+                    style: TextStyle(fontSize: 11, color: AppTheme.primarymenu),
+                  ),
                 ),
               ],
             ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget pengejaanList(sizeu, double marginLeftRight, double marginCard) {
+    return Container(
+      margin: EdgeInsets.only(left: marginLeftRight, right: marginLeftRight),
+      padding: EdgeInsets.fromLTRB(marginCard, marginCard, marginCard, 1),
+      alignment: Alignment.topLeft,
+      height: sizeu.height - 350-widget.bottomKey,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          width: .5,
+          color: Colors.black,
+        ),
+      ),
+      child:
+          // Text('Belum ada data Proyek...'),
+          ListView(
+        children: [
+          TabPengerjaanCard(
+            marginLeftRight: marginLeftRight,
+            marginCard: marginCard,
+            changeProgress:(){
+              changeToProgress();
+            },
           ),
         ],
       ),
@@ -154,10 +360,12 @@ class TabPengerjaanCard extends StatelessWidget {
     Key key,
     this.marginLeftRight: 0,
     this.marginCard: 0,
+    this.changeProgress,
   }) : super(key: key);
 
   final double marginLeftRight;
   final double marginCard;
+  final Function() changeProgress;
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +382,7 @@ class TabPengerjaanCard extends StatelessWidget {
         ),
         padding: EdgeInsets.all(paddingCard),
         decoration: BoxDecoration(
-          color: AppTheme.bgGreenSoft,
+          color: AppTheme.bgBlue2Soft,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
@@ -278,25 +486,32 @@ class TabPengerjaanCard extends StatelessWidget {
                 width: widthBtnShort,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  
                   children: [
                     btnTool('assets/more_icon/progress_bar.png',
                         BorderRadius.circular(30.0), widthBtnShort - 15, () {
-                      print('progress');
+                      changeProgress();
                     }),
-                    Container(
-                      margin: EdgeInsets.only(top: 20),
-                      decoration: BoxDecoration(
-                        color: AppTheme.primarymenu,
-                        borderRadius: BorderRadius.circular(40),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Menunggu Konfirmasi',
-                        style: TextStyle(
-                          color: AppTheme.nearlyWhite,
-                          fontSize: 12,
+                     InkWell(
+                        onTap: () {
+                          print('das');
+                          openAlertBox(context);
+                        },
+                                          child: Container(
+                        margin: EdgeInsets.only(top: 20),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primarymenu,
+                          borderRadius: BorderRadius.circular(40),
                         ),
-                        textAlign: TextAlign.center,
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Menunggu Konfirmasi',
+                          style: TextStyle(
+                            color: AppTheme.nearlyWhite,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ],

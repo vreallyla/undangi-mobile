@@ -20,6 +20,9 @@ class AppTheme {
 
   static const Color geyCustom = Colors.black45;
   static const Color geySolidCustom = Colors.black54;
+  static const Color geySoftCustom = Color(0xFFfdffff);
+  static const Color geySofttCustom = Color(0xFFe9e9e9);
+  
 
   static const bgChatBlue = Color(0xFF2979ff);
   static const bgChatGrey = Color(0xFF989292);
@@ -32,6 +35,8 @@ class AppTheme {
   static const Color bgBlueSoft = Color(0xFFf1f3fe);
   static const Color bgGreenBlueSoft = Color(0xFFc6d9dd);
   static const Color bgGreenSoft = Color(0xFF6de1b4);
+  static const Color bgBlue2Soft = Color(0xFFc7d9dc);
+  
 
   static const Color bgIcoGrey = Color(0xFFf1eff2);
 

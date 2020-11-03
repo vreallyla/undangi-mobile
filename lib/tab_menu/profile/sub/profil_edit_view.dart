@@ -28,7 +28,7 @@ class _ProfilEditViewState extends State<ProfilEditView> {
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
     double _width = sizeu.width;
-    double _height = sizeu.height;
+    // double _height = sizeu.height;
     final paddingPhone = MediaQuery.of(context).padding;
 
     return Scaffold(

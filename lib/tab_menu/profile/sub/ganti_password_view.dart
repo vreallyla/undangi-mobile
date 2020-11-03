@@ -11,7 +11,7 @@ class _GantiPasswordViewState extends State<GantiPasswordView> {
   TextEditingController newPassInput = new TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final sizeu = MediaQuery.of(context).size;
+    // final sizeu = MediaQuery.of(context).size;
     // double _width = sizeu.width;
     // double _height = sizeu.height;
     final paddingPhone = MediaQuery.of(context).padding;

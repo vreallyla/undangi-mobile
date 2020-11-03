@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'app_theme.dart';
 
@@ -146,4 +147,174 @@ Widget appDashboard(context, String photo, Widget btnMenu, Widget btnLeft) {
       ),
     ],
   );
+}
+
+openAlertBox(context) {
+  Color myColor = Colors.green;
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color(0xfff7f7f7),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          contentPadding: EdgeInsets.only(top: 10.0),
+          content: Container(
+            width: 400.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                    alignment: Alignment.topRight,
+                    padding: EdgeInsets.only(right: 20),
+                    child: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: FaIcon(FontAwesomeIcons.times,color:AppTheme.geyCustom,size: 16,))),
+                Container(
+                  width: 80,
+                  height: 83,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: (AssetImage('assets/general/notice_dung.jpeg')),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Text(
+                  'APAKAH ANDA YAKIN?',
+                  style:
+                      TextStyle(fontSize: 20, color: AppTheme.geySolidCustom),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  'Untuk menyelesaikan PEKERJAAN ini',
+                  style: TextStyle(fontSize: 14, color: AppTheme.geyCustom),
+                  textAlign: TextAlign.center,
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.only(top: 15, bottom: 5),
+                  child: RaisedButton(
+                    color: AppTheme.primarymenu,
+                    onPressed: (){
+                      Navigator.pop(context);
+                    },
+                    child: Text(
+                      'KONFIRMASI',
+                      style: TextStyle(
+                        color: AppTheme.nearlyWhite,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      });
+}
+
+sampleOpenAlertBox(context) {
+  Color myColor = Colors.green;
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          contentPadding: EdgeInsets.only(top: 10.0),
+          content: Container(
+            width: 300.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      "Rate",
+                      style: TextStyle(fontSize: 24.0),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Icon(
+                          Icons.star_border,
+                          color: myColor,
+                          size: 30.0,
+                        ),
+                        Icon(
+                          Icons.star_border,
+                          color: myColor,
+                          size: 30.0,
+                        ),
+                        Icon(
+                          Icons.star_border,
+                          color: myColor,
+                          size: 30.0,
+                        ),
+                        Icon(
+                          Icons.star_border,
+                          color: myColor,
+                          size: 30.0,
+                        ),
+                        Icon(
+                          Icons.star_border,
+                          color: myColor,
+                          size: 30.0,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Divider(
+                  color: Colors.grey,
+                  height: 4.0,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Add Review",
+                      border: InputBorder.none,
+                    ),
+                    maxLines: 8,
+                  ),
+                ),
+                InkWell(
+                  child: Container(
+                    padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                    decoration: BoxDecoration(
+                      color: myColor,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(32.0),
+                          bottomRight: Radius.circular(32.0)),
+                    ),
+                    child: Text(
+                      "Rate Product",
+                      style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      });
 }

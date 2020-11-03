@@ -14,6 +14,12 @@ class OwnerProyekScreen extends StatefulWidget {
 class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   bool tabChange = false; //false=proyek;true=pengerjaan
 
+  //ganti konten tab pengerjaan ke progress ketika ditekan button progress
+  bool toProgress = false;
+
+  //ganti konten tab proyek ke tambah proyek
+  bool toAdd = false;
+
   void chageTab(bool kond) {
     setState(() {
       tabChange = kond;
@@ -23,65 +29,171 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
+    double marginLeftRight = 10;
     // double _width = sizeu.width;
     // double _height = sizeu.height;
-    final paddingPhone = MediaQuery.of(context).padding;
+    // final paddingPhone = MediaQuery.of(context).padding;
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+    print('Bottom is: $bottom');
 
-    return Scaffold(
-      appBar: appBarColloring(),
-      body: Container(
-          child: Column(
-        children: [
-          // menu & photo
-          appDashboard(
-            context,
-            'assets/general/changwook.jpg',
-            menuPublik(),
-            InkWell(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Container(
-                  margin: EdgeInsets.only(
-                    left: 15,
-                    top: 18,
-                  ),
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: (AssetImage('assets/tab_icons/tab_1s.png')),
-                        fit: BoxFit.fitWidth,
-                      ),
-                    ),
-                  )),
+    return new WillPopScope(
+      onWillPop: () {
+        backHomeOrbackStay();
+      },
+      child: Scaffold(
+        appBar: appBarColloring(),
+        body: Container(
+            child: Column(
+          children: [
+            // menu & photo
+            appDashboard(
+              context,
+              'assets/general/changwook.jpg',
+              condTransform() ? Text('') : menuPublik(),
+              menuLeft(),
             ),
-          ),
-          //motto
-          Padding(
-            padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-            child: SizedBox(
-              // width: sizeu.width - 50 - 40,
-              child: Text(
-                'Hello World, Wish me Luck Today',
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppTheme.geyCustom,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w300,
+            //motto
+            Padding(
+              padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+              child: SizedBox(
+                // width: sizeu.width - 50 - 40,
+                child: Text(
+                  'Hello World, Wish me Luck Today',
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTheme.geyCustom,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w300,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // tab,
-          tabHead(),
-          //tab proyek
-          tabChange ? TabPengerjaanView() : TabProyekView(),
-        ],
-      )),
+            // tab,
+            tabHead(),
+
+             //tool
+          Container(
+              margin:
+                  EdgeInsets.fromLTRB(marginLeftRight, 25, marginLeftRight, 0),
+              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: AppTheme.bgBlueSoft,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: InkWell(
+                      onTap: (){
+                        setState(() {
+                          toAdd=true;
+                          tabChange=false;
+                        });
+                      },
+                                          child: Container(
+                          width: 100,
+                          height: 30,
+                          margin: EdgeInsets.only(left: 5),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30.0),
+                            border: Border.all(
+                              width: .5,
+                              color: AppTheme.nearlyBlack,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              FaIcon(
+                                FontAwesomeIcons.plusCircle,
+                                size: 16,
+                                color: AppTheme.geySolidCustom,
+                              ),
+                              Text(' ' + 'TAMBAH',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppTheme.geySolidCustom,
+                                  )),
+                            ],
+                          )),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Container(
+                      margin: EdgeInsets.only(right: 5),
+                      width: sizeu.width,
+                      alignment: Alignment.centerRight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            'Cari : ',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: AppTheme.geySolidCustom,
+                            ),
+                          ),
+                          Container(
+                            height: 25,
+                            width: 140,
+                            padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              border: Border.all(
+                                width: .5,
+                                color: AppTheme.geySolidCustom,
+                              ),
+                              color: Colors.white,
+                            ),
+                            child: SizedBox(
+                                                          child: TextField(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: '',
+                                  suffixStyle: TextStyle(color: Colors.black),
+                                  counterStyle: TextStyle(
+                                    height: double.minPositive,
+                                  ),
+                                  counterText: "",
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              )),
+
+            //tab proyek
+            tabChange
+                ? TabPengerjaanView(
+                    bottomKey: double.parse(bottom.toString()),
+                    toProgress: toProgress,
+                    toProgressFunc: () {
+                      setState(() {
+                        toProgress = !toProgress;
+                      });
+                    })
+                : TabProyekView(
+                    bottomKey: double.parse(bottom.toString()),
+                    toAdd: toAdd,
+                    toAddFunc: () {
+                      setState(() {
+                        toAdd = !toAdd;
+                      });
+                    }),
+          ],
+        )),
+      ),
     );
   }
 
@@ -119,6 +231,49 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
         ],
       ),
     );
+  }
+
+  Widget menuLeft() {
+    return InkWell(
+      onTap: () {
+        backHomeOrbackStay();
+      },
+      child: Container(
+          margin: EdgeInsets.only(
+            left: 15,
+            top: 18,
+          ),
+          child: Container(
+            height: 40,
+            width: 40,
+            child: condTransform()
+                ? Icon(
+                    Icons.arrow_back_ios,
+                    color: AppTheme.nearlyWhite,
+                    size: AppTheme.sizeIconMenu,
+                  )
+                : Image.asset('assets/tab_icons/tab_1s.png'),
+          )),
+    );
+  }
+
+  backHomeOrbackStay() {
+    //pengerjaan
+    if (tabChange && toProgress) {
+      toProgress = !toProgress;
+    }
+
+    ///proyek
+    else if (!tabChange && toAdd) {
+      toAdd = !toAdd;
+    } else {
+      Navigator.pop(context);
+    }
+    setState(() {});
+  }
+
+  condTransform() {
+    return (tabChange && toProgress) || (!tabChange && toAdd);
   }
 
   Widget tabHead() {

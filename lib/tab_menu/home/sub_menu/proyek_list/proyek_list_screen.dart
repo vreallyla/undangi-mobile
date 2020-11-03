@@ -43,7 +43,7 @@ class _ProyekListScreenState extends State<ProyekListScreen> {
     double textHargaKonten = widthKonten / defaultWidthKonten * sizeHargaKonten;
     double textKeteranganKonten =
         widthKonten / defaultWidthKonten * sizeKeteranganKonten;
-    double widthIcoKonten = defaultWidthKonten / 12;
+    // double widthIcoKonten = defaultWidthKonten / 12;
 
     return Scaffold(
       appBar: appPolosBack(paddingPhone, () {
