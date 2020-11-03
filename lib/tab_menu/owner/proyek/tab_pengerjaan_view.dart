@@ -281,7 +281,7 @@ class TabPengerjaanCard extends StatelessWidget {
                   children: [
                     btnTool('assets/more_icon/progress_bar.png',
                         BorderRadius.circular(30.0), widthBtnShort - 15, () {
-                      print('info');
+                      print('progress');
                     }),
                     Container(
                       margin: EdgeInsets.only(top: 20),
@@ -542,7 +542,7 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       btnTool('assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
-                        print('cc');
+                        Navigator.pushNamed(context, '/owner_proyek_payment');
                       }),
                     ]),
               ),
@@ -581,27 +581,35 @@ class TabPengerjaanCard extends StatelessWidget {
                         children: [
                           // nama & bintang
                           Container(
+                            width: widthSub - photoWidth,
                             padding: EdgeInsets.only(
                                 left: pembatas * 2 + wightboder),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Image.asset(
                                       'assets/general/user_place.png',
                                       width: 12,
                                       fit: BoxFit.fitWidth,
                                     ),
-                                    Text(
-                                      ' Yukna Santoso',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
+                                    SizedBox(
+                                      width: widthSub -
+                                          12 -
+                                          photoWidth -
+                                          (pembatas * 2 + wightboder),
+                                      child: Text(
+                                        ' Yukna Santoso',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
                                       ),
-                                      maxLines: 1,
                                     )
                                   ],
                                 ),
@@ -610,7 +618,6 @@ class TabPengerjaanCard extends StatelessWidget {
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
                                         Icons.star,
@@ -633,6 +640,7 @@ class TabPengerjaanCard extends StatelessWidget {
                           ),
                           //komen frelencer
                           Container(
+                            width: widthSub - btnRight,
                             padding: EdgeInsets.only(
                               left: pembatas,
                               top: 33,
@@ -656,6 +664,10 @@ class TabPengerjaanCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                      btnTool('assets/more_icon/edit-button.png',
+                          BorderRadius.circular(30.0), 50, () {
+                        print('komen owner');
+                      }),
                     ],
                   ),
                 ],

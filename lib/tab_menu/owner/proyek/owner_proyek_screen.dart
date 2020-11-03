@@ -37,6 +37,26 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
             context,
             'assets/general/changwook.jpg',
             menuPublik(),
+            InkWell(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Container(
+                  margin: EdgeInsets.only(
+                    left: 15,
+                    top: 18,
+                  ),
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: (AssetImage('assets/tab_icons/tab_1s.png')),
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ),
+                  )),
+            ),
           ),
           //motto
           Padding(

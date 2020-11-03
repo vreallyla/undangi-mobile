@@ -30,7 +30,7 @@ Widget appPolosBack(paddingPhone, Function event) {
           icon: Icon(
             Icons.arrow_back_ios,
             color: AppTheme.primaryWhite,
-            size: 45,
+            size: AppTheme.sizeIconMenu,
           ),
           // color: Colors.white,
           onPressed: () {
@@ -109,7 +109,7 @@ Widget appActionHead(paddingPhone, String judul, String textAct,
   );
 }
 
-Widget appDashboard(context, String photo, Widget btnMenu) {
+Widget appDashboard(context, String photo, Widget btnMenu, Widget btnLeft) {
   final sizeu = MediaQuery.of(context).size;
 
   return Stack(
@@ -126,30 +126,10 @@ Widget appDashboard(context, String photo, Widget btnMenu) {
           color: AppTheme.primaryBlue,
         ),
       ),
-      //icon menu
+      //icon right
       btnMenu,
-      //icon home
-      InkWell(
-        onTap: () {
-          Navigator.pop(context);
-        },
-        child: Container(
-            margin: EdgeInsets.only(
-              left: 15,
-              top: 18,
-            ),
-            child: Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: (AssetImage('assets/tab_icons/tab_1s.png')),
-                  fit: BoxFit.fitWidth,
-                ),
-              ),
-            )),
-      ),
-
+      //icon left
+      btnLeft,
       //photo
       Container(
         alignment: Alignment.center,

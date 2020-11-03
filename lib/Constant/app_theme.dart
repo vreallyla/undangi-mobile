@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
+  static const double sizeIconMenu = 40;
+
   static const Color primaryWhite = Color(0xFFffffff);
   static const Color primaryBg = Color(0xFFf9f9f9);
   static const Color primarymenu = Color(0xFF4a82df);

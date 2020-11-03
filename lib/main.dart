@@ -10,6 +10,7 @@ import 'package:undangi/tab_menu/home/sub_menu/proyek_list/proyek_list_screen.da
 import 'package:undangi/tab_menu/home/sub_menu/user_list/user_list_screen.dart';
 import 'package:undangi/tab_menu/owner/layanan/owner_layanan_screen.dart';
 import 'package:undangi/tab_menu/owner/proyek/owner_proyek_screen.dart';
+import 'package:undangi/tab_menu/owner/proyek/sub/payment_proyek_screen.dart';
 import 'package:undangi/tab_menu/profile/sub/ganti_password_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_edit_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_skill_delete_view.dart';
@@ -64,6 +65,7 @@ class MyApp extends StatelessWidget {
         //owner tab
         '/owner_layanan': (context) => OwnerLayananScreen(),
         '/owner_proyek': (context) => OwnerProyekScreen(),
+        '/owner_proyek_payment': (context) => PaymentProyekScreen(),
       },
       title: 'Undagi',
       debugShowCheckedModeBanner: false,
