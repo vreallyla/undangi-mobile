@@ -510,18 +510,19 @@ class _TabProyekViewState extends State<TabProyekView> {
                         ],
                       ),
                       Container(
-                        margin: EdgeInsets.only(right: 10,top:5),
+                        margin: EdgeInsets.only(right: 10, top: 5),
                         height: 25,
                         alignment: Alignment.centerRight,
                         child: SizedBox(
                           width: 80,
-                                                  child: RaisedButton(
+                          child: RaisedButton(
                             onPressed: () {
                               widget.toAddFunc();
                             },
                             color: AppTheme.primaryBlue,
                             child: Text('Simpan',
-                                style: TextStyle(color: AppTheme.white,fontSize: 14)),
+                                style: TextStyle(
+                                    color: AppTheme.white, fontSize: 14)),
                           ),
                         ),
                       )
