@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:undangi/auth/login_screen.dart';
 import 'package:undangi/auth/register_screen.dart';
+import 'package:undangi/tab_menu/frelencer/pay/pay_frelence_screen.dart';
+import 'package:undangi/tab_menu/frelencer/proyek/proyek_frelence_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/chat/chat_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/proyek_list/proyek_list_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/user_list/user_list_screen.dart';
@@ -66,6 +68,11 @@ class MyApp extends StatelessWidget {
         '/owner_layanan': (context) => OwnerLayananScreen(),
         '/owner_proyek': (context) => OwnerProyekScreen(),
         '/owner_proyek_payment': (context) => PaymentProyekScreen(),
+
+        //frelencer tab
+        '/udagi_pay': (context) => PayFrelenceScreen(),
+        '/proyek_frelence': (context) => ProyekFrenlenceScreen(),
+
       },
       title: 'Undagi',
       debugShowCheckedModeBanner: false,

@@ -3,8 +3,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_widget.dart';
 
-class TabProyekView extends StatefulWidget {
-  const TabProyekView({Key key, this.editEvent,this.editId=0,this.bottomKey = 0, this.toAdd, this.toAddFunc})
+class ProyekListFrelenceTab extends StatefulWidget {
+  const ProyekListFrelenceTab(
+      {Key key,
+      this.editEvent,
+      this.editId = 0,
+      this.bottomKey = 0,
+      this.toAdd,
+      this.toAddFunc})
       : super(key: key);
 
   final double bottomKey;
@@ -13,10 +19,10 @@ class TabProyekView extends StatefulWidget {
   final int editId;
   final Function(int id) editEvent;
   @override
-  _TabProyekViewState createState() => _TabProyekViewState();
+  _ProyekListFrelenceTabState createState() => _ProyekListFrelenceTabState();
 }
 
-class _TabProyekViewState extends State<TabProyekView> {
+class _ProyekListFrelenceTabState extends State<ProyekListFrelenceTab> {
   TextEditingController inputKategori = new TextEditingController();
   TextEditingController inputJudul = new TextEditingController();
 
@@ -71,7 +77,10 @@ class _TabProyekViewState extends State<TabProyekView> {
                                 padding: EdgeInsets.only(right: 10),
                                 alignment: Alignment.centerRight,
                                 child: InkWell(
-                                  onTap: () {widget.toAddFunc();widget.editEvent(0);},
+                                  onTap: () {
+                                    widget.toAddFunc();
+                                    widget.editEvent(0);
+                                  },
                                   child: FaIcon(
                                     FontAwesomeIcons.times,
                                     size: 13,
@@ -522,10 +531,10 @@ class _TabProyekViewState extends State<TabProyekView> {
                             onPressed: () {
                               widget.editEvent(0);
                               widget.toAddFunc();
-                             
                             },
                             color: AppTheme.primaryBlue,
-                            child: Text(widget.editId!=0?'Update':'Simpan',
+                            child: Text(
+                                widget.editId != 0 ? 'Update' : 'Simpan',
                                 style: TextStyle(
                                     color: AppTheme.white, fontSize: 14)),
                           ),
@@ -538,9 +547,8 @@ class _TabProyekViewState extends State<TabProyekView> {
             ),
           )
         : proyekList((id) {
-       
-           widget.editEvent(id);
-         
+            widget.editEvent(id);
+
             widget.toAddFunc();
           });
   }
@@ -618,7 +626,7 @@ class _TabProyekViewState extends State<TabProyekView> {
     double heightCard = 110;
     double widthBtnShort = 85;
     double widthBtnPlay = 40;
-    double widthKonten = widthCard - imgCard - widthBtnShort - widthBtnPlay - 2;
+    double widthKonten = widthCard - imgCard - widthBtnShort  - 2;
     return Container(
       margin: EdgeInsets.only(left: marginLeftRight, right: marginLeftRight),
       padding: EdgeInsets.all(marginCard),
@@ -755,7 +763,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                                       print('info');
                                     }),
                                     btnTool(
-                                        'assets/more_icon/file_alt.png',
+                                        'assets/more_icon/remove-file.png',
                                         BorderRadius.only(
                                           topRight: Radius.circular(30.0),
                                           bottomRight: Radius.circular(30.0),
@@ -767,60 +775,12 @@ class _TabProyekViewState extends State<TabProyekView> {
                                 Padding(
                                   padding: EdgeInsets.only(top: 5),
                                 ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    btnTool(
-                                        'assets/more_icon/edit-button.png',
-                                        BorderRadius.only(
-                                          topLeft: Radius.circular(30.0),
-                                          bottomLeft: Radius.circular(30.0),
-                                        ),
-                                        () => editEvent(1)),
-                                    btnTool(
-                                        'assets/more_icon/remove-file.png',
-                                        BorderRadius.only(
-                                          topRight: Radius.circular(30.0),
-                                          bottomRight: Radius.circular(30.0),
-                                        ), () {
-                                      
-                          openAlertBoxTwo(context, 'KONFIRMASI HAPUS PROYEK','Apa anda yakin hapus proyek ini? Proyek akan hilang!','TIDAK','HAPUS',(){
-                            Navigator.pop(context);
-                          },(){
-                            Navigator.pop(context);
-
-                          });
-                                    }),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          //BUTTON PLAY
-                          Container(
-                            height: heightCard,
-                            width: widthBtnPlay,
-                            alignment: Alignment.centerRight,
-                            child: Stack(
-                              children: [
                                 Container(
-                                  width: 40,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                          'assets/home/circle_quatral.png'),
-                                      fit: BoxFit.fitHeight,
-                                    ),
-                                    // borderRadius:
-                                    //     BorderRadius.all(Radius.circular(20)),
-                                  ),
-                                  child: Icon(
-                                    Icons.play_arrow,
-                                    color: AppTheme.textPink,
-                                  ),
-                                )
-                              ],
+                                  decoration: BoxDecoration(color: AppTheme.bgChatBlue,
+                                  borderRadius: BorderRadius.circular(10)),
+                                  padding: EdgeInsets.fromLTRB(8,5,8,5),
+                                  child: Text('DITERIMA',style: TextStyle(color: AppTheme.nearlyWhite),),)
+                             ],
                             ),
                           ),
                         ],

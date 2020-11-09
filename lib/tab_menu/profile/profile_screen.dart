@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/auth/login_screen.dart';
 // import 'package:undangi/Constant/app_widget.dart';
 
 import 'portfolio_view.dart';
@@ -57,6 +58,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onSelected: (newValue) {
                     if (newValue == 0) {
                       Navigator.pushNamed(context, '/ganti_password');
+                    }else{
+                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
+    LoginScreen()), (Route<dynamic> route) => false);
                     }
                   },
                   itemBuilder: (context) => [

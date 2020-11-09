@@ -2,11 +2,14 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:rating_bar/rating_bar.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_widget.dart';
 
 class TabPengerjaanView extends StatefulWidget {
-   const TabPengerjaanView({Key key, this.bottomKey =0,this.toProgress,this.toProgressFunc}) : super(key: key);
+  const TabPengerjaanView(
+      {Key key, this.bottomKey = 0, this.toProgress, this.toProgressFunc})
+      : super(key: key);
 
   final double bottomKey;
   final Function toProgressFunc;
@@ -16,11 +19,11 @@ class TabPengerjaanView extends StatefulWidget {
 }
 
 class _TabPengerjaanViewState extends State<TabPengerjaanView> {
- 
-
   changeToProgress() {
     widget.toProgressFunc();
   }
+
+  double star = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -30,25 +33,25 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
     double marginCard = 5;
     final heightKey = MediaQuery.of(context).viewInsets;
 
-
     return Container(
       child: Column(
         children: [
-         
           //content proyek
 //
-         (widget.toProgress? Container(
-            height:sizeu.height - 350-widget.bottomKey,
-            child: ListView(
-              children: [progressScreen(marginLeftRight, marginCard, _width)],
-            ),
-          ):
-          pengejaanList(sizeu, marginLeftRight, marginCard)),
+          (widget.toProgress
+              ? Container(
+                  height: sizeu.height - 365 - widget.bottomKey,
+                  child: ListView(
+                    children: [
+                      progressScreen(marginLeftRight, marginCard, _width)
+                    ],
+                  ),
+                )
+              : pengejaanList(sizeu, marginLeftRight, marginCard)),
         ],
       ),
     );
   }
-  
 
   Widget progressScreen(marginLeftRight, marginCard, _width) {
     return Container(
@@ -119,7 +122,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
 
                       //status
                       InkWell(
-                                              child: Container(
+                        child: Container(
                           margin: EdgeInsets.only(top: 3),
                           width: 150,
                           decoration: BoxDecoration(
@@ -329,7 +332,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
       margin: EdgeInsets.only(left: marginLeftRight, right: marginLeftRight),
       padding: EdgeInsets.fromLTRB(marginCard, marginCard, marginCard, 1),
       alignment: Alignment.topLeft,
-      height: sizeu.height - 350-widget.bottomKey,
+      height: sizeu.height - 365 - widget.bottomKey,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -343,12 +346,16 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
           ListView(
         children: [
           TabPengerjaanCard(
-            marginLeftRight: marginLeftRight,
-            marginCard: marginCard,
-            changeProgress:(){
-              changeToProgress();
-            },
-          ),
+              marginLeftRight: marginLeftRight,
+              marginCard: marginCard,
+              changeProgress: () {
+                changeToProgress();
+              },
+              star: star,
+              starEvent: (double st) {
+                star = st;
+                setState(() {});
+              }),
         ],
       ),
     );
@@ -361,11 +368,16 @@ class TabPengerjaanCard extends StatelessWidget {
     this.marginLeftRight: 0,
     this.marginCard: 0,
     this.changeProgress,
+    this.star,
+    this.starEvent,
   }) : super(key: key);
 
   final double marginLeftRight;
   final double marginCard;
   final Function() changeProgress;
+  final Function(double st) starEvent;
+
+  final double star;
 
   @override
   Widget build(BuildContext context) {
@@ -486,18 +498,22 @@ class TabPengerjaanCard extends StatelessWidget {
                 width: widthBtnShort,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  
                   children: [
                     btnTool('assets/more_icon/progress_bar.png',
                         BorderRadius.circular(30.0), widthBtnShort - 15, () {
                       changeProgress();
                     }),
-                     InkWell(
-                        onTap: () {
-                          print('das');
-                          openAlertBox(context);
-                        },
-                                          child: Container(
+                    InkWell(
+                      onTap: () {
+                        openAlertBox(
+                            context,
+                            'APAKAH ANDA YAKIN?',
+                            'Untuk menyelesaikan PEKERJAAN ini',
+                            'KONFIRMASI', () {
+                          Navigator.pop(context);
+                        });
+                      },
+                      child: Container(
                         margin: EdgeInsets.only(top: 20),
                         decoration: BoxDecoration(
                           color: AppTheme.primarymenu,
@@ -562,6 +578,121 @@ class TabPengerjaanCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  komenOwner(context) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Color(0xfff7f7f7),
+            // shape: RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.all(Radius.circular(32.0))),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              margin: EdgeInsets.only(bottom: 10),
+              width: 400.0,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 15, right: 15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      'ULASAN ANDA',
+                      style: TextStyle(
+                        color: AppTheme.textBlue,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 1, color: AppTheme.geyCustom),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            alignment: Alignment.topRight,
+                            // padding: EdgeInsets.only(right: 5),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: FaIcon(
+                                FontAwesomeIcons.times,
+                                color: AppTheme.geyCustom,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Ratings',
+                            style: TextStyle(
+                              color: AppTheme.geyCustom,
+                              fontSize: 18,
+                            ),
+                          ),
+                          Container(
+                            alignment: Alignment.topLeft,
+                            width: double.infinity,
+                            child: RatingBar(
+                              maxRating: 5,
+                              onRatingChanged: (rating) => starEvent(rating),
+                              filledIcon: Icons.star,
+                              emptyIcon: Icons.star_border,
+                              halfFilledIcon: Icons.star_half,
+                              isHalfAllowed: true,
+                              filledColor: Colors.amber,
+                              size: 36,
+                            ),
+                          ),
+                          Text(
+                            'Ulasan Anda',
+                            style: TextStyle(
+                              color: AppTheme.geyCustom,
+                              fontSize: 18,
+                            ),
+                          ),
+                          TextField(
+                            
+                            style: TextStyle(fontSize: 12),
+                            maxLines: 3,
+                            decoration: new InputDecoration(
+                              
+                                border: new OutlineInputBorder(
+                                  borderRadius: const BorderRadius.all(
+                                    const Radius.circular(10.0),
+                                  ),
+                                ),
+                                filled: true,
+                                hintStyle:
+                                    new TextStyle(color: Colors.grey[800]),
+                                hintText: "Ulasan",
+                                fillColor: Colors.white70),
+                          ),
+                        Container(
+                          padding: EdgeInsets.only(top:80),
+                          alignment: Alignment.topRight,
+                          child: RaisedButton(
+                            onPressed: (){
+                              Navigator.pop(context);
+                            },
+                            color: AppTheme.bgChatBlue,
+                            child: Text('Simpan',style: TextStyle(color: AppTheme.nearlyWhite),),
+                          ),
+                        )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   Widget komenCard(context, double paddingCard, double widthCard) {
@@ -881,7 +1012,7 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       btnTool('assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0), 50, () {
-                        print('komen owner');
+                        komenOwner(context);
                       }),
                     ],
                   ),

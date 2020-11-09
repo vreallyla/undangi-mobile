@@ -32,6 +32,7 @@ dependencies:
   flutter_svg: ^0.19.0
   icon_shadow: ^1.0.1
   font_awesome_flutter: ^8.10.0
+  rating_bar: ^0.2.0
 
 dev_dependencies:
   flutter_test:

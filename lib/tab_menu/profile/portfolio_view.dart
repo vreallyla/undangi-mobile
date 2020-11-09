@@ -67,7 +67,7 @@ class PortfolioView extends StatelessWidget {
                         child: Row(
                           children: [
                             SizedBox(
-                              width: 90,
+                              width: sizeu.width-293,
                               child: Text(
                                 'Buat',
                                 style: TextStyle(

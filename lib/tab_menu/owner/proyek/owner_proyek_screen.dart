@@ -20,6 +20,9 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   //ganti konten tab proyek ke tambah proyek
   bool toAdd = false;
 
+  //EDIT ID TRIGGER
+  int editId = 0;
+
   void chageTab(bool kond) {
     setState(() {
       tabChange = kond;
@@ -34,7 +37,6 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     // double _height = sizeu.height;
     // final paddingPhone = MediaQuery.of(context).padding;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
-    print('Bottom is: $bottom');
 
     return new WillPopScope(
       onWillPop: () {
@@ -73,105 +75,105 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
             // tab,
             tabHead(),
 
-             //tool
-          Container(
-              margin:
-                  EdgeInsets.fromLTRB(marginLeftRight, 25, marginLeftRight, 0),
-              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppTheme.bgBlueSoft,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: InkWell(
-                      onTap: (){
-                        setState(() {
-                          toAdd=true;
-                          tabChange=false;
-                        });
-                      },
-                                          child: Container(
-                          width: 100,
-                          height: 30,
-                          margin: EdgeInsets.only(left: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(
-                              width: .5,
-                              color: AppTheme.nearlyBlack,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FaIcon(
-                                FontAwesomeIcons.plusCircle,
-                                size: 16,
-                                color: AppTheme.geySolidCustom,
-                              ),
-                              Text(' ' + 'TAMBAH',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppTheme.geySolidCustom,
-                                  )),
-                            ],
-                          )),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: EdgeInsets.only(right: 5),
-                      width: sizeu.width,
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Cari : ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppTheme.geySolidCustom,
-                            ),
-                          ),
-                          Container(
-                            height: 25,
-                            width: 140,
-                            padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+            //tool
+            Container(
+                margin: EdgeInsets.fromLTRB(
+                    marginLeftRight, 5, marginLeftRight, 0),
+                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppTheme.bgBlueSoft,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            toAdd = true;
+                            tabChange = false;
+                          });
+                        },
+                        child: Container(
+                            width: 100,
+                            height: 30,
+                            margin: EdgeInsets.only(left: 5),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(30.0),
                               border: Border.all(
                                 width: .5,
+                                color: AppTheme.nearlyBlack,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                FaIcon(
+                                  FontAwesomeIcons.plusCircle,
+                                  size: 16,
+                                  color: AppTheme.geySolidCustom,
+                                ),
+                                Text(' ' + 'TAMBAH',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: AppTheme.geySolidCustom,
+                                    )),
+                              ],
+                            )),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        margin: EdgeInsets.only(right: 5),
+                        width: sizeu.width,
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              'Cari : ',
+                              style: TextStyle(
+                                fontSize: 14,
                                 color: AppTheme.geySolidCustom,
                               ),
-                              color: Colors.white,
                             ),
-                            child: SizedBox(
-                                                          child: TextField(
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: '',
-                                  suffixStyle: TextStyle(color: Colors.black),
-                                  counterStyle: TextStyle(
-                                    height: double.minPositive,
+                            Container(
+                              height: 25,
+                              width: 140,
+                              padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(
+                                  width: .5,
+                                  color: AppTheme.geySolidCustom,
+                                ),
+                                color: Colors.white,
+                              ),
+                              child: SizedBox(
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '',
+                                    suffixStyle: TextStyle(color: Colors.black),
+                                    counterStyle: TextStyle(
+                                      height: double.minPositive,
+                                    ),
+                                    counterText: "",
                                   ),
-                                  counterText: "",
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              )),
+                    )
+                  ],
+                )),
 
             //tab proyek
             tabChange
@@ -186,8 +188,16 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                 : TabProyekView(
                     bottomKey: double.parse(bottom.toString()),
                     toAdd: toAdd,
+                    editId: editId,
+                    editEvent: (int id) {
+                      editId = id;
+                      setState(() {
+                        
+                      });
+                    },
                     toAddFunc: () {
                       setState(() {
+                       
                         toAdd = !toAdd;
                       });
                     }),
@@ -266,6 +276,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     ///proyek
     else if (!tabChange && toAdd) {
       toAdd = !toAdd;
+      editId = 0;
     } else {
       Navigator.pop(context);
     }

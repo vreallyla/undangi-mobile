@@ -75,8 +75,8 @@ class _HomeContentViewState extends State<HomeContentView>
                   // icon 70
                   Container(
                     padding: EdgeInsets.all(10),
-                    width: 70,
-                    height: 70,
+                    width: 60,
+                    height: 60,
                     decoration: BoxDecoration(
                       color: AppTheme.bgIcoGrey,
                       border: Border.all(
@@ -93,7 +93,7 @@ class _HomeContentViewState extends State<HomeContentView>
                   Padding(padding: EdgeInsets.only(left: 10)),
                   // text 160
                   Container(
-                    width: 140,
+                    width: sizeu.width-240,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -131,13 +131,13 @@ class _HomeContentViewState extends State<HomeContentView>
                     ),
                   ),
                   Container(
-                    width: sizeu.width - 80 - 20 - 70 - 30 - 10 - 160,
+                    width: 25,
                     alignment: Alignment.centerRight,
                     child: Stack(
                       children: [
                         Container(
-                          width: 40,
-                          height: 40,
+                          width: 25,
+                          height: 25,
                           decoration: BoxDecoration(
                             image: DecorationImage(
                               image:

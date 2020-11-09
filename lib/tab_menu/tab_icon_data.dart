@@ -60,14 +60,20 @@ class TabIconData {
       animationController: null,
       sub: [
         {
-          "name": "Dashboard Proyek",
-          "route": "/owner_proyek",
+          "name": "Undagi Pay",
+          "route": "/udagi_pay",
           'index': 0,
         },
         {
+          "name": "Dashboard Proyek",
+          "route": "/proyek_frelence",
+          'index': 1,
+        },
+        
+        {
           "name": "Dashboard Layanan",
           "route": "/owner_layanan",
-          'index': 1,
+          'index': 2,
         }
       ],
     ),
