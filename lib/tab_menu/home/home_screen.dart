@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:undangi/Constant/app_theme.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
@@ -27,6 +29,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   //       tabIconsList[0].isSelected = true;
 
   // }
+
+  bool isNotConnect = false;
+  bool isLoading = false;
+
+  
+
+  _getDataCount() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {}
+    } on SocketException catch (_) {
+      isNotConnect = false;
+      isLoading = false;
+
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    
+print(cardMenuData[0].count);
+cardMenuData[0].count=1;
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +93,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       Navigator.pushNamed(context, '/user_list');
                     }
                   }),
-                
             ],
           ),
         ),

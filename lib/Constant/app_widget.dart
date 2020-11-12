@@ -205,6 +205,47 @@ Widget appBackWithPhoto(context, String photo) {
   );
 }
 
+ Widget noConnection(Function event) {
+    return Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.only(top: 70),
+      child: Column(
+        children: [
+          Container(
+            alignment: Alignment.center,
+            height: 160,
+            width: 160,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/general/iconic.png'),
+                fit: BoxFit.fitHeight,
+              ),
+            ),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 15),
+          ),
+          Text(
+            'Koneksi Terputus',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          ),
+          Text('Periksa sambungan internet kamu',
+              style: TextStyle(color: Colors.black54)),
+          Container(
+            margin: EdgeInsets.only(top: 15),
+            child: RaisedButton(
+              onPressed: () {
+                event();
+              },
+              color: Colors.green,
+              child: Text('COBA LAGI', style: TextStyle(color: Colors.white)),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+
+
 openAlertBox(context,String title, String sub, String textBtn,Function eventButton) {
   Color myColor = Colors.green;
 

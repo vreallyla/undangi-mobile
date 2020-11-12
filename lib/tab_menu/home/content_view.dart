@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Constant/app_theme.dart';
 
 import 'card_menu_data.dart';
@@ -121,8 +122,17 @@ class _HomeContentViewState extends State<HomeContentView>
                     width: 40,
                     padding: EdgeInsets.only(right: 10),
                     alignment: Alignment.center,
-                    child: Text(
-                      '99+',
+                    child: 
+                    widget.cardMenuData[index].count==null ?
+                    SizedBox(
+                      height: 10,
+                      width: 10,
+                                          child: new CircularProgressIndicator(
+                        valueColor: new AlwaysStoppedAnimation<Color>(AppTheme.bgBlue2Soft),
+                      ),
+                    ):
+                    Text(
+                      widget.cardMenuData[index].count.toString() ,
                       style: TextStyle(
                         color: AppTheme.textBlue,
                         fontSize: 14,

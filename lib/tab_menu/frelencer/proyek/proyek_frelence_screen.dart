@@ -234,7 +234,7 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
 
   Widget tabHead() {
     final sizeu = MediaQuery.of(context).size;
-    double sisaTab = sizeu.width - 60 - 101 - 121;
+    double sisaTab = sizeu.width - 60 - 111 - 121;
     double tabsisaBagi = sisaTab / 4;
 
     return Container(
@@ -249,7 +249,7 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
       child: Row(
         children: [
           //tab bid
-//hello
+
           InkWell(
             onTap: () {
               chageTab(0);
@@ -315,12 +315,12 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
             },
             child: Container(
               margin: EdgeInsets.only(left: tabsisaBagi),
-              width: 101,
+              width: 111,
               alignment: Alignment.center,
               height: 30,
               child: Container(
                 padding: EdgeInsets.only(bottom: 5),
-                width: 101,
+                width: 111,
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(

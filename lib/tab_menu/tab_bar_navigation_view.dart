@@ -56,8 +56,8 @@ class _TabBarNavigationViewState extends State<TabBarNavigationView>
           //         curve: Interval((1 / count) * index, 1.0,
           //             curve: Curves.fastOutSlowIn)));
           // animationController.forward();
-          print(widget.tabIconsList[index].sub);
-          print(index);
+          // print(widget.tabIconsList[index].sub);
+          // print(index);
 
           return widget.tabIconsList[index].sub != null
               ? withSub(index, sizeu)

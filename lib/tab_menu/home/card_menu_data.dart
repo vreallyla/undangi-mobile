@@ -10,6 +10,7 @@ class CardMenuData {
     this.title = '',
     this.subtitle = '',
     this.animationController,
+    this.count:-1
   });
 
   String imagePath;
@@ -20,6 +21,7 @@ class CardMenuData {
   String title;
   String subtitle;
   int index;
+  int count;
 
   AnimationController animationController;
 
@@ -32,6 +34,7 @@ class CardMenuData {
       title: 'Membuat Proyek Sendiri',
       subtitle: 'Tanpa Batasan Kategori',
       animationController: null,
+      
     ),
     CardMenuData(
       imagePath: 'assets/home/briefcase.png',

@@ -1,0 +1,1 @@
+ const String globalBaseUrl='localhost:8000/api/';
