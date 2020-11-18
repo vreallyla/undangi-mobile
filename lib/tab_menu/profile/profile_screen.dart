@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/auth/login_screen.dart';
 // import 'package:undangi/Constant/app_widget.dart';
 
@@ -14,6 +16,17 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool tabProfil = true;
+
+  _logout() async {
+    onLoading(context);
+
+    await GeneralModel.setToken(null).then((v) {
+      Navigator.pop(context);
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+          (Route<dynamic> route) => false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +71,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onSelected: (newValue) {
                     if (newValue == 0) {
                       Navigator.pushNamed(context, '/ganti_password');
-                    }else{
-                      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) =>
-    LoginScreen()), (Route<dynamic> route) => false);
+                    } else {
+                      openAlertBoxTwo(context, 'Logout!', 'Anda akan keluar?',
+                          'TIDAK', 'YA', () {
+                        Navigator.pop(context);
+                      }, () {
+                        Navigator.pop(context);
+                        _logout();
+                      });
                     }
                   },
                   itemBuilder: (context) => [

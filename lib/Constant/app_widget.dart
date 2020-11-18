@@ -205,48 +205,75 @@ Widget appBackWithPhoto(context, String photo) {
   );
 }
 
- Widget noConnection(Function event) {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.only(top: 70),
-      child: Column(
-        children: [
-          Container(
-            alignment: Alignment.center,
-            height: 160,
-            width: 160,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/general/iconic.png'),
-                fit: BoxFit.fitHeight,
+Widget noConnection(Function event) {
+  return Container(
+    alignment: Alignment.center,
+    padding: EdgeInsets.only(top: 70),
+    child: Column(
+      children: [
+        Container(
+          alignment: Alignment.center,
+          height: 160,
+          width: 160,
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/general/iconic.png'),
+              fit: BoxFit.fitHeight,
+            ),
+          ),
+          padding: EdgeInsets.fromLTRB(20, 20, 20, 15),
+        ),
+        Text(
+          'Koneksi Terputus',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+        ),
+        Text('Periksa sambungan internet kamu',
+            style: TextStyle(color: Colors.black54)),
+        Container(
+          margin: EdgeInsets.only(top: 15),
+          child: RaisedButton(
+            onPressed: () {
+              event();
+            },
+            color: Colors.green,
+            child: Text('COBA LAGI', style: TextStyle(color: Colors.white)),
+          ),
+        )
+      ],
+    ),
+  );
+}
+
+onLoading(context) {
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
+      // return object of type Dialog
+      return WillPopScope(
+          onWillPop: () {},
+          child: Dialog(
+            child: Container(
+              // use container to change width and height
+              padding: EdgeInsets.all(10),
+              child: new Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  new CircularProgressIndicator(),
+                  new Text("  Memuat..."),
+                ],
               ),
             ),
-            padding: EdgeInsets.fromLTRB(20, 20, 20, 15),
-          ),
-          Text(
-            'Koneksi Terputus',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-          ),
-          Text('Periksa sambungan internet kamu',
-              style: TextStyle(color: Colors.black54)),
-          Container(
-            margin: EdgeInsets.only(top: 15),
-            child: RaisedButton(
-              onPressed: () {
-                event();
-              },
-              color: Colors.green,
-              child: Text('COBA LAGI', style: TextStyle(color: Colors.white)),
-            ),
-          )
-        ],
-      ),
-    );
-  }
+          ));
+    },
+  );
+  // new Future.delayed(new Duration(seconds: 3), () {
+  //   Navigator.pop(context); //pop dialog
+  // });
+}
 
-
-
-openAlertBox(context,String title, String sub, String textBtn,Function eventButton) {
+openAlertBox(
+    context, String title, String sub, String textBtn, Function eventButton) {
   Color myColor = Colors.green;
 
   return showDialog(
@@ -290,7 +317,7 @@ openAlertBox(context,String title, String sub, String textBtn,Function eventButt
                   height: 5.0,
                 ),
                 Text(
-                 title,
+                  title,
                   style:
                       TextStyle(fontSize: 20, color: AppTheme.geySolidCustom),
                   textAlign: TextAlign.center,
@@ -323,10 +350,8 @@ openAlertBox(context,String title, String sub, String textBtn,Function eventButt
       });
 }
 
-openAlertBoxTwo(context,String title, String sub, 
-String leftText,String rightText,
-Function eventLeft, Function eventRight) {
- 
+openAlertBoxTwo(context, String title, String sub, String leftText,
+    String rightText, Function eventLeft, Function eventRight) {
   return showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -368,7 +393,7 @@ Function eventLeft, Function eventRight) {
                   height: 5.0,
                 ),
                 Text(
-                 title,
+                  title,
                   style:
                       TextStyle(fontSize: 20, color: AppTheme.geySolidCustom),
                   textAlign: TextAlign.center,
@@ -382,7 +407,7 @@ Function eventLeft, Function eventRight) {
                   children: [
                     Expanded(
                       flex: 1,
-                                          child: Container(
+                      child: Container(
                         alignment: Alignment.center,
                         padding: EdgeInsets.only(top: 15, bottom: 5),
                         child: RaisedButton(
@@ -401,7 +426,7 @@ Function eventLeft, Function eventRight) {
                     ),
                     Expanded(
                       flex: 1,
-                                            child: Container(
+                      child: Container(
                         alignment: Alignment.center,
                         padding: EdgeInsets.only(top: 15, bottom: 5),
                         child: RaisedButton(
@@ -416,9 +441,8 @@ Function eventLeft, Function eventRight) {
                             ),
                           ),
                         ),
+                      ),
                     ),
-                     ),
-                  
                   ],
                 ),
               ],
@@ -427,7 +451,6 @@ Function eventLeft, Function eventRight) {
         );
       });
 }
-
 
 passwordCheck(context, Function checkEvent) {
   Color myColor = AppTheme.bgChatBlue;
@@ -521,7 +544,7 @@ passwordCheck(context, Function checkEvent) {
                           fillColor: Colors.white70),
                     )),
                 InkWell(
-                  onTap: ()=>checkEvent(),
+                  onTap: () => checkEvent(),
                   child: Container(
                     padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
                     decoration: BoxDecoration(

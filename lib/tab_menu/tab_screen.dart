@@ -113,9 +113,8 @@ class _TabScreenState extends State<TabScreen> with TickerProviderStateMixin {
                 changeIndex: (int index) {
                   if (routeIndex != index) {
                     if ([0, 4].contains(index)) {
-                      Navigator.pushNamed(context, '/',
+                      Navigator.pushNamed(context, '/home',
                           arguments: {"index_route": index});
-                    
                     } else {
                       if (index == 1) {
                         Navigator.pushNamed(

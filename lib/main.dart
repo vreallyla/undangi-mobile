@@ -3,6 +3,7 @@ import 'package:undangi/Constant/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:undangi/Splash_screen.dart';
 import 'package:undangi/auth/login_screen.dart';
 import 'package:undangi/auth/register_screen.dart';
 import 'package:undangi/tab_menu/frelencer/pay/pay_frelence_screen.dart';
@@ -45,12 +46,13 @@ class MyApp extends StatelessWidget {
       systemNavigationBarIconBrightness: Brightness.dark,
     ));
     return MaterialApp(
-      initialRoute: '/login',
+      initialRoute: '/',
+      home: SplashScreen(),
       routes: {
         // When navigating to the "/" route, build the FirstScreen widget.
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
-        '/': (context) => TabScreen(),
+        '/home': (context) => TabScreen(),
         '/search_kategori': (context) => SearchTabScreen(),
 
         '/user_list': (context) => UserListScreen(),
@@ -72,12 +74,11 @@ class MyApp extends StatelessWidget {
         //frelencer tab
         '/udagi_pay': (context) => PayFrelenceScreen(),
         '/proyek_frelence': (context) => ProyekFrenlenceScreen(),
-
       },
       title: 'Undagi',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.blue,
         textTheme: AppTheme.textTheme,
         platform: TargetPlatform.android,
       ),
