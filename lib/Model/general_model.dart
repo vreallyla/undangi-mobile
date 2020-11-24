@@ -15,6 +15,16 @@ _setToken(String token) async {
   tokenFixed = token;
 }
 
+_destroyToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String tokenFixed = prefs.getString('token');
+
+  if (tokenFixed != null) {
+    tokenFixed = '';
+    await prefs.remove("token");
+  }
+}
+
 String tokenFixed;
 
 class GeneralModel {
@@ -41,6 +51,7 @@ class GeneralModel {
     } on SocketException catch (_) {
       b();
     }
+
     return GeneralModel(res: internet);
   }
 
@@ -48,5 +59,11 @@ class GeneralModel {
     await _setToken(token);
 
     return GeneralModel(res: tokenFixed);
+  }
+
+  static Future<GeneralModel> destroyToken() async {
+    await _destroyToken();
+
+    return GeneralModel(res: 'ok');
   }
 }

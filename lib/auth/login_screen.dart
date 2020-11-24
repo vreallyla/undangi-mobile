@@ -25,22 +25,22 @@ class _LoginScreenState extends State<LoginScreen> {
       notice('Harap isi Form yang tersedia!',
           'Email atau password belum diisi...');
     } else {
-      // GeneralModel.checCk(() {
+      GeneralModel.checCk(() {
+        AuthModel.login(email, password).then((value) {
+          if (value.error) {
+            notice(
+                'Terjadi kesalahan!', 'Pastikan data yang dimasukan benar...');
+          } else {
+            Navigator.pop(context); //pop dialog
 
-      // }, () {
-      //   notice('Koneksi terputus!', 'Silakan check koneksi anda...');
-      // }).then((v) {
-      //   print(v.res);
-      // });
-
-      AuthModel.login(email, password).then((value) {
-        if (value.error) {
-          notice('Terjadi kesalahan!', 'Pastikan data yang dimasukan benar...');
-        } else {
-          Navigator.pop(context); //pop dialog
-
-          Navigator.pushNamed(context, '/home', arguments: {"index_route": 0});
-        }
+            Navigator.pushReplacementNamed(context, '/home',
+                arguments: {"index_route": 0});
+          }
+        });
+      }, () {
+        notice('Koneksi terputus!', 'Silakan check koneksi anda...');
+      }).then((v) {
+        print(v.res);
       });
     }
   }

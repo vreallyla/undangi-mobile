@@ -94,7 +94,7 @@ class _HomeContentViewState extends State<HomeContentView>
                   Padding(padding: EdgeInsets.only(left: 10)),
                   // text 160
                   Container(
-                    width: sizeu.width-240,
+                    width: sizeu.width - 240,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -122,23 +122,25 @@ class _HomeContentViewState extends State<HomeContentView>
                     width: 40,
                     padding: EdgeInsets.only(right: 10),
                     alignment: Alignment.center,
-                    child: 
-                    widget.cardMenuData[index].count==null ?
-                    SizedBox(
-                      height: 10,
-                      width: 10,
-                                          child: new CircularProgressIndicator(
-                        valueColor: new AlwaysStoppedAnimation<Color>(AppTheme.bgBlue2Soft),
-                      ),
-                    ):
-                    Text(
-                      widget.cardMenuData[index].count.toString() ,
-                      style: TextStyle(
-                        color: AppTheme.textBlue,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                    child: widget.cardMenuData[index].count < 0
+                        ? SizedBox(
+                            height: 10,
+                            width: 10,
+                            child: new CircularProgressIndicator(
+                              valueColor: new AlwaysStoppedAnimation<Color>(
+                                  AppTheme.bgBlue2Soft),
+                            ),
+                          )
+                        : Text(
+                            widget.cardMenuData[index].count > 99
+                                ? '99+'
+                                : widget.cardMenuData[index].count.toString(),
+                            style: TextStyle(
+                              color: AppTheme.textBlue,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                   ),
                   Container(
                     width: 25,

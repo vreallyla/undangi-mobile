@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
         '/proyek_list': (context) => ProyekListScreen(),
         '/layanan_list': (context) => LayananListScreen(),
         '/chat': (context) => ChatScreen(),
-        '/profil_summary': (context) => ProfilSummaryScreen(),
+        // '/profil_summary': (context) => ProfilSummaryScreen(),
         '/profil_skill': (context) => ProfilSkillView(),
         '/profil_edit': (context) => ProfilEditView(),
 

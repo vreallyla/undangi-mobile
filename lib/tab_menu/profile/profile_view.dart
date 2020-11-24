@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/tab_menu/profile/skill_n_bahasa_view.dart';
+import 'package:undangi/tab_menu/profile/sub/profil_summary_view.dart';
 
 class ProfileView extends StatelessWidget {
+  const ProfileView({
+    Key key,
+    this.dataProfile,
+    this.checkData,
+    this.getApi,
+  }) : super(key: key);
+
+  final Map<String, dynamic> dataProfile;
+  final bool checkData;
+  final Function getApi;
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
@@ -20,15 +33,21 @@ class ProfileView extends StatelessWidget {
             ),
             child: Column(
               children: [
-                contentProfile('Nama', 'Suryonono'),
-                contentProfile('Tanggal Lahir', '21 Maret 1981'),
-                contentProfile('Jenis Kelamin', 'Laki-laki'),
-                contentProfile('Kewarganegaraan', 'Indonesia'),
-                contentProfile('Telp', '0812371623'),
-                contentProfile('Email', 'suryononosuka@gmail.com'),
-                contentProfile('Alamat', 'Jl. Kerembung Sawah No.126'),
-                contentProfile('Kota', 'Surabaya'),
-                contentProfile('Nomor Rekening', '2834*****'),
+                contentProfile('Nama', checkVar('name', null)),
+                contentProfile('Tanggal Lahir', checkVar('bio', 'tgl_lahir')),
+                contentProfile(
+                    'Jenis Kelamin', checkVar('bio', 'jenis_kelamin')),
+                contentProfile(
+                    'Kewarganegaraan', checkVar('bio', 'kewarganegaraan')),
+                contentProfile('Telp', checkVar('bio', 'hp')),
+                contentProfile('Email', checkVar('email', null)),
+                contentProfile('Username', checkVar('username', null)),
+                contentProfile('Alamat', checkVar('bio', 'alamat')),
+                contentProfile('Kota', checkVar('bio', 'kota')),
+                contentProfile(
+                    'Nomor Rekening',
+                    setRekening() +
+                        (checkData ? " (${checkVar('bio', 'bank')})" : '')),
               ],
             ),
           ),
@@ -71,7 +90,18 @@ class ProfileView extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () {
-                          Navigator.pushNamed(context, '/profil_summary');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilSummaryScreen(
+                                    summary: checkData
+                                        ? dataProfile['bio']['summary']
+                                        : ''),
+                              )).then((value) {
+                            if (value) {
+                              getApi();
+                            }
+                          });
                         },
                         child: Container(
                           width: 20,
@@ -87,12 +117,14 @@ class ProfileView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  //content summary
+                  // content summary
                   Container(
                     height: 80,
                     alignment: Alignment.center,
                     child: Text(
-                      'Anda belum menambah summary',
+                      checkData
+                          ? dataProfile['bio']['summary']
+                          : 'Anda belum menambah summary',
                       style: TextStyle(
                         color: AppTheme.textBlue,
                         fontSize: 13,
@@ -110,7 +142,7 @@ class ProfileView extends StatelessWidget {
               decoration: BoxDecoration(
                 // border: Border.all(width: .5, color: Colors.black),
                 borderRadius: BorderRadius.circular(10),
-                color: AppTheme.bgChatBlue,
+                color: AppTheme.primaryBluePekat,
               ),
               child: Column(
                 children: [
@@ -180,17 +212,8 @@ class ProfileView extends StatelessWidget {
                     ],
                   ),
                   //content summary
-                  Container(
-                    height: 80,
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Anda belum menambah Skill dan Bahasa',
-                      style: TextStyle(
-                        color: AppTheme.primaryWhite,
-                        fontSize: 13,
-                        // fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  SkillNBahasaView(
+                    dataSkill: checkData ? dataProfile['skills'] : [],
                   ),
                 ],
               )),
@@ -199,10 +222,31 @@ class ProfileView extends StatelessWidget {
     );
   }
 
+  checkVar(String array1, String array2) {
+    var v = array2 == null ? dataProfile[array1] : dataProfile[array1][array2];
+    return (checkData ? v == null ? '-' : v : '-');
+  }
+
+  setRekening() {
+    String rekening = checkData ? dataProfile['bio']['rekening'] : '-';
+    int countRekening = checkData && dataProfile['bio']['rekening'] != null
+        ? dataProfile['bio']['rekening'].length
+        : 0;
+
+    if (countRekening > 4) {
+      return rekening.substring(0, 3) +
+          rekening
+              .substring(3, countRekening - 2)
+              .replaceAll(RegExp(r"."), "*") +
+          rekening.substring(countRekening - 2);
+    }
+    return rekening == null ? '' : rekening;
+  }
+
   Widget contentProfile(String index, String value) {
     return Padding(
       padding: EdgeInsets.only(bottom: 10),
-      child: Row(children: [
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         //nama
         Expanded(
             flex: 1,

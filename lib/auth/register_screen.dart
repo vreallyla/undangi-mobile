@@ -24,6 +24,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   var passwordNode = new FocusNode();
   var passRepeatNode = new FocusNode();
 
+  Map<String, dynamic> validation;
+
   void _register(context) {
     onLoading(context);
 
@@ -42,19 +44,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
       passwordInput.text,
       passRepeatInput.text,
     ).then((value) {
+      validation = {};
       if (value.error) {
         var res = jsonDecode(value.data);
 
         if (res.containsKey('revisi')) {
           Navigator.pop(context);
-          print(res['message']['name']);
+          validation = res['message'];
         } else {
           notice('Terjadi kesalahan!', 'Coba beberapa saat lagi...');
         }
+        setState(() {});
       } else {
         Navigator.pop(context); //pop dialog
 
-        // Navigator.pushNamed(context, '/home', arguments: {"index_route": 0});
+        Navigator.pushReplacementNamed(context, '/home',
+            arguments: {"index_route": 0});
       }
     });
   }
@@ -65,6 +70,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
       openAlertBox(context, label, sub, 'OK', () {
         Navigator.pop(context);
       });
+    });
+  }
+
+  Widget noticeText(trgt) {
+    var kond = validation.containsKey(trgt);
+    return Text(
+      kond ? validation[trgt].join(', ') : '',
+      textAlign: TextAlign.left,
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: kond ? 12 : 0,
+      ),
+    );
+  }
+
+  void removeValidation() {
+    setState(() {
+      validation.removeWhere((key, value) => key == "name");
     });
   }
 
@@ -123,39 +146,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           margin: EdgeInsets.only(left: 15, right: 15),
                           padding: EdgeInsets.all(10),
                           child: Column(
-                            // crossAxisAlignment: CrossAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TextField(
+                                  onChanged: (v) => removeValidation(),
                                   controller: nameInput,
                                   onSubmitted: (v) => FocusScope.of(context)
                                       .requestFocus(usernameNode),
                                   decoration: textfieldDesign('Nama Lengkap')),
-                              Padding(padding: EdgeInsets.only(top: 5)),
+                              noticeText('name'),
                               TextField(
+                                  onChanged: (v) => removeValidation(),
                                   controller: usernameInput,
                                   onSubmitted: (v) => FocusScope.of(context)
                                       .requestFocus(emailNode),
                                   decoration: textfieldDesign('Username')),
-                              Padding(padding: EdgeInsets.only(top: 5)),
+                              noticeText('username'),
                               TextField(
+                                onChanged: (v) => removeValidation(),
                                 controller: emailInput,
                                 onSubmitted: (v) => FocusScope.of(context)
                                     .requestFocus(passwordNode),
                                 decoration: textfieldDesign('Email'),
                               ),
-                              Padding(padding: EdgeInsets.only(top: 5)),
+                              noticeText('email'),
                               TextField(
+                                  obscureText: true,
+                                  onChanged: (v) => removeValidation(),
                                   controller: passwordInput,
                                   onSubmitted: (v) => FocusScope.of(context)
                                       .requestFocus(passRepeatNode),
                                   decoration: textfieldDesign('Password')),
-                              Padding(padding: EdgeInsets.only(top: 5)),
+                              noticeText('password'),
                               TextField(
+                                  obscureText: true,
+                                  onChanged: (v) => removeValidation(),
                                   controller: passRepeatInput,
                                   onSubmitted: (v) {},
                                   decoration:
                                       textfieldDesign('Ulangi Password')),
-                              // Padding(padding: EdgeInsets.only(top: 5)),
+                              noticeText('password_confirmation'),
                             ],
                           ),
                         ),

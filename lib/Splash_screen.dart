@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:undangi/Model/general_model.dart';
 
-
 class SplashScreen extends StatefulWidget {
   @override
   SplashScreenState createState() => new SplashScreenState();
@@ -17,26 +16,30 @@ class SplashScreenState extends State<SplashScreen>
   AnimationController animationController;
   Animation<double> animation;
 
-  startTime() async {
-    var _duration = new Duration(seconds: 3);
-    return new Timer(_duration, navigationPage);
+  startTime(bool kond) async {
+    var _duration = new Duration(seconds: 0);
+    return new Timer(_duration, navigationPage(kond));
   }
 
-  void navigationPage() {
+  navigationPage(kond) {
     // Navigator.of(context).pushReplacementNamed(PAY_TM);
-
-    Navigator.of(context).pushReplacementNamed('/login');
+    if (kond) {
+      Navigator.pushNamed(context, '/home', arguments: {"index_route": 0});
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   _tokenCheck() async {
     await GeneralModel.token().then((v) {
+      print(v.res);
       if (v.res == null) {
-        Navigator.of(context).pushReplacementNamed('/login');
+        startTime(false);
       } else {
         GeneralModel.checCk(() {
-          print('inter');
+          startTime(true);
         }, () {
-          Navigator.of(context).pushReplacementNamed('/login');
+          startTime(false);
         });
       }
     });
@@ -44,8 +47,6 @@ class SplashScreenState extends State<SplashScreen>
 
   @override
   void initState() {
-    _tokenCheck();
-
     super.initState();
 
     animationController = new AnimationController(
@@ -61,7 +62,7 @@ class SplashScreenState extends State<SplashScreen>
     setState(() {
       _visible = !_visible;
     });
-    // startTime();
+    _tokenCheck();
   }
 
   @override

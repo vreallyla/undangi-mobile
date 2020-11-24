@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:undangi/Splash_screen.dart';
 
 import 'app_theme.dart';
+import 'app_var.dart';
 
 Widget appBarColloring() {
   return PreferredSize(
@@ -59,34 +61,47 @@ Widget appActionHead(paddingPhone, String judul, String textAct,
       flexibleSpace: Stack(
         children: [
           //batal
-          InkWell(
-            onTap: () => backEvent(),
-            child: Container(
-                alignment: Alignment.bottomLeft,
-                padding: EdgeInsets.only(bottom: paddingPhone.top, left: 20),
-                child: Text('Batal',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                    ))),
-          ),
-          //simpan
-          InkWell(
-            onTap: () => actEvent(),
-            child: Container(
-              // width: sizeu.width,
-              alignment: Alignment.bottomRight,
-              padding: EdgeInsets.only(bottom: paddingPhone.top, right: 20),
-              child: Text(
-                textAct,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: InkWell(
+                  onTap: () => backEvent(),
+                  child: Container(
+                      alignment: Alignment.bottomLeft,
+                      padding:
+                          EdgeInsets.only(bottom: paddingPhone.top, left: 20),
+                      child: Text('Batal',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                          ))),
                 ),
               ),
-            ),
+              //simpan
+
+              Expanded(
+                flex: 1,
+                child: InkWell(
+                  onTap: () => actEvent(),
+                  child: Container(
+                    // width: sizeu.width,
+                    alignment: Alignment.bottomRight,
+                    padding:
+                        EdgeInsets.only(bottom: paddingPhone.top, right: 20),
+                    child: Text(
+                      textAct,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
           //title
           Container(
@@ -272,9 +287,122 @@ onLoading(context) {
   // });
 }
 
+Widget onLoading2() {
+  return Container(
+    alignment: Alignment.center,
+    child: new CircularProgressIndicator(),
+  );
+}
+
+tokenHabis(context) {
+  Color myColor = AppTheme.primarymenu;
+
+  return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () {},
+          child: AlertDialog(
+            backgroundColor: Color(0xfff7f7f7),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(32.0))),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              width: 400.0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                      alignment: Alignment.topRight,
+                      padding: EdgeInsets.only(right: 20),
+                      child: InkWell(
+                          onTap: () {
+                            redirectSplash(context);
+                          },
+                          child: FaIcon(
+                            FontAwesomeIcons.times,
+                            color: AppTheme.geyCustom,
+                            size: 16,
+                          ))),
+                  Container(
+                    width: 80,
+                    height: 83,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: (AssetImage('assets/general/notice_dung.jpeg')),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Text(
+                    'Session Habis!',
+                    style:
+                        TextStyle(fontSize: 20, color: AppTheme.geySolidCustom),
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    'Silakan login lagi...',
+                    style: TextStyle(fontSize: 14, color: AppTheme.geyCustom),
+                    textAlign: TextAlign.center,
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.only(top: 15, bottom: 5),
+                    child: RaisedButton(
+                      color: myColor,
+                      onPressed: () {
+                        redirectSplash(context);
+                      },
+                      child: Text(
+                        'OK',
+                        style: TextStyle(
+                          color: AppTheme.nearlyWhite,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      });
+
+  new Future.delayed(new Duration(seconds: 4), () {
+    redirectSplash(context);
+  });
+}
+
+void redirectSplash(context) {
+  Navigator.pop(context);
+  Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => SplashScreen()),
+      (Route<dynamic> route) => false);
+}
+
+void errorRespon(context, Map v) {
+  if (v.containsKey('not_login') ? v['not_login'] : false) {
+    tokenHabis(context);
+  } else {
+    openAlertBox(context, noticeTitle, v['message'], konfirm1, () {
+      Navigator.pop(context);
+    });
+  }
+}
+
+domainChange(String v) {
+  return v.replaceAll('localhost', domainUrl);
+}
+
 openAlertBox(
     context, String title, String sub, String textBtn, Function eventButton) {
-  Color myColor = Colors.green;
+  Color myColor = AppTheme.primarymenu;
 
   return showDialog(
       context: context,
@@ -331,7 +459,7 @@ openAlertBox(
                   alignment: Alignment.center,
                   padding: EdgeInsets.only(top: 15, bottom: 5),
                   child: RaisedButton(
-                    color: AppTheme.primarymenu,
+                    color: myColor,
                     onPressed: () {
                       eventButton();
                     },
@@ -659,4 +787,16 @@ sampleOpenAlertBox(context) {
           ),
         );
       });
+}
+
+Widget noticeText(trgt, validation) {
+  var kond = validation.containsKey(trgt);
+  return Text(
+    kond ? validation[trgt].join(', ') : '',
+    textAlign: TextAlign.left,
+    style: TextStyle(
+      color: Colors.red,
+      fontSize: kond ? 12 : 0,
+    ),
+  );
 }

@@ -2,6 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_var.dart';
+import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Model/tab_model.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:undangi/tab_menu/home/header_view.dart';
@@ -21,39 +25,39 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   List<CardMenuData> cardMenuData = CardMenuData.cardMenuDataList;
 
-  // List<TabIconData> tabIconsList = TabIconData.tabIconsList;
-  // void initState() {
-  //   tabIconsList.forEach((TabIconData tab) {
-  //     tab.isSelected = false;
-  //   });
-  //       tabIconsList[0].isSelected = true;
-
-  // }
-
   bool isNotConnect = false;
   bool isLoading = false;
 
-  
-
   _getDataCount() async {
-    try {
-      final result = await InternetAddress.lookup('google.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {}
-    } on SocketException catch (_) {
-      isNotConnect = false;
-      isLoading = false;
-
-      setState(() {});
-    }
+    GeneralModel.checCk(() {
+      TabModel.homeCount().then((v) {
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          setState(() {
+            cardMenuData[0].count = v.data['proyek'];
+            cardMenuData[1].count = v.data['layanan'];
+            cardMenuData[2].count = v.data['frelancer'];
+          });
+        }
+      });
+    }, () {
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context);
+      });
+    });
   }
 
   @override
   void initState() {
-    
-print(cardMenuData[0].count);
-cardMenuData[0].count=1;
-
     super.initState();
+    _getDataCount();
+  }
+
+  @override
+  void dispose() {
+    print('dispose called');
+    super.dispose();
   }
 
   @override

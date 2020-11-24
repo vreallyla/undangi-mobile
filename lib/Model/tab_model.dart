@@ -1,10 +1,11 @@
 import 'dart:convert';
 //import 'dart:developer';
 
-
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:undangi/Constant/note.dart';
+import 'package:undangi/Constant/app_var.dart';
+
+import 'package:undangi/Model/general_model.dart';
 
 String tokenFixed = '';
 String userData = '';
@@ -15,68 +16,72 @@ _setCount(Map count) async {
   await prefs.setString('countHome', jsonEncode(count));
 }
 
-_destroyToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String tokenFixed = prefs.getString('token');
-
-  if (tokenFixed != null) {
-    await prefs.remove("token");
-    await prefs.remove("dataUser");
-  }
-}
-
-_getToken() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  tokenFixed = prefs.getString('token');
-  //  prefs.getString('token');
-}
-
-class tabModel {
+class TabModel {
   bool error;
-  Map data;
+  Map<String, dynamic> data;
 
-  tabModel({
+  TabModel({
     this.error,
     this.data,
   });
 
-  factory tabModel.loopJson(Map<String, dynamic> object) {
-    return tabModel(
+  factory TabModel.loopJson(Map<String, dynamic> object) {
+    return TabModel(
       error: object['error'],
       data: object['data'],
     );
   }
 
-  static Future<tabModel> homeCount() async {
+  static Future<TabModel> homeCount() async {
     // final LocalStorage storage = new LocalStorage('auth');
-    String apiURL = globalBaseUrl +  "home";
+    String apiURL = globalBaseUrl + "home";
 
-    var apiResult = await http.get(apiURL,
-       
-        headers: {"Accept": "application/json"});
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+
+    var apiResult = await http.get(apiURL, headers: {
+      "Accept": "application/json",
+      "Authorization": tokenJWT + tokenFixed
+    });
 
     print('homeCount status code : ' + apiResult.statusCode.toString());
+    Map jsonObject = json.decode(apiResult.body);
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
 
     try {
       if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
-        Map jsonObject = json.decode(apiResult.body);
-        Map a;
-
-      
-
-
         _setCount(jsonObject['data']);
-        return tabModel(
+        return TabModel(
           error: false,
           data: jsonObject['data'],
         );
-      } 
+      } else if (apiResult.statusCode == 401) {
+        await GeneralModel.destroyToken().then((value) => null);
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+            'not_login': true,
+          },
+        );
+      } else {
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+          },
+        );
+      }
     } catch (e) {
       print('error catch');
       print(e);
-      
+      return TabModel(
+        error: true,
+        data: {'message': e.toString()},
+      );
     }
   }
-
-  }
+}

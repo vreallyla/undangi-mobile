@@ -9,6 +9,7 @@ class AppTheme {
   static const Color primaryBg = Color(0xFFf9f9f9);
   static const Color primarymenu = Color(0xFF4a82df);
   static const Color primaryRed = Color(0xFFf90706);
+  static const Color primaryBluePekat = Color(0xFF022b69);
 
   static const Color biruLaut = Color(0xFF29a9ff);
 
@@ -22,7 +23,6 @@ class AppTheme {
   static const Color geySolidCustom = Colors.black54;
   static const Color geySoftCustom = Color(0xFFfdffff);
   static const Color geySofttCustom = Color(0xFFe9e9e9);
-  
 
   static const bgChatBlue = Color(0xFF2979ff);
   static const bgChatGrey = Color(0xFF989292);
@@ -32,11 +32,10 @@ class AppTheme {
 
   static const Color bgRedSoft = Color(0xFFffebfc);
   static const Color bgYellowSoft = Color(0xFFfffceb);
-  static const Color bgBlueSoft = Color(0xFFf1f3fe);
+  static const Color bgBlueSoft = Color(0xFFe4f3fa);
   static const Color bgGreenBlueSoft = Color(0xFFc6d9dd);
   static const Color bgGreenSoft = Color(0xFF6de1b4);
   static const Color bgBlue2Soft = Color(0xFFc7d9dc);
-  
 
   static const Color bgIcoGrey = Color(0xFFf1eff2);
 

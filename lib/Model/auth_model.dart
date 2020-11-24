@@ -84,7 +84,6 @@ class AuthModel {
       var jsonObject = json.decode(apiResult.body);
       if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
         await GeneralModel.setToken(jsonObject['data']['token']);
-        print(apiResult.body.toString());
 
         return AuthModel(
           error: false,
