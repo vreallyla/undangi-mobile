@@ -16,3 +16,8 @@ const String noticeTitle = 'Terjadi kesalahan!';
 
 //CONFIRM
 const String konfirm1 = 'OK';
+const String cancel1 = 'TIDAK';
+
+//HAPUS
+const String titleHapus = 'Yakin Hapus?';
+const String subHapus = 'Data akan hilang....';

@@ -790,13 +790,15 @@ sampleOpenAlertBox(context) {
 }
 
 Widget noticeText(trgt, validation) {
-  var kond = validation.containsKey(trgt);
-  return Text(
-    kond ? validation[trgt].join(', ') : '',
-    textAlign: TextAlign.left,
-    style: TextStyle(
-      color: Colors.red,
-      fontSize: kond ? 12 : 0,
+  var kond = validation.containsKey(trgt) && validation[trgt] != null;
+  return Container(
+    child: Text(
+      kond ? validation[trgt].join(', ') : '',
+      textAlign: TextAlign.left,
+      style: TextStyle(
+        color: Colors.red,
+        fontSize: kond ? 12 : 0,
+      ),
     ),
   );
 }

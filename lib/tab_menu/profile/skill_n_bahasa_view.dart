@@ -2,6 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Constant/app_theme.dart';
 
+const Map opSel = {
+  "dasar": 'Dasar',
+  "percakapan": 'Percakapan',
+  "lancar": 'Lancar',
+  "asli": 'Asli (Native)',
+  "pemula": 'Pemula',
+  "menengah": 'Menengah',
+  "ahli": 'Ahli',
+};
+
+const List valueExist = [
+  'dasar',
+  'percakapan',
+  'lancar',
+  'asli',
+  'pemula',
+  'menengah',
+  'ahli',
+];
+
 class SkillNBahasaView extends StatefulWidget {
   @override
   _SkillNBahasaViewState createState() => _SkillNBahasaViewState();
@@ -72,7 +92,9 @@ class _SkillNBahasaViewState extends State<SkillNBahasaView> {
               alignment: Alignment.centerRight,
               padding: EdgeInsets.only(right: 12, bottom: 10),
               child: Text(
-                widget.dataSkill[i]['tingkatan'],
+                valueExist.contains(widget.dataSkill[i]['tingkatan'])
+                    ? opSel[widget.dataSkill[i]['tingkatan']]
+                    : 'Unknown',
                 maxLines: 1,
                 style: TextStyle(fontSize: 12, color: AppTheme.primaryRed),
                 textAlign: TextAlign.right,

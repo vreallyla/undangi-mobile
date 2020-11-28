@@ -47,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         () {
       ProfileModel.get().then((v) {
         loadingSet(false);
-
+        // print(v.data['skills']);
         if (v.error) {
           errorRespon(context, v.data);
         } else {
@@ -280,6 +280,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ? PortfolioView(
                         dataPort: dataProfil['portofolio'],
                         checkData: check,
+                        getApi: () {
+                          _loadApi();
+                        },
+                        deletePort: (String id) {
+                          onLoading(context);
+
+                          GeneralModel.checCk(
+                              //connect
+                              () async {
+                            ProfileModel.portfolioHapus(id).then((v) {
+                              Navigator.pop(context);
+                              if (v.error) {
+                                errorRespon(context, v.data);
+                              } else {
+                                _loadApi();
+                              }
+                            });
+                          },
+                              //disconect
+                              () {
+                            Navigator.pop(context);
+
+                            openAlertBox(context, noticeTitle, notice, konfirm1,
+                                () {
+                              Navigator.pop(context, false);
+                            });
+                          });
+                        },
                       )
                     : ProfileView(
                         dataProfile: dataProfil,

@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Model/profile_model.dart';
 
 import 'sub/portfolio_tambah_screen.dart';
 
@@ -10,10 +13,14 @@ class PortfolioView extends StatelessWidget {
     Key key,
     this.dataPort,
     this.checkData,
+    this.getApi,
+    this.deletePort,
   }) : super(key: key);
 
   final List dataPort;
   final bool checkData;
+  final Function getApi;
+  final Function(String id) deletePort;
 
   Widget dataLoad(context) {
     final sizeu = MediaQuery.of(context).size;
@@ -69,7 +76,13 @@ class PortfolioView extends StatelessWidget {
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
-                                PortfolioTambahScreen()));
+                                PortfolioTambahScreen(
+                                  dataEdit: {},
+                                ))).then((value) {
+                      if (value) {
+                        getApi();
+                      }
+                    });
                   },
                   color: AppTheme.primaryBlue,
                   child: Row(
@@ -116,30 +129,54 @@ class PortfolioView extends StatelessWidget {
             padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 //gambar portfolio
                 Container(
                   width: (sizeu.width - 70) / 2.5,
                   margin: EdgeInsets.only(right: 10, bottom: 10),
-                  height: 80,
-                  decoration: BoxDecoration(color: AppTheme.geyCustom),
-                  child: value.containsKey('foto')
-                      ? CachedNetworkImage(
-                          imageUrl: domainChange(value['foto']),
-                          placeholder: (context, url) => SizedBox(
-                              width: 80,
-                              child: new CircularProgressIndicator()),
-                          errorWidget: (context, url, error) =>
-                              new Icon(Icons.error),
-                        )
-                      : Text(''),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      value.containsKey('foto') && value['foto'] != null
+                          ? CachedNetworkImage(
+                              imageUrl: domainChange(value['foto']),
+                              fit: BoxFit.fitWidth,
+                              placeholder: (context, url) => SizedBox(
+                                  width: 80,
+                                  child: new CircularProgressIndicator()),
+                              errorWidget: (context, url, error) =>
+                                  new Icon(Icons.error),
+                            )
+                          : Image.asset('assets/general/photo_holder.png'),
+                      Container(
+                        alignment: Alignment.center,
+                        width: double.infinity,
+                        height: 25,
+                        margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                        decoration: BoxDecoration(
+                          color: AppTheme.bgChatBlue,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          value['tahun'],
+                          style: TextStyle(
+                            color: AppTheme.nearlyWhite,
+                            fontSize: 14,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
                 Container(
+                  alignment: Alignment.topLeft,
+                  // margin: EdgeInsets.only(top: 15),
                   width: (sizeu.width - 70) - (sizeu.width - 70) / 2.5,
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 10),
+                  padding: const EdgeInsets.only(top: 15.0, bottom: 10),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 4.0),
@@ -184,10 +221,24 @@ class PortfolioView extends StatelessWidget {
               onSelected: (newValue) {
                 if (newValue == 0) {
                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              PortfolioTambahScreen()));
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  PortfolioTambahScreen(dataEdit: value)))
+                      .then((value) {
+                    if (value) {
+                      getApi();
+                    }
+                  });
+                } else {
+                  openAlertBoxTwo(
+                      context, titleHapus, subHapus, cancel1, konfirm1, () {
+                    Navigator.pop(context);
+                  }, () {
+                    Navigator.pop(context);
+
+                    deletePort(value['id'].toString());
+                  });
                 }
               },
               itemBuilder: (context) => [

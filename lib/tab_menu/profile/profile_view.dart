@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/tab_menu/profile/skill_n_bahasa_view.dart';
+import 'package:undangi/tab_menu/profile/sub/profil_skill_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_summary_view.dart';
 
 class ProfileView extends StatelessWidget {
@@ -195,7 +196,17 @@ class ProfileView extends StatelessWidget {
                       //edit skill
                       InkWell(
                         onTap: () {
-                          Navigator.pushNamed(context, '/profil_skill');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilSkillView(
+                                    skillData:
+                                        checkData ? dataProfile['skills'] : []),
+                              )).then((value) {
+                            if (value) {
+                              getApi();
+                            }
+                          });
                         },
                         child: Container(
                           width: 20,
