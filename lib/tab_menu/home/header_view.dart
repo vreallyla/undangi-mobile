@@ -167,23 +167,34 @@ class _HomeHeaderViewState extends State<HomeHeaderView> {
           ),
         ),
         //searchbox
-        SearcBox(
-          controll: cariLayananInput,
-          marginn: EdgeInsets.only(
+        Container(
+          margin: EdgeInsets.only(
               top: sizeu.height * 2 / 5 - 110, left: 40, right: 40),
-          paddingg: EdgeInsets.only(left: 15, right: 15),
-          widthh: sizeu.width,
-          heightt: 40,
-          widthText: sizeu.width - 80 - 30 - 30,
-          textL: 45,
-          placeholder: "Cari Proyek/Layanan Baru",
-          eventtChange: (v) {
-            print(v);
-            // v is value of textfield
-          },
-          eventtSubmit: (v) {
-            // v is value of textfield
-          },
+          child: InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, '/home',
+                  arguments: {"index_route": 1});
+            },
+            child: IgnorePointer(
+              child: SearcBox(
+                marginn: EdgeInsets.all(0),
+                controll: cariLayananInput,
+                paddingg: EdgeInsets.only(left: 15, right: 15),
+                widthh: sizeu.width,
+                heightt: 40,
+                widthText: sizeu.width - 80 - 30 - 30,
+                textL: 45,
+                placeholder: "Cari Proyek/Layanan Baru",
+                eventtChange: (v) {
+                  print(v);
+                  // v is value of textfield
+                },
+                eventtSubmit: (v) {
+                  // v is value of textfield
+                },
+              ),
+            ),
+          ),
         )
       ],
     );

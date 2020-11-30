@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: ListView(children: <Widget>[
         HomeHeaderView(),
         Container(
-          margin: EdgeInsets.fromLTRB(40, 20, 40, 10),
+          margin: EdgeInsets.fromLTRB(40, 20, 40, 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

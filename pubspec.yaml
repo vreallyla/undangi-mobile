@@ -38,6 +38,8 @@ dependencies:
   connectivity: ^2.0.2
   cached_network_image: ^2.3.3
   image_picker: ^0.6.7+14
+  pull_to_refresh: ^1.6.3
+  shimmer: ^1.1.2
 
 dev_dependencies:
   flutter_test:

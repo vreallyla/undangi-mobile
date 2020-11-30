@@ -84,4 +84,121 @@ class TabModel {
       );
     }
   }
+
+  static Future<TabModel> kategorySearch(String q) async {
+    // final LocalStorage storage = new LocalStorage('auth');
+    String apiURL = globalBaseUrl +
+        "kategori" +
+        (q != null && q.length > 0 ? '?q=${q}' : '');
+
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+
+    var apiResult = await http.get(apiURL, headers: {
+      "Accept": "application/json",
+      "Authorization": tokenJWT + tokenFixed
+    });
+
+    print('kategori status code : ' + apiResult.statusCode.toString());
+    Map jsonObject = json.decode(apiResult.body);
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
+
+    try {
+      if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
+        return TabModel(
+          error: false,
+          data: {'list': jsonObject['data']},
+        );
+      } else if (apiResult.statusCode == 401) {
+        await GeneralModel.destroyToken().then((value) => null);
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+            'not_login': true,
+          },
+        );
+      } else {
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+          },
+        );
+      }
+    } catch (e) {
+      print('error catch');
+      print(e);
+      return TabModel(
+        error: true,
+        data: {'message': e.toString()},
+      );
+    }
+  }
+
+  static Future<TabModel> proyekData(Map res, bool proyek) async {
+    print(res);
+    // final LocalStorage storage = new LocalStorage('auth');
+    String apiURL = globalBaseUrl +
+        (proyek ? "proyek" : 'layanan') +
+        '?limit=' +
+        res['limit'].toString() +
+        (res['q'] != null ? '&q=${res['q']}' : '') +
+        (res['kat'] != null && res['kat'].length > 0
+            ? '&kat=${res['kat']}'
+            : '');
+
+    print(apiURL);
+
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+
+    var apiResult = await http.get(apiURL, headers: {
+      "Accept": "application/json",
+      "Authorization": tokenJWT + tokenFixed
+    });
+
+    print('kategori status code : ' + apiResult.statusCode.toString());
+    Map jsonObject = json.decode(apiResult.body);
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
+
+    try {
+      if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
+        print(jsonObject['data']['kategori']);
+        return TabModel(
+          error: false,
+          data: jsonObject['data'],
+        );
+      } else if (apiResult.statusCode == 401) {
+        await GeneralModel.destroyToken().then((value) => null);
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+            'not_login': true,
+          },
+        );
+      } else {
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+          },
+        );
+      }
+    } catch (e) {
+      print('error catch');
+      print(e);
+      return TabModel(
+        error: true,
+        data: {'message': e.toString()},
+      );
+    }
+  }
 }

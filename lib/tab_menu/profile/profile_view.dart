@@ -175,23 +175,23 @@ class ProfileView extends StatelessWidget {
                         ),
                       ),
                       //delete skill
-                      InkWell(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/profil_skill_delete');
-                        },
-                        child: Container(
-                          width: 20,
-                          height: 20,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: (AssetImage(
-                                  'assets/more_icon/remove_file.png')),
-                              fit: BoxFit.fitWidth,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Padding(padding: EdgeInsets.only(left: 10)),
+                      // InkWell(
+                      //   onTap: () {
+                      //     Navigator.pushNamed(context, '/profil_skill_delete');
+                      //   },
+                      //   child: Container(
+                      //     width: 20,
+                      //     height: 20,
+                      //     decoration: BoxDecoration(
+                      //       image: DecorationImage(
+                      //         image: (AssetImage(
+                      //             'assets/more_icon/remove_file.png')),
+                      //         fit: BoxFit.fitWidth,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Padding(padding: EdgeInsets.only(left: 10)),
 
                       //edit skill
                       InkWell(

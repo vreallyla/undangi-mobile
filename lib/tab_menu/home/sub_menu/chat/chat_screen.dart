@@ -16,6 +16,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
     final paddingPhone = MediaQuery.of(context).padding;
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
       appBar: appPolosBack(paddingPhone, () {
@@ -29,7 +30,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: <Widget>[
               userBox(sizeu),
               // Padding(padding: EdgeInsets.only(left: 10)),
-              chatBox(sizeu, paddingPhone)
+              chatBox(sizeu, paddingPhone, bottom)
             ],
           )),
     );
@@ -105,7 +106,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget chatBox(sizeu, paddingPhone) {
+  Widget chatBox(sizeu, paddingPhone, bottom) {
     double widthChat = sizeu.width - 170 - 10;
     double widthIco = 30;
     return Stack(
@@ -129,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ],
             ),
-            child: ListView(
+            child: Column(
               children: [
                 // content chat
                 Container(
@@ -139,6 +140,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       100 -
                       20 -
                       70 -
+                      bottom -
                       paddingPhone.top -
                       paddingPhone.bottom,
                   child: ListView(
