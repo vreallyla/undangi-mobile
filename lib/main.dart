@@ -9,6 +9,7 @@ import 'package:undangi/auth/register_screen.dart';
 import 'package:undangi/tab_menu/frelencer/pay/pay_frelence_screen.dart';
 import 'package:undangi/tab_menu/frelencer/proyek/proyek_frelence_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/chat/chat_screen.dart';
+import 'package:undangi/tab_menu/home/sub_menu/chat/chat_test.dart';
 import 'package:undangi/tab_menu/home/sub_menu/proyek_list/proyek_list_screen.dart';
 import 'package:undangi/tab_menu/home/sub_menu/user_list/user_list_screen.dart';
 import 'package:undangi/tab_menu/owner/layanan/owner_layanan_screen.dart';
@@ -58,7 +59,8 @@ class MyApp extends StatelessWidget {
         '/user_list': (context) => UserListScreen(),
         '/proyek_list': (context) => ProyekListScreen(),
         '/layanan_list': (context) => LayananListScreen(),
-        '/chat': (context) => ChatScreen(),
+        // '/chat': (context) => ChatScreen(),
+        '/chats': (context) => ChatTest(),
         // '/profil_summary': (context) => ProfilSummaryScreen(),
         '/profil_skill': (context) => ProfilSkillView(),
         '/profil_edit': (context) => ProfilEditView(),

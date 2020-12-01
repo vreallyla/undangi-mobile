@@ -55,7 +55,7 @@ class _HomeHeaderViewState extends State<HomeHeaderView> {
         // chat icon
         InkWell(
           onTap: () {
-            Navigator.pushNamed(context, '/chat');
+            Navigator.pushNamed(context, '/chats');
           },
           child: Container(
             alignment: Alignment.topRight,
