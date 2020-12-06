@@ -1,7 +1,17 @@
+import 'dart:async';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/search_box.dart';
+import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/Model/chat_model.dart';
+import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Constant/expanded_viewport.dart';
+
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -11,6 +21,194 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   TextEditingController cariUserInput = new TextEditingController();
   TextEditingController chatInput = new TextEditingController();
+  RefreshController _refreshController = RefreshController();
+
+  int userLen = 1;
+  int userLenPlus = 1;
+  int msgLen = 20;
+  int msgLenPlus = 20;
+  String search;
+  int chatTo;
+
+  bool error = false;
+  bool userRefresh = false;
+
+  Timer getChat;
+
+  Map dataChat = {};
+
+  @override
+  void initState() {
+    _loadChat();
+    super.initState();
+    getChat = Timer.periodic(Duration(seconds: 3), (Timer t) => _loadChat());
+  }
+
+  @override
+  void dispose() {
+    getChat?.cancel();
+    super.dispose();
+  }
+
+  _loadChat() async {
+    if (!error && !userRefresh) {
+      Map res = getParams();
+
+      await GeneralModel.checCk(
+          //internet connect
+          () {
+        ChatModel.get(res).then((v) {
+          // print(v.data['skills']);
+          if (v.error) {
+            errorRespon(context, v.data);
+            setState(() {
+              error = true;
+            });
+          } else {
+            setState(() {
+              dataChat = (v.data);
+            });
+          }
+        });
+      },
+          //internet disconnect
+          () {
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          Navigator.pop(context);
+        });
+      });
+    }
+  }
+
+  // refresh user
+  void _refreshUser() async {
+    refreshApi(true);
+    GeneralModel.checCk(
+        //connect
+        () async {
+      Map res = getParams();
+
+      await GeneralModel.checCk(
+          //internet connect
+          () {
+        ChatModel.get(res).then((v) {
+          _refreshController.refreshCompleted();
+          refreshApi(false);
+
+          if (v.error) {
+            errorRespon(context, v.data);
+            setState(() {
+              error = true;
+            });
+          } else {
+            setState(() {
+              dataChat = (v.data);
+            });
+          }
+        });
+      },
+          //internet disconnect
+          () {
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          refreshApi(false);
+
+          Navigator.pop(context);
+        });
+      });
+    },
+        //disconect
+        () {
+      refreshApi(false);
+
+      _refreshController.refreshCompleted();
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
+  // next user
+  void _nextUser() async {
+    print('cvcc');
+    int rowBefor = dataChat.containsKey('user') ? dataChat['user'].length : 0;
+
+    setState(() {
+      userLen = userLen + userLenPlus;
+    });
+    refreshApi(true);
+    GeneralModel.checCk(
+        //connect
+        () async {
+      Map res = getParams();
+
+      await GeneralModel.checCk(
+          //internet connect
+          () {
+        ChatModel.get(res).then((v) {
+          if (rowBefor < dataChat['user'].length) {
+            _refreshController.loadComplete();
+          } else {
+            _refreshController.loadNoData();
+          }
+          refreshApi(false);
+
+          if (v.error) {
+            errorRespon(context, v.data);
+            setState(() {
+              error = true;
+            });
+          } else {
+            setState(() {
+              dataChat = (v.data);
+            });
+          }
+        });
+      },
+          //internet disconnect
+          () {
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          refreshApi(false);
+          _refreshController.loadNoData();
+
+          Navigator.pop(context);
+        });
+      });
+    },
+        //disconect
+        () {
+      refreshApi(false);
+
+      _refreshController.loadNoData();
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
+  refreshApi(bool kond) {
+    setState(() {
+      userRefresh = kond;
+    });
+  }
+
+  getParams() {
+    Map res = {
+      "len_chat": msgLen.toString(),
+      // "chat_id":
+      "len_user": userLen.toString()
+    };
+    if (search != null) {
+      res['q'] = search;
+    }
+
+    if (chatTo != null) {
+      res['chat_id'] = chatTo;
+    }
+
+    return res;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +235,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget userBox(sizeu) {
+    final paddingPhone = MediaQuery.of(context).padding;
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       width: 160,
       padding: EdgeInsets.only(right: 10),
@@ -75,33 +275,101 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           Container(
-            child: Row(
-              children: [
-                Container(
-                  width: 35,
-                  height: 35,
-                  margin: EdgeInsets.only(right: 5),
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: (AssetImage('assets/general/user_place.png')),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.circular(30),
-                    color: Colors.white,
+              height: sizeu.height -
+                  paddingPhone.top -
+                  paddingPhone.bottom -
+                  bottom -
+                  165,
+              width: double.infinity,
+              child: SmartRefresher(
+                header: ShimmerHeader(
+                  text: Text(
+                    "PullToRefresh",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
+                  baseColor: AppTheme.bgChatBlue,
                 ),
-                SizedBox(
-                  width: 110,
-                  child: Text(
-                    'Placeholder Nama ',
-                    maxLines: 2,
-                    style: TextStyle(fontSize: 11),
+                footer: ShimmerFooter(
+                  text: Text(
+                    "PullToRefresh",
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
-                )
-              ],
-            ),
-          ),
+                  noMore: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "AllUserLoaded",
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
+                    ),
+                  ),
+                  baseColor: AppTheme.bgChatBlue,
+                ),
+                controller: _refreshController,
+                enablePullUp: true,
+                child: ListView.builder(
+                    itemCount: dataChat.containsKey('user')
+                        ? dataChat['user'].length
+                        : 0,
+                    // itemExtent: 100.0,
+                    itemBuilder: (c, i) => userChat(dataChat['user'][i])),
+                onRefresh: _refreshUser,
+                onLoading: _nextUser,
+              ))
         ],
+      ),
+    );
+  }
+
+  Widget userChat(data) {
+    return InkWell(
+      onTap: (){
+        setState(() {
+          chatTo=data['id'];
+        });
+      },
+          child: Container(
+            color:chatTo==data['id']? AppTheme.bgBlue2Soft:Colors.transparent,
+        margin: EdgeInsets.only(bottom: 10),
+        padding: EdgeInsets.only(top:5,bottom:5),
+        child: Row(
+          children: [
+            Container(
+              width: 35,
+              height: 35,
+              margin: EdgeInsets.only(right: 5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                color: Colors.white,
+              ),
+              child: data.containsKey('foto') && data['foto'] != null
+                  ? CachedNetworkImage(
+                      imageUrl: domainChange(data['foto']),
+                      imageBuilder: (context, imageProvider) => Container(
+                        width: 35.0,
+                        height: 35.0,
+                        decoration: BoxDecoration(
+                          border:
+                              Border.all(width: 1, color: AppTheme.geySoftCustom),
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                              image: imageProvider, fit: BoxFit.cover),
+                        ),
+                      ),
+                      placeholder: (context, url) => SizedBox(
+                          width: 80, child: new CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => new Icon(Icons.error),
+                    )
+                  : Image.asset('assets/general/photo_holder.png'),
+            ),
+            SizedBox(
+              width: 110,
+              child: Text(
+                data['name'],
+                maxLines: 2,
+                style: TextStyle(fontSize: 11),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
