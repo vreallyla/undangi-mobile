@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Splash_screen.dart';
@@ -285,6 +286,58 @@ onLoading(context) {
   // new Future.delayed(new Duration(seconds: 3), () {
   //   Navigator.pop(context); //pop dialog
   // });
+}
+
+Widget loadingCircle(){
+  return Align(
+                                alignment: Alignment.center,
+                                child: Container(
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(50),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 1,
+                                        blurRadius: 2,
+                                        offset: Offset(
+                                            0, 0), // changes position of shadow
+                                      ),
+                                    ],
+                                  ),
+                                  width: 20,
+                                  alignment: Alignment.center,
+                                  child: SizedBox(
+                                    child: new CircularProgressIndicator(
+                                        strokeWidth: 2.0),
+                                    height: 10.0,
+                                    width: 10.0,
+                                  ),
+                                ),
+                              );
+}
+
+Widget imageLoad(String url,bool circle,double height,double width){
+  return CachedNetworkImage(
+                      imageUrl: domainChange(url),
+                      fit: BoxFit.fitHeight,
+                      imageBuilder: (context, imageProvider) => Container(
+                        width: width,
+                        height: height,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                              width: 1, color: AppTheme.geySoftCustom),
+                          shape: circle ?BoxShape.circle:BoxShape.rectangle,
+                          image: DecorationImage(
+                              image: imageProvider, fit: BoxFit.cover),
+                        ),
+                      ),
+                      placeholder: (context, url) => loadingCircle(),
+                      errorWidget: (context, url, error) =>
+                          new Icon(Icons.error),
+                    )
+                  ;
 }
 
 Widget onLoading2() {

@@ -24,6 +24,9 @@ const String cancel1 = 'TIDAK';
 const String titleHapus = 'Yakin Hapus?';
 const String subHapus = 'Data akan hilang....';
 
+//WAKTU
+const waktuDaerah=' WIB';
+
 pointGroup(int value) {
   return NumberFormat("#,###", "id_ID").format(value);
 }

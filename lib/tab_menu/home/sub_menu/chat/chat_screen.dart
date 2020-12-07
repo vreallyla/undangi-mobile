@@ -11,7 +11,8 @@ import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/Model/chat_model.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Constant/expanded_viewport.dart';
-
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -22,20 +23,26 @@ class _ChatScreenState extends State<ChatScreen> {
   TextEditingController cariUserInput = new TextEditingController();
   TextEditingController chatInput = new TextEditingController();
   RefreshController _refreshController = RefreshController();
+  RefreshController _chatContentController = RefreshController();
+  ScrollController _scrollContentController = ScrollController();
 
   int userLen = 1;
   int userLenPlus = 1;
-  int msgLen = 20;
-  int msgLenPlus = 20;
+  int msgLen = 5;
+  int msgLenPlus = 5;
   String search;
   int chatTo;
+  double typingHeight = 0;
+  String namaChat = '';
 
   bool error = false;
   bool userRefresh = false;
+  bool loadingChat = false;
 
   Timer getChat;
 
   Map dataChat = {};
+  List dataContent = [];
 
   @override
   void initState() {
@@ -66,7 +73,15 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
+              if(dataChat!=v.data){
+                msgLen=msgLen+1;
+              }
               dataChat = (v.data);
+              if (dataChat['typing']) {
+                typingHeight = 40;
+              } else {
+                typingHeight = 0;
+              }
             });
           }
         });
@@ -102,7 +117,15 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
+              if(dataChat!=v.data){
+                msgLen=msgLen+1;
+              }
               dataChat = (v.data);
+              if (dataChat['typing']) {
+                typingHeight = 40;
+              } else {
+                typingHeight = 0;
+              }
             });
           }
         });
@@ -160,7 +183,15 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
+              if(dataChat!=v.data){
+                msgLen=msgLen+1;
+              }
               dataChat = (v.data);
+              if (dataChat['typing']) {
+                typingHeight = 40;
+              } else {
+                typingHeight = 0;
+              }
             });
           }
         });
@@ -187,9 +218,142 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  // change msg to other user
+  void _changetMsg() async {
+    int rowBefor = dataChat.containsKey('user') ? dataChat['user'].length : 0;
+    changeChat(true);
+
+    refreshApi(true);
+    GeneralModel.checCk(
+        //connect
+        () async {
+      Map res = getParams();
+
+      await GeneralModel.checCk(
+          //internet connect
+          () {
+        ChatModel.get(res).then((v) {
+          refreshApi(false);
+          changeChat(false);
+
+          if (v.error) {
+            errorRespon(context, v.data);
+            setState(() {
+              error = true;
+            });
+          } else {
+            setState(() {
+              if(dataChat!=v.data){
+                msgLen=msgLen+1;
+              }
+              dataChat = (v.data);
+              if (dataChat['typing']) {
+                typingHeight = 40;
+              } else {
+                typingHeight = 0;
+              }
+            });
+          }
+        });
+      },
+          //internet disconnect
+          () {
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          refreshApi(false);
+          changeChat(false);
+
+          Navigator.pop(context);
+        });
+      });
+    },
+        //disconect
+        () {
+      refreshApi(false);
+      changeChat(false);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
+  void _nextMsg() async {
+    int rowBefor = dataChat.containsKey('user') ? dataChat['user'].length : 0;
+
+    setState(() {
+      msgLen = msgLen + msgLenPlus;
+    });
+
+    refreshApi(true);
+    GeneralModel.checCk(
+        //connect
+        () async {
+      Map res = getParams();
+
+      await GeneralModel.checCk(
+          //internet connect
+          () {
+        ChatModel.get(res).then((v) {
+          if (rowBefor < dataChat['user'].length) {
+            _chatContentController.loadComplete();
+          } else {
+            _chatContentController.loadNoData();
+          }
+
+          refreshApi(false);
+
+          if (v.error) {
+            errorRespon(context, v.data);
+            setState(() {
+              error = true;
+            });
+          } else {
+            setState(() {
+              if(dataChat!=v.data){
+                msgLen=msgLen+1;
+              }
+              dataChat = (v.data);
+              if (dataChat['typing']) {
+                typingHeight = 40;
+              } else {
+                typingHeight = 0;
+              }
+            });
+          }
+        });
+      },
+          //internet disconnect
+          () {
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          refreshApi(false);
+
+          _chatContentController.loadNoData();
+
+          Navigator.pop(context);
+        });
+      });
+    },
+        //disconect
+        () {
+      refreshApi(false);
+
+      _chatContentController.loadNoData();
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
   refreshApi(bool kond) {
     setState(() {
       userRefresh = kond;
+    });
+  }
+
+  changeChat(bool kond) {
+    setState(() {
+      loadingChat = kond;
     });
   }
 
@@ -257,7 +421,9 @@ class _ChatScreenState extends State<ChatScreen> {
             textL: 15,
             placeholder: "Cari User",
             eventtChange: (v) {
-              print(v);
+              setState(() {
+                search=v
+;              });
               // v is value of textfield
             },
             eventtSubmit: (v) {
@@ -321,15 +487,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget userChat(data) {
     return InkWell(
-      onTap: (){
+      onTap: () {
         setState(() {
-          chatTo=data['id'];
+          chatTo = data['id'];
+          namaChat = data['name'];
         });
+        _changetMsg();
       },
-          child: Container(
-            color:chatTo==data['id']? AppTheme.bgBlue2Soft:Colors.transparent,
+      child: Container(
+        color: chatTo == data['id'] ? AppTheme.bgBlue2Soft : Colors.transparent,
         margin: EdgeInsets.only(bottom: 10),
-        padding: EdgeInsets.only(top:5,bottom:5),
+        padding: EdgeInsets.only(top: 5, bottom: 5),
         child: Row(
           children: [
             Container(
@@ -347,8 +515,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 35.0,
                         height: 35.0,
                         decoration: BoxDecoration(
-                          border:
-                              Border.all(width: 1, color: AppTheme.geySoftCustom),
+                          border: Border.all(
+                              width: 1, color: AppTheme.geySoftCustom),
                           shape: BoxShape.circle,
                           image: DecorationImage(
                               image: imageProvider, fit: BoxFit.cover),
@@ -356,7 +524,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       placeholder: (context, url) => SizedBox(
                           width: 80, child: new CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => new Icon(Icons.error),
+                      errorWidget: (context, url, error) =>
+                          new Icon(Icons.error),
                     )
                   : Image.asset('assets/general/photo_holder.png'),
             ),
@@ -410,54 +579,69 @@ class _ChatScreenState extends State<ChatScreen> {
                       70 -
                       bottom -
                       paddingPhone.top -
-                      paddingPhone.bottom,
-                  child: ListView(
-                    // crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        height: 30,
-                        width: (widthChat - 20) / 2 + 40,
-                        margin: EdgeInsets.only(
-                            left: (widthChat - 20) / 2 - 40, bottom: 10),
-                        decoration: BoxDecoration(
-                          color: AppTheme.bgChatGrey,
-                          borderRadius: BorderRadius.circular(15),
+                      paddingPhone.bottom -
+                      typingHeight,
+                  child: loadingChat
+                      ? onLoading2()
+                      : SmartRefresher(
+                          enablePullDown: false,
+                          onLoading: _nextMsg,
+                          footer: CustomFooter(
+                            loadStyle: LoadStyle.ShowAlways,
+                            builder: (context, mode) {
+                              if (mode == LoadStatus.loading) {
+                                return Container(
+                                  height: 60.0,
+                                  child: Container(
+                                      height: 20.0,
+                                      width: 20.0,
+                                      child: loadingCircle()),
+                                );
+                              } else if (mode == LoadStatus.noMore) {
+                                return Align(
+                                  alignment: Alignment.center,
+                                  child: Text('No message more...'),
+                                );
+                              } else
+                                return Container(
+                                  height: 0,
+                                );
+                            },
+                          ),
+                          enablePullUp: true,
+                          child: Scrollable(
+                            controller: _scrollContentController,
+                            axisDirection: AxisDirection.up,
+                            viewportBuilder: (context, offset) {
+                              return ExpandedViewport(
+                                offset: offset,
+                                axisDirection: AxisDirection.up,
+                                slivers: <Widget>[
+                                  SliverExpanded(),
+                                  SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                        (c, i) => dataChat.containsKey('chat')
+                                            ? opChat(dataChat['chat'][i])
+                                            : Text(''),
+                                        childCount: dataChat.containsKey('chat')
+                                            ? dataChat['chat'].length
+                                            : 0),
+                                  )
+                                ],
+                              );
+                            },
+                          ),
+                          controller: _chatContentController,
                         ),
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 35,
-                            height: 35,
-                            margin: EdgeInsets.only(right: 5),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.grey,
-                                width: 1,
-                              ),
-                              image: DecorationImage(
-                                image: (AssetImage(
-                                    'assets/general/user_place.png')),
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius: BorderRadius.circular(30),
-                              color: Colors.white,
-                            ),
-                          ),
-                          Container(
-                            height: 30,
-                            width: (widthChat - 20) / 2 + 40,
-                            margin: EdgeInsets.only(bottom: 10, top: 5),
-                            decoration: BoxDecoration(
-                              color: AppTheme.bgChatBlue,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                ),
+
+                Container(
+                  height: typingHeight,
+                  alignment: Alignment.center,
+                  color: AppTheme.cardBlue,
+                  child: Text(
+                    typingHeight > 0 ? namaChat + ' typing' : '',
+                    style: TextStyle(fontSize: typingHeight > 0 ? 11 : 0),
                   ),
                 ),
                 // type chat
@@ -465,12 +649,15 @@ class _ChatScreenState extends State<ChatScreen> {
                   height: 40,
                   padding: EdgeInsets.only(left: 10, right: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: chatTo != null && !loadingChat
+                        ? Colors.white
+                        : AppTheme.geySofttCustom,
                     border: Border(
                       top: BorderSide(width: .5, color: Colors.grey),
                     ),
                   ),
                   child: TextField(
+                    enabled: chatTo != null && !loadingChat,
                     onChanged: (v) {
                       // widget.eventtChange(v);
                     },
@@ -492,6 +679,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ),
+
         // head chat
         Container(
           padding: EdgeInsets.fromLTRB(10, 5, 10, 0),
@@ -518,7 +706,7 @@ class _ChatScreenState extends State<ChatScreen> {
               SizedBox(
                 width: widthChat - widthIco - 20 - 10,
                 child: Text(
-                  'NillaSanti',
+                  namaChat,
                   maxLines: 1,
                   style: TextStyle(
                       color: AppTheme.primaryWhite,
@@ -529,6 +717,111 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget opChat(data) {
+    final sizeu = MediaQuery.of(context).size;
+
+    return data['is_me'] == 1 ? chatMe(data) : chatEnemy(data);
+  }
+
+  Widget chatMe(Map data) {
+    final sizeu = MediaQuery.of(context).size;
+    final he = new DateFormat("yyyy-MM-dd hh:mm:ss").parse(data['created_at']);
+
+    double widthChat = sizeu.width - 170 - 10;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(5),
+          width: (widthChat - 20) / 2 + 40,
+          margin: EdgeInsets.only(left: (widthChat - 20) / 2 - 40),
+          decoration: BoxDecoration(
+            color: AppTheme.bgChatGrey,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: data.containsKey('message')
+              ? Text(
+                  data['message'],
+                  style: TextStyle(color: Colors.white),
+                )
+              : Container(
+                  color: Colors.white,
+                  child: imageLoad(data['image'], false, 100, 100),
+                ),
+        ),
+        Container(
+          alignment: Alignment.topLeft,
+          padding: EdgeInsets.only(
+              bottom: 10, left: (widthChat - 20) / 2 - 40 + 5, top: 5),
+          child: Text(
+            new DateFormat('E | d MMM yy').add_jm().format(he) 
+                ,
+            style: TextStyle(fontSize: 11),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget chatEnemy(Map data) {
+    final sizeu = MediaQuery.of(context).size;
+    final he = new DateFormat("yyyy-MM-dd hh:mm:ss").parse(data['created_at']);
+
+    double widthChat = sizeu.width - 170 - 10;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              width: 35,
+              height: 35,
+              margin: EdgeInsets.only(right: 5),
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+              child: imageLoad(data['foto'], true, 35, 35),
+            ),
+            Container(
+              padding: EdgeInsets.all(5),
+              width: (widthChat - 20) / 2 + 40,
+              margin: EdgeInsets.only(top: 5),
+              decoration: BoxDecoration(
+                color: AppTheme.bgChatBlue,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: data.containsKey('message')
+                  ? Text(
+                      data['message'],
+                      style: TextStyle(color: Colors.white),
+                    )
+                  : Container(
+                      color: Colors.white,
+                      padding: EdgeInsets.all(5),
+                      margin: EdgeInsets.all(5),
+                      child:
+                          imageLoad(data['image'], false, 80, double.infinity),
+                    ),
+            ),
+          ],
+        ),
+        Container(
+          alignment: Alignment.topLeft,
+          padding: const EdgeInsets.only(bottom: 10, left: 45, top: 5),
+          child: Text(
+            new DateFormat('E | d MMM yy').add_jm().format(he)
+                ,
+            style: TextStyle(fontSize: 11),
+          ),
+        )
       ],
     );
   }

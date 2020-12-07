@@ -50,14 +50,14 @@ class ChatModel {
     print(apiURL);
 
 
-    var apiResult = await http.get(apiURL+params, headers: {
+    var apiResult = await http.get(apiURL, headers: {
       "Accept": "application/json",
       "Authorization": tokenJWT + tokenFixed
     });
 
     print('chat load status code : ' + apiResult.statusCode.toString());
     Map jsonObject = json.decode(apiResult.body);
-    // print(jsonObject);
+    print(jsonObject['data']['typing']);
     String message = jsonObject.containsKey('message')
         ? jsonObject['message'].toString()
         : notice;
@@ -98,4 +98,69 @@ class ChatModel {
       );
     }
   }
+
+    static Future<ChatModel> typing(String id) async {
+    // final LocalStorage storage = new LocalStorage('auth');
+
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+  
+  
+
+    String apiURL = globalBaseUrl + "message/typing?id="+id;
+
+    print(apiURL);
+
+
+    var apiResult = await http.get(apiURL, headers: {
+      "Accept": "application/json",
+      "Authorization": tokenJWT + tokenFixed
+    });
+
+    print('typing status code : ' + apiResult.statusCode.toString());
+    Map jsonObject = json.decode(apiResult.body);
+    print(jsonObject['data']['typing']);
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
+
+    try {
+      if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
+        return ChatModel(
+          error: false,
+          data: {"message":jsonObject['message']},
+        );
+      } else {
+        if (apiResult.statusCode == 401) {
+          await GeneralModel.destroyToken().then((value) => null);
+          return ChatModel(
+            error: true,
+            data: {
+              'message': message,
+              'not_login': apiResult.statusCode == 401,
+            },
+          );
+        } else {
+          return ChatModel(
+            error: true,
+            data: {
+              'message': message,
+            },
+          );
+        }
+      }
+    } catch (e) {
+      print('error catch');
+      print(e);
+      return ChatModel(
+        error: true,
+        data: {
+          'message': e.toString(),
+        },
+      );
+    }
+  }
+
+
 }
