@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
@@ -11,8 +14,10 @@ import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/Model/chat_model.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Constant/expanded_viewport.dart';
+import 'package:undangi/Constant/zoomable_single.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -26,10 +31,10 @@ class _ChatScreenState extends State<ChatScreen> {
   RefreshController _chatContentController = RefreshController();
   ScrollController _scrollContentController = ScrollController();
 
-  int userLen = 1;
-  int userLenPlus = 1;
-  int msgLen = 5;
-  int msgLenPlus = 5;
+  int userLen = 5;
+  int userLenPlus = 5;
+  int msgLen = 20;
+  int msgLenPlus = 20;
   String search;
   int chatTo;
   double typingHeight = 0;
@@ -38,8 +43,12 @@ class _ChatScreenState extends State<ChatScreen> {
   bool error = false;
   bool userRefresh = false;
   bool loadingChat = false;
+  bool sendTypingReq = false;
 
   Timer getChat;
+
+  File _image;
+  final picker = ImagePicker();
 
   Map dataChat = {};
   List dataContent = [];
@@ -57,15 +66,162 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  //ambil gambar camera
+  Future getImageCamera(context) async {
+    final pickedFile =
+        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
+
+    if (pickedFile != null) {
+      _image = File(pickedFile.path);
+      // File imageResized = await FlutterNativeImage.compressImage(_image.path,
+      //     quality: 100, targetWidth: 120, targetHeight: 120);
+
+      List<int> imageBytes = _image.readAsBytesSync();
+
+      _showPicker(context);
+    } else {
+      print('No image selected.');
+    }
+  }
+
+//image from galery
+  Future getImageGalerry(context) async {
+    final pickedFile =
+        await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
+    _image = File(pickedFile.path);
+
+    List<int> imageBytes = _image.readAsBytesSync();
+
+    setState(() {
+      if (pickedFile != null) {
+        _showPicker(context);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
+  //op imgae picker
+  void _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: new Wrap(
+                children: <Widget>[
+                  _image != null
+                      ? Wrap(
+                          children: [
+                            Center(
+                                child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.file(
+                                  _image,
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.fitHeight,
+                                ),
+                              ),
+                            )),
+                            new ListTile(
+                                leading: new Icon(Icons.file_upload),
+                                title: new Text('Upload gambar'),
+                                onTap: () {
+                                  uploadAva();
+                                  Navigator.of(context).pop();
+                                }),
+                            new ListTile(
+                                leading: new Icon(Icons.photo_library),
+                                title: new Text('Ambil dari galleri'),
+                                onTap: () {
+                                  getImageGalerry(context);
+                                  Navigator.of(context).pop();
+                                }),
+                            new ListTile(
+                              leading: new Icon(Icons.photo_camera),
+                              title: new Text('Ambil dari kamera'),
+                              onTap: () {
+                                getImageCamera(context);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        )
+                      : Wrap(
+                          children: [
+                            new ListTile(
+                                leading: new Icon(Icons.photo_library),
+                                title: new Text('Ambil dari galleri'),
+                                onTap: () {
+                                  getImageGalerry(context);
+                                  Navigator.of(context).pop();
+                                }),
+                            new ListTile(
+                              leading: new Icon(Icons.photo_camera),
+                              title: new Text('Ambil dari kamera'),
+                              onTap: () {
+                                getImageCamera(context);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  uploadAva() async {
+    onLoading(context);
+
+    await GeneralModel.checCk(() {
+      ChatModel.sendImg(_image).then((v) {
+        Navigator.pop(context, true);
+
+        setState(() {
+          _image = null;
+        });
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          _scrollContentController.animateTo(
+              0.0,
+              curve: Curves.easeOut,
+              duration: const Duration(milliseconds: 300),
+            );
+            _refreshUser();
+        }
+      });
+    }, () {
+      Navigator.pop(context, true);
+
+      setState(() {
+        _image = null;
+      });
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context);
+      });
+    });
+  }
+
   _loadChat() async {
     if (!error && !userRefresh) {
       Map res = getParams();
+      refreshApi(true);
 
       await GeneralModel.checCk(
           //internet connect
           () {
         ChatModel.get(res).then((v) {
           // print(v.data['skills']);
+          refreshApi(false);
+
           if (v.error) {
             errorRespon(context, v.data);
             setState(() {
@@ -73,11 +229,11 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
-              if(dataChat!=v.data){
-                msgLen=msgLen+1;
+              if (dataChat != v.data) {
+                msgLen = msgLen + 1;
               }
               dataChat = (v.data);
-              if (dataChat['typing']) {
+              if (dataChat.containsKey('typing') ? dataChat['typing'] : false) {
                 typingHeight = 40;
               } else {
                 typingHeight = 0;
@@ -88,6 +244,82 @@ class _ChatScreenState extends State<ChatScreen> {
       },
           //internet disconnect
           () {
+        refreshApi(false);
+
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          Navigator.pop(context);
+        });
+      });
+    }
+  }
+
+  setTypingReq(bool kond) {
+    Future.delayed(Duration(milliseconds: !kond ? 500 : 0), () {
+      setState(() {
+        sendTypingReq = kond;
+      });
+    });
+  }
+
+  _sendTypingInfo() async {
+    if (!sendTypingReq) {
+      setTypingReq(true);
+
+      await GeneralModel.checCk(
+          //internet connect
+          () {
+        ChatModel.typing(chatTo.toString()).then((v) {
+          // print(v.data['skills']);
+          setTypingReq(false);
+
+          if (v.error) {
+            errorRespon(context, v.data);
+          }
+        });
+      },
+          //internet disconnect
+          () {
+        setTypingReq(false);
+
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          Navigator.pop(context);
+        });
+      });
+    }
+  }
+
+  _sendMsg(String v) async {
+    if (!sendTypingReq) {
+      onLoading(context);
+
+      await GeneralModel.checCk(
+          //internet connect
+          () {
+        ChatModel.sendMsg({
+          'chat_id': chatTo.toString(),
+          'message': v,
+        }).then((v) {
+          Navigator.pop(context);
+
+          if (v.error) {
+            errorRespon(context, v.data);
+          } else {
+            setState(() {
+              chatInput.text = '';
+            });
+            _scrollContentController.animateTo(
+              0.0,
+              curve: Curves.easeOut,
+              duration: const Duration(milliseconds: 300),
+            );
+            _refreshUser();
+          }
+        });
+      },
+          //internet disconnect
+          () {
+        Navigator.pop(context);
+
         openAlertBox(context, noticeTitle, notice, konfirm1, () {
           Navigator.pop(context);
         });
@@ -117,11 +349,11 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
-              if(dataChat!=v.data){
-                msgLen=msgLen+1;
+              if (dataChat != v.data) {
+                msgLen = msgLen + 1;
               }
               dataChat = (v.data);
-              if (dataChat['typing']) {
+              if (dataChat.containsKey('typing') ? dataChat['typing'] : false) {
                 typingHeight = 40;
               } else {
                 typingHeight = 0;
@@ -153,7 +385,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // next user
   void _nextUser() async {
-    print('cvcc');
     int rowBefor = dataChat.containsKey('user') ? dataChat['user'].length : 0;
 
     setState(() {
@@ -169,11 +400,13 @@ class _ChatScreenState extends State<ChatScreen> {
           //internet connect
           () {
         ChatModel.get(res).then((v) {
-          if (rowBefor < dataChat['user'].length) {
+          if (rowBefor < v.data['user'].length) {
             _refreshController.loadComplete();
           } else {
             _refreshController.loadNoData();
           }
+          _refreshController.loadComplete();
+
           refreshApi(false);
 
           if (v.error) {
@@ -183,11 +416,11 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
-              if(dataChat!=v.data){
-                msgLen=msgLen+1;
+              if (dataChat != v.data) {
+                msgLen = msgLen + 1;
               }
               dataChat = (v.data);
-              if (dataChat['typing']) {
+              if (dataChat.containsKey('typing') ? dataChat['typing'] : false) {
                 typingHeight = 40;
               } else {
                 typingHeight = 0;
@@ -243,11 +476,11 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
-              if(dataChat!=v.data){
-                msgLen=msgLen+1;
+              if (dataChat != v.data) {
+                msgLen = msgLen + 1;
               }
               dataChat = (v.data);
-              if (dataChat['typing']) {
+              if (dataChat.containsKey('typing') ? dataChat['typing'] : false) {
                 typingHeight = 40;
               } else {
                 typingHeight = 0;
@@ -309,11 +542,11 @@ class _ChatScreenState extends State<ChatScreen> {
             });
           } else {
             setState(() {
-              if(dataChat!=v.data){
-                msgLen=msgLen+1;
+              if (dataChat != v.data) {
+                msgLen = msgLen + 1;
               }
               dataChat = (v.data);
-              if (dataChat['typing']) {
+              if (dataChat.containsKey('typing') ? dataChat['typing'] : false) {
                 typingHeight = 40;
               } else {
                 typingHeight = 0;
@@ -422,8 +655,8 @@ class _ChatScreenState extends State<ChatScreen> {
             placeholder: "Cari User",
             eventtChange: (v) {
               setState(() {
-                search=v
-;              });
+                search = v;
+              });
               // v is value of textfield
             },
             eventtSubmit: (v) {
@@ -491,54 +724,89 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           chatTo = data['id'];
           namaChat = data['name'];
+          msgLen = 20;
         });
+        print(chatTo);
         _changetMsg();
       },
-      child: Container(
-        color: chatTo == data['id'] ? AppTheme.bgBlue2Soft : Colors.transparent,
-        margin: EdgeInsets.only(bottom: 10),
-        padding: EdgeInsets.only(top: 5, bottom: 5),
-        child: Row(
-          children: [
-            Container(
-              width: 35,
-              height: 35,
-              margin: EdgeInsets.only(right: 5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.white,
-              ),
-              child: data.containsKey('foto') && data['foto'] != null
-                  ? CachedNetworkImage(
-                      imageUrl: domainChange(data['foto']),
-                      imageBuilder: (context, imageProvider) => Container(
-                        width: 35.0,
-                        height: 35.0,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              width: 1, color: AppTheme.geySoftCustom),
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.cover),
-                        ),
-                      ),
-                      placeholder: (context, url) => SizedBox(
-                          width: 80, child: new CircularProgressIndicator()),
-                      errorWidget: (context, url, error) =>
-                          new Icon(Icons.error),
-                    )
-                  : Image.asset('assets/general/photo_holder.png'),
+      child: Stack(
+        children: [
+          Container(
+            color: chatTo == data['id']
+                ? AppTheme.bgBlue2Soft
+                : Colors.transparent,
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.only(top: 5, bottom: 5),
+            child: Row(
+              children: [
+                Container(
+                  width: 35,
+                  height: 35,
+                  margin: EdgeInsets.only(right: 5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    color: Colors.white,
+                  ),
+                  child: data.containsKey('foto') && data['foto'] != null
+                      ? CachedNetworkImage(
+                          imageUrl: domainChange(data['foto']),
+                          imageBuilder: (context, imageProvider) => Container(
+                            width: 35.0,
+                            height: 35.0,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  width: 1, color: AppTheme.geySoftCustom),
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                  image: imageProvider, fit: BoxFit.cover),
+                            ),
+                          ),
+                          placeholder: (context, url) => SizedBox(
+                              width: 80,
+                              child: new CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              new Icon(Icons.error),
+                        )
+                      : Image.asset('assets/general/photo_holder.png'),
+                ),
+                SizedBox(
+                  width: 110,
+                  child: Text(
+                    data['name'],
+                    maxLines: 2,
+                    style: TextStyle(fontSize: 11),
+                  ),
+                )
+              ],
             ),
-            SizedBox(
-              width: 110,
-              child: Text(
-                data['name'],
-                maxLines: 2,
-                style: TextStyle(fontSize: 11),
-              ),
-            )
-          ],
-        ),
+          ),
+          data.containsKey('jumlah_unread') && data['jumlah_unread'] > 0
+              ? Container(
+                  height: 50,
+                  width: double.infinity,
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    width: 25,
+                    height: 25,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: AppTheme.bgChatBlue,
+                      borderRadius: BorderRadius.circular(40),
+                    ),
+                    child: Text(
+                      data['jumlah_unread'] > 99
+                          ? '99+'
+                          : data['jumlah_unread'].toString(),
+                      style: TextStyle(
+                        color: AppTheme.nearlyWhite,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                )
+              : Container()
+        ],
       ),
     );
   }
@@ -597,11 +865,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                       width: 20.0,
                                       child: loadingCircle()),
                                 );
-                              } else if (mode == LoadStatus.noMore) {
-                                return Align(
-                                  alignment: Alignment.center,
-                                  child: Text('No message more...'),
-                                );
+                                // } else if (mode == LoadStatus.noMore) {
+                                //   return Align(
+                                //     alignment: Alignment.center,
+                                //     child: Text('No message more...'),
+                                //   );
                               } else
                                 return Container(
                                   height: 0,
@@ -645,35 +913,53 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 // type chat
-                Container(
-                  height: 40,
-                  padding: EdgeInsets.only(left: 10, right: 10),
-                  decoration: BoxDecoration(
-                    color: chatTo != null && !loadingChat
-                        ? Colors.white
-                        : AppTheme.geySofttCustom,
-                    border: Border(
-                      top: BorderSide(width: .5, color: Colors.grey),
+                Stack(
+                  children: [
+                    Container(
+                      height: 40,
+                      padding: EdgeInsets.only(left: 10, right: 35),
+                      decoration: BoxDecoration(
+                        color: chatTo != null && !loadingChat
+                            ? Colors.white
+                            : AppTheme.geySofttCustom,
+                        border: Border(
+                          top: BorderSide(width: .5, color: Colors.grey),
+                        ),
+                      ),
+                      child: TextField(
+                        enabled: chatTo != null && !loadingChat,
+                        onChanged: (v) {
+                          _sendTypingInfo();
+                        },
+                        onSubmitted: (v) {
+                          _sendMsg(v);
+                        },
+                        maxLength: 120,
+                        controller: chatInput,
+                        // focusNode: focusCariKategori,
+                        decoration: InputDecoration(
+                          counterText: "",
+                          hintText: 'Tulis Pesan ...',
+                          border: InputBorder.none,
+                          hintStyle: TextStyle(color: AppTheme.textBlue),
+                        ),
+                      ),
                     ),
-                  ),
-                  child: TextField(
-                    enabled: chatTo != null && !loadingChat,
-                    onChanged: (v) {
-                      // widget.eventtChange(v);
-                    },
-                    onSubmitted: (v) {
-                      // widget.eventtSubmit(v);
-                    },
-                    maxLength: 120,
-                    controller: chatInput,
-                    // focusNode: focusCariKategori,
-                    decoration: InputDecoration(
-                      counterText: "",
-                      hintText: 'Tulis Pesan ...',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(color: AppTheme.textBlue),
-                    ),
-                  ),
+                    InkWell(
+                      onTap: ()=>_showPicker(context),
+                                          child: Container(
+                        width: 30,
+                        margin: EdgeInsets.only(left: widthChat - 30, right: 10),
+                        height: 40,
+                        alignment: Alignment.center,
+                        child: FaIcon(
+                          FontAwesomeIcons.camera,
+                          color: AppTheme.geyCustom,
+                          size: 15,
+                        ),
+                      ),
+                    )
+                  ],
                 )
               ],
             ),
@@ -749,9 +1035,24 @@ class _ChatScreenState extends State<ChatScreen> {
                   data['message'],
                   style: TextStyle(color: Colors.white),
                 )
-              : Container(
-                  color: Colors.white,
-                  child: imageLoad(data['image'], false, 100, 100),
+              : InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ZoomableSingle(
+                            min: 0.1,
+                            max: 6.0,
+                            child: Image.network(data['image']),
+                          ),
+                        ));
+                  },
+                  child: Container(
+                    color: Colors.white,
+                    padding: EdgeInsets.all(5),
+                    margin: EdgeInsets.all(5),
+                    child: imageLoad(data['image'], false, 80, double.infinity),
+                  ),
                 ),
         ),
         Container(
@@ -759,9 +1060,8 @@ class _ChatScreenState extends State<ChatScreen> {
           padding: EdgeInsets.only(
               bottom: 10, left: (widthChat - 20) / 2 - 40 + 5, top: 5),
           child: Text(
-            new DateFormat('E | d MMM yy').add_jm().format(he) 
-                ,
-            style: TextStyle(fontSize: 11),
+            new DateFormat('E, d MMM yy').add_jm().format(he),
+            style: TextStyle(fontSize: 10),
           ),
         )
       ],
@@ -803,12 +1103,25 @@ class _ChatScreenState extends State<ChatScreen> {
                       data['message'],
                       style: TextStyle(color: Colors.white),
                     )
-                  : Container(
-                      color: Colors.white,
-                      padding: EdgeInsets.all(5),
-                      margin: EdgeInsets.all(5),
-                      child:
-                          imageLoad(data['image'], false, 80, double.infinity),
+                  : InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ZoomableSingle(
+                                min: 0.1,
+                                max: 6.0,
+                                child: Image.network(data['image']),
+                              ),
+                            ));
+                      },
+                      child: Container(
+                        color: Colors.white,
+                        padding: EdgeInsets.all(5),
+                        margin: EdgeInsets.all(5),
+                        child: imageLoad(
+                            data['image'], false, 80, double.infinity),
+                      ),
                     ),
             ),
           ],
@@ -817,9 +1130,8 @@ class _ChatScreenState extends State<ChatScreen> {
           alignment: Alignment.topLeft,
           padding: const EdgeInsets.only(bottom: 10, left: 45, top: 5),
           child: Text(
-            new DateFormat('E | d MMM yy').add_jm().format(he)
-                ,
-            style: TextStyle(fontSize: 11),
+            new DateFormat('E, d MMM yy').add_jm().format(he),
+            style: TextStyle(fontSize: 10),
           ),
         )
       ],

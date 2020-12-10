@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,7 +11,7 @@ import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/profile_model.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import 'package:path/path.dart' as path;
+
 import 'dart:convert';
 
 import 'package:async/async.dart';
