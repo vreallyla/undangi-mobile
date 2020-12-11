@@ -60,7 +60,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
               child: SizedBox(
                 // width: sizeu.width - 50 - 40,
                 child: Text(
-                  'Hello World, Wish me Luck Today',
+                  'Hello World, Wish me Luck Todays',
                   maxLines: 2,
                   textAlign: TextAlign.center,
                   style: TextStyle(

@@ -180,7 +180,7 @@ class _ChatScreenState extends State<ChatScreen> {
     onLoading(context);
 
     await GeneralModel.checCk(() {
-      ChatModel.sendImg(_image).then((v) {
+      ChatModel.sendImg(_image,chatTo.toString()).then((v) {
         Navigator.pop(context, true);
 
         setState(() {
@@ -190,11 +190,11 @@ class _ChatScreenState extends State<ChatScreen> {
           errorRespon(context, v.data);
         } else {
           _scrollContentController.animateTo(
-              0.0,
-              curve: Curves.easeOut,
-              duration: const Duration(milliseconds: 300),
-            );
-            _refreshUser();
+            0.0,
+            curve: Curves.easeOut,
+            duration: const Duration(milliseconds: 300),
+          );
+          _refreshUser();
         }
       });
     }, () {
@@ -945,14 +945,18 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                     ),
-                    InkWell(
-                      onTap: ()=>_showPicker(context),
-                                          child: Container(
-                        width: 30,
-                        margin: EdgeInsets.only(left: widthChat - 30, right: 10),
-                        height: 40,
-                        alignment: Alignment.center,
-                        child: FaIcon(
+                    Container(
+                      width: 30,
+                      margin: EdgeInsets.only(left: widthChat - 30, right: 10),
+                      height: 40,
+                      alignment: Alignment.center,
+                      child: InkWell(
+                        onTap: () => bottom>0 ?_sendMsg(chatInput.text):_showPicker(context),
+                        child: bottom>0 ?FaIcon(
+                          FontAwesomeIcons.solidPaperPlane,
+                          color: AppTheme.geyCustom,
+                          size: 15,
+                        ):FaIcon(
                           FontAwesomeIcons.camera,
                           color: AppTheme.geyCustom,
                           size: 15,

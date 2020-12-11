@@ -229,7 +229,7 @@ class ChatModel {
   }
 
     static Future<ChatModel> sendImg(
-      File _image) async {
+      File _image,String chatTo) async {
     var apiResult;
     Map jsonObject = {};
     String urll = globalBaseUrl +
@@ -252,7 +252,9 @@ class ChatModel {
       var multipart = new http.MultipartFile("image", stream, length,
           filename: path.basename(_image.path));
       request.headers.addAll({'Authorization': tokenJWT + tokenFixed});
-    
+      request.fields.addAll({
+        'chat_id': chatTo,
+      });
       request.files.add(multipart);
       apiResult = await request.send();
 

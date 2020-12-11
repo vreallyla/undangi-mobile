@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Constant/starReview.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class UserCardView extends StatelessWidget {
+  const UserCardView({
+    Key key,
+    this.data,
+ 
+  }) : super(key: key);
+
+  final Map data;
+
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
@@ -22,13 +34,7 @@ class UserCardView extends StatelessWidget {
             alignment: Alignment.center,
             height: 60,
             width: 60,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: (AssetImage('assets/general/changwook.jpg')),
-                fit: BoxFit.fitWidth,
-              ),
-              borderRadius: BorderRadius.circular(30),
-            ),
+            child: imageLoad(data['foto'], true, 60, 60),
           ),
           //nama
           Container(
@@ -36,11 +42,12 @@ class UserCardView extends StatelessWidget {
             alignment: Alignment.topCenter,
             width: (sizeu.width - 30) / 2 - 20 - 40,
             child: Text(
-              'Jang Ching Wok',
+              data['name'],
               style: TextStyle(
                 color: AppTheme.geySolidCustom,
                 fontSize: 16,
               ),
+              textAlign: TextAlign.center,
             ),
           ),
           //location
@@ -66,7 +73,7 @@ class UserCardView extends StatelessWidget {
                       padding: EdgeInsets.only(left: 5),
                       width: (sizeu.width - 30) / 2 - 20 - 17,
                       child: Text(
-                        'Alamatnya mana Alam at nya mana Alamatnya mana Alamatnya manas',
+                        data['alamat']??'Region belum terdaftar',
                         style: TextStyle(fontSize: 12),
                         maxLines: 3,
                       ),
@@ -101,7 +108,7 @@ class UserCardView extends StatelessWidget {
                       padding: EdgeInsets.only(left: 5),
                       width: (sizeu.width - 30) / 2 - 20 - 17,
                       child: Text(
-                        '2 PROYEK',
+                        '${data['proyek']!=null?data['proyek'].toString():'0'} PROYEK',
                         style: TextStyle(fontSize: 12),
                         maxLines: 3,
                       ),
@@ -133,35 +140,7 @@ class UserCardView extends StatelessWidget {
                     Container(
                         padding: EdgeInsets.only(left: 5),
                         width: (sizeu.width - 30) / 2 - 20 - 17,
-                        child: Row(children: [
-                          SizedBox(
-                              width: 14,
-                              child: Icon(Icons.star,
-                                  size: 16, color: Colors.yellow)),
-                          SizedBox(
-                              width: 14,
-                              child: Icon(Icons.star,
-                                  size: 16, color: Colors.yellow)),
-                          SizedBox(
-                              width: 14,
-                              child: Icon(Icons.star,
-                                  size: 16, color: Colors.yellow)),
-                          SizedBox(
-                              width: 14,
-                              child: Icon(Icons.star,
-                                  size: 16, color: Colors.yellow)),
-                          SizedBox(
-                              width: 14,
-                              child: Icon(Icons.star,
-                                  size: 16, color: Colors.yellow)),
-                          SizedBox(
-                            width: (sizeu.width - 30) / 2 - 20 - 17 - 75,
-                            child: Text(
-                              ' 5/5 (2 Ulasan)',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                          )
-                        ]))
+                        child: starJadi(double.parse(data['bintang']), data['ulasan'].toString(), 14,14))
                   ],
                 )
               ],
@@ -193,7 +172,7 @@ class UserCardView extends StatelessWidget {
                       margin: EdgeInsets.only(top: 3),
                       width: (sizeu.width - 30) / 2 - 20 - 17,
                       child: Text(
-                        'Bergabung Sejak : 20 Sept 2020',
+                        'Bergabung Sejak : '+new DateFormat('d MMM yyyy').format(DateFormat("yyyy-MM-dd hh:mm:ss").parse(data['created_at'])),
                         style: TextStyle(fontSize: 9),
                         maxLines: 3,
                       ),
@@ -226,7 +205,7 @@ class UserCardView extends StatelessWidget {
                       margin: EdgeInsets.only(top: 3),
                       width: (sizeu.width - 30) / 2 - 20 - 17,
                       child: Text(
-                        'Update Terakhir : 04 Oct 2020',
+                        'Update Terakhir : '+new DateFormat('d MMM yyyy').format(DateFormat("yyyy-MM-dd hh:mm:ss").parse(data['updated_at'])),
                         style: TextStyle(fontSize: 9),
                         maxLines: 3,
                       ),

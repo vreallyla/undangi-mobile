@@ -187,11 +187,7 @@ class _ProyekListScreenState extends State<ProyekListScreen> {
           });
           // print(data);
         }
-        if (rowBefor < data.length) {
-          _refreshController.loadComplete();
-        } else {
-          _refreshController.loadNoData();
-        }
+        _refreshController.loadComplete();
 
         print(data.length);
 
@@ -463,122 +459,126 @@ class _ProyekListScreenState extends State<ProyekListScreen> {
       appBar: appPolosBack(paddingPhone, () {
         Navigator.pop(context);
       }),
-      body: loading
-          ? onLoading2()
-          : Container(
-              color: AppTheme.primaryBg,
-              margin: EdgeInsets.fromLTRB(0, 20, 0, 20),
-              alignment: Alignment.center,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  //search bar
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchTabScreen(
-                              kategori: kategori,
-                              keyword: widget.keyword ?? '',
-                              opJenis: 'Proyek',
-                            ),
-                          ));
-                    },
-                    child: IgnorePointer(
-                      child: SearcBox(
-                        controll: cariProyekInput,
-                        marginn: EdgeInsets.only(
-                            bottom: kategoriName.length > 0 ? 2.5 : 20,
-                            left: 20,
-                            right: 20),
-                        paddingg: EdgeInsets.only(left: 15, right: 15),
-                        widthh: sizeu.width - 40 - 20,
-                        heightt: 50,
-                        widthText: sizeu.width - 60 - 30 - 30,
-                        textL: 45,
-                        placeholder: "Cari Proyek yang anda inginkan",
-                        eventtChange: (v) {
-                          print(v);
-                          // v is value of textfield
-                        },
-                        eventtSubmit: (v) {
-                          // v is value of textfield
-                        },
+      body: Container(
+        color: AppTheme.primaryBg,
+        margin: EdgeInsets.fromLTRB(0, 20, 0, 20),
+        alignment: Alignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            //search bar
+            InkWell(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SearchTabScreen(
+                        kategori: kategori,
+                        keyword: widget.keyword ?? '',
+                        opJenis: 'Proyek',
                       ),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.only(left: 5, right: 5),
-                    height: kategoriName.length > 0
-                        ? (kategoriName.length > 2 ? 80 : 40)
-                        : 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: widgetKat,
-                    ),
-                  ),
-                  Container(
-                      height: sizeu.height -
-                          185 -
-                          (kategoriName.length > 0
-                              ? (kategoriName.length > 2 ? 80 : 40)
-                              : 20) -
-                          bottom +
-                          20 -
-                          paddingPhone.top -
-                          paddingPhone.bottom,
-                      width: double.infinity,
-                      child: SmartRefresher(
-                        header: ShimmerHeader(
-                          text: Text(
-                            "PullToRefresh",
-                            style: TextStyle(color: Colors.grey, fontSize: 22),
-                          ),
-                          baseColor: AppTheme.bgChatBlue,
-                        ),
-                        footer: ShimmerFooter(
-                          text: Text(
-                            "PullToRefresh",
-                            style: TextStyle(color: Colors.grey, fontSize: 22),
-                          ),
-                          noMore: Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              "AllDataLoaded",
-                              style:
-                                  TextStyle(color: Colors.grey, fontSize: 22),
-                            ),
-                          ),
-                          baseColor: AppTheme.bgChatBlue,
-                        ),
-                        controller: _refreshController,
-                        enablePullUp: true,
-                        child: ListView.builder(
-                          itemCount: data.length,
-                          // itemExtent: 100.0,
-                          itemBuilder: (c, i) => data.length > 0
-                              ? cardProyek(i)
-                              : Container(
-                                  padding: EdgeInsets.only(
-                                    bottom: 50,
-                                  ),
-                                  height: 200,
-                                  child: Text(
-                                    'Data Kosong...',
-                                    style: TextStyle(
-                                        // color: Colors.grey,
-                                        fontSize: 22),
-                                  ),
-                                ),
-                        ),
-                        onRefresh: _getProyekApi,
-                        onLoading: _getProyekApiLoad,
-                      ))
-                ],
+                    ));
+              },
+              child: IgnorePointer(
+                child: SearcBox(
+                  controll: cariProyekInput,
+                  marginn: EdgeInsets.only(
+                      bottom: kategoriName.length > 0 ? 2.5 : 20,
+                      left: 20,
+                      right: 20),
+                  paddingg: EdgeInsets.only(left: 15, right: 15),
+                  widthh: sizeu.width - 40,
+                  heightt: 50,
+                  widthText: sizeu.width - 60 - 30 - 10,
+                  textL: 45,
+                  placeholder: "Cari Proyek yang anda inginkan",
+                  eventtChange: (v) {
+                    print(v);
+                    // v is value of textfield
+                  },
+                  eventtSubmit: (v) {
+                    // v is value of textfield
+                  },
+                ),
               ),
             ),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.only(left: 5, right: 5),
+              height: kategoriName.length > 0
+                  ? (kategoriName.length > 2 ? 80 : 40)
+                  : 0,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: widgetKat,
+              ),
+            ),
+            Container(
+                height: sizeu.height -
+                    185 -
+                    (kategoriName.length > 0
+                        ? (kategoriName.length > 2 ? 80 : 40)
+                        : 20) -
+                    bottom +
+                    20 -
+                    paddingPhone.top -
+                    paddingPhone.bottom,
+                width: double.infinity,
+                child: loading
+                    ? onLoading2()
+                    : (data.length == 0
+                        ? dataKosong()
+                        : SmartRefresher(
+                            header: ShimmerHeader(
+                              text: Text(
+                                "PullToRefresh",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 22),
+                              ),
+                              baseColor: AppTheme.bgChatBlue,
+                            ),
+                            footer: ShimmerFooter(
+                              text: Text(
+                                "PullToRefresh",
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 22),
+                              ),
+                              noMore: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  "AllDataLoaded",
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 22),
+                                ),
+                              ),
+                              baseColor: AppTheme.bgChatBlue,
+                            ),
+                            controller: _refreshController,
+                            enablePullUp: true,
+                            child: ListView.builder(
+                              itemCount: data.length,
+                              // itemExtent: 100.0,
+                              itemBuilder: (c, i) => data.length > 0
+                                  ? cardProyek(i)
+                                  : Container(
+                                      padding: EdgeInsets.only(
+                                        bottom: 50,
+                                      ),
+                                      height: 200,
+                                      child: Text(
+                                        'Data Kosong...',
+                                        style: TextStyle(
+                                            // color: Colors.grey,
+                                            fontSize: 22),
+                                      ),
+                                    ),
+                            ),
+                            onRefresh: _getProyekApi,
+                            onLoading: _getProyekApiLoad,
+                          )))
+          ],
+        ),
+      ),
     );
   }
 }

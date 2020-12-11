@@ -140,7 +140,7 @@ class TabModel {
   }
 
   static Future<TabModel> proyekData(Map res, bool proyek) async {
-    print(res);
+   
     // final LocalStorage storage = new LocalStorage('auth');
     String apiURL = globalBaseUrl +
         (proyek ? "proyek" : 'layanan') +
@@ -201,4 +201,67 @@ class TabModel {
       );
     }
   }
+
+  static Future<TabModel> userData(String limit,String q) async {
+   
+    // final LocalStorage storage = new LocalStorage('auth');
+    String apiURL = globalBaseUrl +
+        'frelencer' +
+        '?limit=' +
+        limit +
+        (q != null ? '&q=$q' : '') 
+       ;
+
+    print(apiURL);
+
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+
+    var apiResult = await http.get(apiURL, headers: {
+      "Accept": "application/json",
+      "Authorization": tokenJWT + tokenFixed
+    });
+
+    print('user status code : ' + apiResult.statusCode.toString());
+    Map jsonObject = json.decode(apiResult.body);
+    print(jsonObject);
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
+
+    try {
+      if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
+        print(jsonObject['data']['kategori']);
+        return TabModel(
+          error: false,
+          data: jsonObject['data'],
+        );
+      } else if (apiResult.statusCode == 401) {
+        await GeneralModel.destroyToken().then((value) => null);
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+            'not_login': true,
+          },
+        );
+      } else {
+        return TabModel(
+          error: true,
+          data: {
+            'message': message,
+          },
+        );
+      }
+    } catch (e) {
+      print('error catch');
+      print(e);
+      return TabModel(
+        error: true,
+        data: {'message': e.toString()},
+      );
+    }
+  }
+
 }

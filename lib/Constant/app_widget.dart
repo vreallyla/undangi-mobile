@@ -320,7 +320,7 @@ Widget loadingCircle(){
 
 Widget imageLoad(String url,bool circle,double height,double width){
   return CachedNetworkImage(
-                      imageUrl: domainChange(url),
+                      imageUrl: url,
                       fit: BoxFit.fitHeight,
                       imageBuilder: (context, imageProvider) => Container(
                         width: width,
@@ -745,6 +745,10 @@ passwordCheck(context, Function checkEvent) {
       });
 }
 
+Widget dataKosong(){
+  return Center(child: Text('Data Kosong'));
+}
+
 sampleOpenAlertBox(context) {
   Color myColor = Colors.green;
 
@@ -855,3 +859,5 @@ Widget noticeText(trgt, validation) {
     ),
   );
 }
+
+

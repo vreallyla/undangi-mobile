@@ -53,14 +53,14 @@ class _HomeHeaderViewState extends State<HomeHeaderView> {
           ),
         ),
         // chat icon
-        InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, '/chat');
-          },
-          child: Container(
-            alignment: Alignment.topRight,
-            margin: EdgeInsets.only(top: 5, right: 10),
-            height: 40,
+        Container(
+          alignment: Alignment.topRight,
+          margin: EdgeInsets.only(top: 5, right: 10),
+          height: 40,
+          child: InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, '/chat');
+            },
             child: Image.asset(
               'assets/general/chat-shadow.png',
               fit: BoxFit.fitHeight,
