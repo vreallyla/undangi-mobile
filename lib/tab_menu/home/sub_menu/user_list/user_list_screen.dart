@@ -44,34 +44,20 @@ class _UserListScreenState extends State<UserListScreen> {
     GeneralModel.checCk(
         //connect
         () async {
-      await GeneralModel.checCk(
-          //internet connect
-          () {
-        TabModel.userData(takeRow.toString(), cariUserInput.text).then((v) {
-          if (!loadingFirst) {
-            _refreshController.refreshCompleted();
-          }
+      TabModel.userData(takeRow.toString(), cariUserInput.text).then((v) {
+        if (!loadingFirst) {
+          _refreshController.refreshCompleted();
+        }
 
-          refreshApi(false);
+        refreshApi(false);
 
-          if (v.error) {
-            errorRespon(context, v.data);
-          } else {
-            setDataUser(v.data['list']);
-          }
-        });
-      },
-          //internet disconnect
-          () {
-        openAlertBox(context, noticeTitle, notice, konfirm1, () {
-          refreshApi(false);
-
-          Navigator.pop(context);
-        });
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          setDataUser(v.data['list']);
+        }
       });
-    },
-        //disconect
-        () {
+    }, () {
       if (!loadingFirst) {
         _refreshController.refreshCompleted();
       }
@@ -87,44 +73,28 @@ class _UserListScreenState extends State<UserListScreen> {
   // refresh user
   void _nextUser() async {
     setState(() {
-      takeRow=takeRow+takeMore;
+      takeRow = takeRow + takeMore;
     });
     GeneralModel.checCk(
         //connect
         () async {
-      await GeneralModel.checCk(
-          //internet connect
-          () {
-        TabModel.userData(takeRow.toString(), cariUserInput.text).then((v) {
-          
+      TabModel.userData(takeRow.toString(), cariUserInput.text).then((v) {
+        refreshApi(false);
 
-          refreshApi(false);
-
-          if (v.error) {
-            errorRespon(context, v.data);
-          } else {
-            setDataUser(v.data['list']);
-          }
-          if (!loadingFirst) {
-                      _refreshController.loadComplete();
-
-          }
-        });
-      },
-          //internet disconnect
-          () {
-        openAlertBox(context, noticeTitle, notice, konfirm1, () {
-          refreshApi(false);
-
-          Navigator.pop(context);
-        });
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          setDataUser(v.data['list']);
+        }
+        if (!loadingFirst) {
+          _refreshController.loadComplete();
+        }
       });
     },
         //disconect
         () {
       if (!loadingFirst) {
-                  _refreshController.loadComplete();
-
+        _refreshController.loadComplete();
       }
 
       refreshApi(false);

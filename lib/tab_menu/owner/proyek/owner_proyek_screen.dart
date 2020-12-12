@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Model/owner/proyek_owner_model.dart';
 
 import 'tab_pengerjaan_view.dart';
 import 'tab_proyek_view.dart';
@@ -20,8 +24,57 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   //ganti konten tab proyek ke tambah proyek
   bool toAdd = false;
 
+  //var load handle
+  bool loadingProyek = false;
+  bool loadingPengerjaan = false;
+  int loadingPosisi = 2;
+
+  //params get
+  int getRowProyek = 20;
+  int getRowPengerjaan = 20;
+  String searchProyek;
+  String searchPengerjaan;
+
+  int plusRowPengerjaan = 20;
+  int plusRowProyek = 20;
+
   //EDIT ID TRIGGER
   int editId = 0;
+
+  String urlPoto;
+  String motto;
+  List dataProyek = [];
+  List dataPengerjaan = [];
+
+  //refesh controller
+  RefreshController _refreshProyekController = RefreshController();
+  RefreshController _refreshPengerjaanController = RefreshController();
+
+  //0=proyek;1=pengerjaan;2=dua2nya
+  void setLoading(int order, bool kond) {
+    order = kond ? order : loadingPosisi;
+
+    setState(() {
+      if (order == 0) {
+        loadingProyek = kond;
+      } else if (order == 1) {
+        loadingPengerjaan = kond;
+      } else {
+        loadingProyek = loadingPengerjaan = kond;
+      }
+      loadingPosisi = order;
+    });
+  }
+
+  //set data proyek & pengerjaan
+  setDataProyek(Map data) {
+    setState(() {
+      dataProyek = data['proyek'];
+      dataPengerjaan = data['Pengerjaan'];
+      urlPoto = data.containsKey('bio') ? data['bio']['foto'] : null;
+      motto = data.containsKey('bio') ? data['bio']['status'] : null;
+    });
+  }
 
   void chageTab(bool kond) {
     setState(() {
@@ -29,6 +82,53 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     });
   }
 
+  // refresh user
+  void _loadDataApi() async {
+    GeneralModel.checCk(
+        //connect
+        () async {
+      ProyekOwnerModel.get({
+        'limit_proyek': getRowProyek,
+        'search_proyek': searchProyek,
+        'limit_pengerjaan': getRowPengerjaan,
+        'search_pengerjaan': searchPengerjaan,
+      }).then((v) {
+        setLoading(0, false);
+        if (loadingPosisi == 0) {
+          _refreshProyekController.refreshCompleted();
+        } else if (loadingPosisi == 1) {
+          _refreshPengerjaanController.refreshCompleted();
+        }
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          setDataProyek(v.data);
+        }
+      });
+    },
+        //disconect
+        () {
+      setLoading(0, false);
+      if (loadingPosisi == 0) {
+        _refreshProyekController.refreshCompleted();
+      } else if (loadingPosisi == 1) {
+        _refreshPengerjaanController.refreshCompleted();
+      }
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
+  @override
+  void initState(){
+    setLoading(2, true);
+    _loadDataApi();
+
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
@@ -50,7 +150,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
             // menu & photo
             appDashboard(
               context,
-              'assets/general/changwook.jpg',
+              urlPoto,
               condTransform() ? Text('') : menuPublik(),
               menuLeft(),
             ),
@@ -60,7 +160,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
               child: SizedBox(
                 // width: sizeu.width - 50 - 40,
                 child: Text(
-                  'Hello World, Wish me Luck Todays',
+                  motto??'',
                   maxLines: 2,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -77,8 +177,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
 
             //tool
             Container(
-                margin: EdgeInsets.fromLTRB(
-                    marginLeftRight, 5, marginLeftRight, 0),
+                margin:
+                    EdgeInsets.fromLTRB(marginLeftRight, 5, marginLeftRight, 0),
                 padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                 height: 60,
                 decoration: BoxDecoration(
@@ -191,13 +291,10 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                     editId: editId,
                     editEvent: (int id) {
                       editId = id;
-                      setState(() {
-                        
-                      });
+                      setState(() {});
                     },
                     toAddFunc: () {
                       setState(() {
-                       
                         toAdd = !toAdd;
                       });
                     }),

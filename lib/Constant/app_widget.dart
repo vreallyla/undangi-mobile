@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:undangi/Constant/shimmer_loading.dart';
 import 'package:undangi/Splash_screen.dart';
 
 import 'app_theme.dart';
@@ -148,17 +149,20 @@ Widget appDashboard(context, String photo, Widget btnMenu, Widget btnLeft) {
       //icon left
       btnLeft,
       //photo
-      Container(
-        alignment: Alignment.center,
-        height: 120,
-        width: 120,
-        margin: EdgeInsets.only(top: 20, left: sizeu.width / 2 - 60),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: (AssetImage(photo)),
-            fit: BoxFit.fitWidth,
+      ShimmerLoading(
+        loading: photo==null,
+              child: Container(
+          alignment: Alignment.center,
+          height: 120,
+          width: 120,
+          margin: EdgeInsets.only(top: 20, left: sizeu.width / 2 - 60),
+          decoration: BoxDecoration(
+            
+            borderRadius: BorderRadius.circular(60),
+          color: Colors.grey[200],
           ),
-          borderRadius: BorderRadius.circular(60),
+          child:photo!=null?imageLoad(photo, true, 120, 120):Text('')
+
         ),
       ),
     ],
