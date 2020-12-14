@@ -60,7 +60,7 @@ class ProyekOwnerModel {
 
     print('get klien proyek status code : ' + apiResult.statusCode.toString());
     Map jsonObject = json.decode(apiResult.body);
-    print(jsonObject);
+    // print(jsonObject);
     String message = jsonObject.containsKey('message')
         ? jsonObject['message'].toString()
         : notice;

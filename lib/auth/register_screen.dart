@@ -24,7 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   var passwordNode = new FocusNode();
   var passRepeatNode = new FocusNode();
 
-  Map<String, dynamic> validation;
+  Map<String, dynamic> validation={};
 
   void _register(context) {
     onLoading(context);

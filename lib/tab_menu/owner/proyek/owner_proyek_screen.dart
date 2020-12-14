@@ -45,6 +45,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   String motto;
   List dataProyek = [];
   List dataPengerjaan = [];
+  int jmlhProyek = 0;
+  int jmlhPengerjaan = 0;
 
   //refesh controller
   RefreshController _refreshProyekController = RefreshController();
@@ -69,8 +71,11 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   //set data proyek & pengerjaan
   setDataProyek(Map data) {
     setState(() {
-      dataProyek = data['proyek'];
-      dataPengerjaan = data['Pengerjaan'];
+      dataProyek = data.containsKey('proyek') ? data['proyek'] : [];
+      dataPengerjaan = data.containsKey('Pengerjaan') ? data['Pengerjaan'] : [];
+      jmlhPengerjaan =
+          data.containsKey('Pengerjaan_count') ? data['Pengerjaan_count'] : 0;
+      jmlhProyek = data.containsKey('proyek_count') ? data['proyek_count'] : 0;
       urlPoto = data.containsKey('bio') ? data['bio']['foto'] : null;
       motto = data.containsKey('bio') ? data['bio']['status'] : null;
     });
@@ -79,6 +84,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   void chageTab(bool kond) {
     setState(() {
       tabChange = kond;
+      setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, true);
+      _loadDataApi();
     });
   }
 
@@ -93,7 +100,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
         'limit_pengerjaan': getRowPengerjaan,
         'search_pengerjaan': searchPengerjaan,
       }).then((v) {
-        setLoading(0, false);
+        setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
+        print(loadingPosisi);
         if (loadingPosisi == 0) {
           _refreshProyekController.refreshCompleted();
         } else if (loadingPosisi == 1) {
@@ -109,7 +117,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     },
         //disconect
         () {
-      setLoading(0, false);
+      setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
       if (loadingPosisi == 0) {
         _refreshProyekController.refreshCompleted();
       } else if (loadingPosisi == 1) {
@@ -122,13 +130,63 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     });
   }
 
+  // refresh user
+  void _nextDataApi() async {
+    setState(() {
+      if (loadingPosisi == 0) {
+        getRowProyek = getRowProyek + plusRowProyek;
+      } else if (loadingPosisi == 1) {
+        getRowPengerjaan = getRowPengerjaan + plusRowPengerjaan;
+      }
+    });
+
+    GeneralModel.checCk(
+        //connect
+        () async {
+      ProyekOwnerModel.get({
+        'limit_proyek': getRowProyek,
+        'search_proyek': searchProyek,
+        'limit_pengerjaan': getRowPengerjaan,
+        'search_pengerjaan': searchPengerjaan,
+      }).then((v) {
+        setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
+        print(loadingPosisi);
+        if (loadingPosisi == 0) {
+          _refreshProyekController.loadComplete();
+        } else if (loadingPosisi == 1) {
+          _refreshPengerjaanController.loadComplete();
+        }
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          setDataProyek(v.data);
+        }
+      });
+    },
+        //disconect
+        () {
+      setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
+      if (loadingPosisi == 0) {
+        _refreshProyekController.loadComplete();
+      } else if (loadingPosisi == 1) {
+        _refreshPengerjaanController.loadComplete();
+      }
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
   @override
-  void initState(){
+  void initState() {
     setLoading(2, true);
     _loadDataApi();
 
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
@@ -137,6 +195,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     // double _height = sizeu.height;
     // final paddingPhone = MediaQuery.of(context).padding;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final paddingPhone = MediaQuery.of(context).padding;
 
     return new WillPopScope(
       onWillPop: () {
@@ -160,7 +219,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
               child: SizedBox(
                 // width: sizeu.width - 50 - 40,
                 child: Text(
-                  motto??'',
+                  motto ?? '',
                   maxLines: 2,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -278,7 +337,14 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
             //tab proyek
             tabChange
                 ? TabPengerjaanView(
+                    dataReresh: _loadDataApi,
+                    dataNext: _nextDataApi,
+                    refresh: _refreshPengerjaanController,
                     bottomKey: double.parse(bottom.toString()),
+                    loading: loadingPengerjaan,
+                    dataPengerjaan: dataPengerjaan,
+                    paddingTop: paddingPhone.top,
+                    paddingBottom: paddingPhone.bottom,
                     toProgress: toProgress,
                     toProgressFunc: () {
                       setState(() {
@@ -286,7 +352,14 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                       });
                     })
                 : TabProyekView(
+                   dataReresh: _loadDataApi,
+                    dataNext: _nextDataApi,
+                    refresh: _refreshProyekController,
+                    dataProyek: dataProyek,
+                    loading: loadingProyek,
                     bottomKey: double.parse(bottom.toString()),
+                    paddingTop: paddingPhone.top,
+                    paddingBottom: paddingPhone.bottom,
                     toAdd: toAdd,
                     editId: editId,
                     editEvent: (int id) {
@@ -442,7 +515,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text('99+',
+                      child: Text(moreThan99(jmlhProyek),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,
@@ -499,7 +572,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text('99+',
+                      child: Text(moreThan99(jmlhPengerjaan),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,

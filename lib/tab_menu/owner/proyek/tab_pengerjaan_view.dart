@@ -2,18 +2,39 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rating_bar/rating_bar.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Constant/shimmer_indicator.dart';
 
 class TabPengerjaanView extends StatefulWidget {
-  const TabPengerjaanView(
-      {Key key, this.bottomKey = 0, this.toProgress, this.toProgressFunc})
-      : super(key: key);
+  const TabPengerjaanView({
+    Key key,
+    this.paddingTop,
+    this.dataReresh,
+    this.dataNext,
+    this.refresh,
+    this.dataPengerjaan,
+    this.paddingBottom,
+    this.loading,
+    this.bottomKey = 0,
+    this.toProgress,
+    this.toProgressFunc,
+  }) : super(key: key);
 
   final double bottomKey;
+  final RefreshController refresh;
+  final List dataPengerjaan;
+  final double paddingTop;
+  final double paddingBottom;
   final Function toProgressFunc;
+  final Function dataReresh;
+  final Function dataNext;
+  
   final bool toProgress;
+  final bool loading;
   @override
   _TabPengerjaanViewState createState() => _TabPengerjaanViewState();
 }
@@ -24,6 +45,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
   }
 
   double star = 0;
+  
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +62,11 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
 //
           (widget.toProgress
               ? Container(
-                  height: sizeu.height - 365 - widget.bottomKey,
+                  height: sizeu.height -
+                      310 -
+                      widget.bottomKey -
+                      widget.paddingBottom -
+                      widget.paddingTop,
                   child: ListView(
                     children: [
                       progressScreen(marginLeftRight, marginCard, _width)
@@ -332,7 +358,11 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
       margin: EdgeInsets.only(left: marginLeftRight, right: marginLeftRight),
       padding: EdgeInsets.fromLTRB(marginCard, marginCard, marginCard, 1),
       alignment: Alignment.topLeft,
-      height: sizeu.height - 365 - widget.bottomKey,
+      height: sizeu.height -
+          310 -
+          widget.bottomKey -
+          widget.paddingBottom -
+          widget.paddingTop,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -341,23 +371,72 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
           color: Colors.black,
         ),
       ),
-      child:
-          // Text('Belum ada data Proyek...'),
-          ListView(
-        children: [
-          TabPengerjaanCard(
-              marginLeftRight: marginLeftRight,
-              marginCard: marginCard,
-              changeProgress: () {
-                changeToProgress();
-              },
-              star: star,
-              starEvent: (double st) {
-                star = st;
-                setState(() {});
-              }),
-        ],
-      ),
+      child: widget.loading
+          ? onLoading2()
+          : (widget.dataPengerjaan.length == 0
+              ? dataKosong()
+              : SmartRefresher(
+                  header: ShimmerHeader(
+                    text: Text(
+                      "PullToRefresh",
+                      style: TextStyle(color: Colors.grey, fontSize: 22),
+                    ),
+                    baseColor: AppTheme.bgChatBlue,
+                  ),
+                  footer: ShimmerFooter(
+                    text: Text(
+                      "PullToRefresh",
+                      style: TextStyle(color: Colors.grey, fontSize: 22),
+                    ),
+                    noMore: Align(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "AllUserLoaded",
+                        style: TextStyle(color: Colors.grey, fontSize: 22),
+                      ),
+                    ),
+                    baseColor: AppTheme.bgChatBlue,
+                  ),
+                  controller: widget.refresh,
+                  enablePullUp: true,
+                  child: ListView.builder(
+                      itemCount: widget.dataPengerjaan.length,
+                      // itemExtent: 100.0,
+                      itemBuilder: (c, i) {
+                        return TabPengerjaanCard(
+                            marginLeftRight: marginLeftRight,
+                            marginCard: marginCard,
+                            changeProgress: () {
+                              changeToProgress();
+                            },
+                            star: star,
+                            data: widget.dataPengerjaan[i],
+                            index: i,
+                            starEvent: (double st) {
+                              star = st;
+                              setState(() {});
+                            });
+                      }),
+                  onRefresh: widget.dataReresh,
+                  onLoading: widget.dataNext,
+                )),
+
+      // Text('Belum ada data Proyek...'),
+      //     ListView(
+      //   children: [
+      //     TabPengerjaanCard(
+      //         marginLeftRight: marginLeftRight,
+      //         marginCard: marginCard,
+      //         changeProgress: () {
+      //           changeToProgress();
+      //         },
+      //         star: star,
+      //         starEvent: (double st) {
+      //           star = st;
+      //           setState(() {});
+      //         }),
+      //   ],
+      // ),
     );
   }
 }
@@ -365,6 +444,8 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
 class TabPengerjaanCard extends StatelessWidget {
   const TabPengerjaanCard({
     Key key,
+    this.data,
+    this.index,
     this.marginLeftRight: 0,
     this.marginCard: 0,
     this.changeProgress,
@@ -374,6 +455,8 @@ class TabPengerjaanCard extends StatelessWidget {
 
   final double marginLeftRight;
   final double marginCard;
+  final Map data;
+  final int index;
   final Function() changeProgress;
   final Function(double st) starEvent;
 
@@ -400,13 +483,13 @@ class TabPengerjaanCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            headCard(context, paddingCard, widthCard),
-            komenCard(context, paddingCard, widthCard),
+            headCard(context, paddingCard, widthCard, data),
+            komenCard(context, paddingCard, widthCard, data),
           ],
         ));
   }
 
-  Widget headCard(context, double paddingCard, double widthCard) {
+  Widget headCard(context, double paddingCard, double widthCard, Map data) {
     double imgCard = widthCard / 6;
     double heightCard = 90;
     double widthBtnShort = 100;
@@ -426,11 +509,6 @@ class TabPengerjaanCard extends StatelessWidget {
                 width: imgCard,
                 margin: EdgeInsets.only(top: 5),
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image:
-                        (AssetImage('assets/general/ilustration_desain.jpg')),
-                    fit: BoxFit.fitWidth,
-                  ),
                   boxShadow: [
                     //background color of box
                     BoxShadow(
@@ -444,6 +522,7 @@ class TabPengerjaanCard extends StatelessWidget {
                     ),
                   ],
                 ),
+                child: imageLoad(data['thumbnail'], false, imgCard, imgCard),
               ),
               //kontent
               Container(
@@ -459,7 +538,7 @@ class TabPengerjaanCard extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(bottom: 1),
                       child: Text(
-                        'DESAIN UI',
+                        data['judul'] ?? empty,
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 18,
@@ -470,21 +549,30 @@ class TabPengerjaanCard extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(bottom: 5),
                       child: Text(
-                        'Rp5.000.000',
+                        'Rp' + decimalPointTwo(data['harga'].toString()),
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 18,
                         ),
                       ),
                     ),
-                    Text(
-                      'KATEGORI Desain, Multimedia:',
-                      style: TextStyle(
-                        fontSize: 12,
+                    Padding(
+                      padding: const EdgeInsets.only(top: 0),
+                      child: Text(
+                        'KATEGORI ' +
+                            (data.containsKey('kategori')
+                                ? data['kategori']['nama']
+                                : unknown) +
+                            ":",
+                        style: TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                     Text(
-                      'Pembuatan Tampilan Web',
+                      data.containsKey('subkategori')
+                          ? data['subkategori']['nama']
+                          : 'sub ' + unknown,
                       style: TextStyle(
                         color: AppTheme.primarymenu,
                         fontSize: 12,
@@ -548,7 +636,7 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '1 ORANG  ',
+                  moreThan99((data['total_bid'] ?? 0)) + ' ORANG  ',
                   style: TextStyle(
                     fontSize: 11,
                     color: AppTheme.primarymenu,
@@ -567,7 +655,9 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '7 Hari',
+                  pointGroup(
+                          int.parse(data['waktu_pengerjaan'].toString()) ?? 0) +
+                      ' Hari',
                   style: TextStyle(
                     fontSize: 11,
                   ),
@@ -657,11 +747,9 @@ class TabPengerjaanCard extends StatelessWidget {
                             ),
                           ),
                           TextField(
-                            
                             style: TextStyle(fontSize: 12),
                             maxLines: 3,
                             decoration: new InputDecoration(
-                              
                                 border: new OutlineInputBorder(
                                   borderRadius: const BorderRadius.all(
                                     const Radius.circular(10.0),
@@ -673,17 +761,20 @@ class TabPengerjaanCard extends StatelessWidget {
                                 hintText: "Ulasan",
                                 fillColor: Colors.white70),
                           ),
-                        Container(
-                          padding: EdgeInsets.only(top:80),
-                          alignment: Alignment.topRight,
-                          child: RaisedButton(
-                            onPressed: (){
-                              Navigator.pop(context);
-                            },
-                            color: AppTheme.bgChatBlue,
-                            child: Text('Simpan',style: TextStyle(color: AppTheme.nearlyWhite),),
-                          ),
-                        )
+                          Container(
+                            padding: EdgeInsets.only(top: 80),
+                            alignment: Alignment.topRight,
+                            child: RaisedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              color: AppTheme.bgChatBlue,
+                              child: Text(
+                                'Simpan',
+                                style: TextStyle(color: AppTheme.nearlyWhite),
+                              ),
+                            ),
+                          )
                         ],
                       ),
                     ),
@@ -695,7 +786,7 @@ class TabPengerjaanCard extends StatelessWidget {
         });
   }
 
-  Widget komenCard(context, double paddingCard, double widthCard) {
+  Widget komenCard(context, double paddingCard, double widthCard, Map data) {
     double marginLeft = widthCard / 6 / 3;
     double marginRight = 0;
     double photoWidth = 45;
@@ -728,12 +819,16 @@ class TabPengerjaanCard extends StatelessWidget {
                 height: photoWidth,
                 width: photoWidth,
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: (AssetImage('assets/general/changwook.jpg')),
-                    fit: BoxFit.fitWidth,
-                  ),
                   borderRadius: BorderRadius.circular(60),
                 ),
+                child: data['pengerjaan'].containsKey('pekerja')
+                    ? imageLoad(data['pengerjaan']['pekerja']['foto'], true,
+                        photoWidth, photoWidth)
+                    : Image.asset(
+                        'assets/general/user.png',
+                        width: photoWidth,
+                        fit: BoxFit.fitWidth,
+                      ),
               ),
               Stack(
                 children: [
@@ -753,7 +848,10 @@ class TabPengerjaanCard extends StatelessWidget {
                               fit: BoxFit.fitWidth,
                             ),
                             Text(
-                              ' Sugiono Kusuma Dewa Ringrat',
+                              ' ' +
+                                  (data['pengerjaan'].containsKey('pekerja')
+                                      ? data['pengerjaan']['pekerja']['nama']
+                                      : tanpaNama),
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w500,
@@ -774,7 +872,11 @@ class TabPengerjaanCard extends StatelessWidget {
                                 size: 16,
                               ),
                               Text(
-                                ' 4.5',
+                                ' ' +
+                                    (data['pengerjaan'].containsKey('pekerja')
+                                        ? data['pengerjaan']['pekerja']
+                                            ['bintang']
+                                        : '0'),
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -802,7 +904,9 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'Lorem Ipsum',
+                      (data['pengerjaan'].containsKey('pekerja')
+                          ? data['pengerjaan']['pekerja']['status']
+                          : empty),
                       style: TextStyle(
                         fontSize: 15,
                       ),
@@ -839,7 +943,10 @@ class TabPengerjaanCard extends StatelessWidget {
                         top: 3,
                       ),
                       child: Text(
-                        '(Kosong)',
+                        (data.containsKey('lampiran') &&
+                                data['lampiran'].length > 0
+                            ? data['lampiran'].length.toString() + ' lampiran'
+                            : empty),
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -861,7 +968,10 @@ class TabPengerjaanCard extends StatelessWidget {
                         bottom: 6,
                       ),
                       child: Text(
-                        'https://link.in/JdHxs12',
+                        data['pengerjaan'].containsKey('tautan') &&
+                                data['pengerjaan']['tautan'] != null
+                            ? data['pengerjaan']['tautan'].toString()
+                            : empty,
                         style: TextStyle(fontSize: 12),
                       ),
                     ),
@@ -916,12 +1026,22 @@ class TabPengerjaanCard extends StatelessWidget {
                         height: photoWidth,
                         width: photoWidth,
                         decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: (AssetImage('assets/general/changwook.jpg')),
-                            fit: BoxFit.fitWidth,
-                          ),
                           borderRadius: BorderRadius.circular(60),
                         ),
+                        child: data['pengerjaan'].containsKey('ulasan') &&
+                                data['pengerjaan']['ulasan']
+                                    .containsKey('ulasan_pekerja')
+                            ? imageLoad(
+                                data['pengerjaan']['ulasan']['ulasan_pekerja']
+                                    ['foto'],
+                                true,
+                                photoWidth,
+                                photoWidth)
+                            : Image.asset(
+                                'assets/general/user.png',
+                                width: photoWidth,
+                                fit: BoxFit.fitWidth,
+                              ),
                       ),
                       Stack(
                         children: [
@@ -949,7 +1069,17 @@ class TabPengerjaanCard extends StatelessWidget {
                                           photoWidth -
                                           (pembatas * 2 + wightboder),
                                       child: Text(
-                                        ' Yukna Santoso',
+                                        ' ' +
+                                            (data['pengerjaan'].containsKey(
+                                                        'ulasan') &&
+                                                    data['pengerjaan']['ulasan']
+                                                        .containsKey(
+                                                            'ulasan_pekerja')
+                                                ? data['pengerjaan']['ulasan']
+                                                            ['ulasan_pekerja']
+                                                        ['nama']
+                                                    .toString()
+                                                : tanpaNama),
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -971,7 +1101,19 @@ class TabPengerjaanCard extends StatelessWidget {
                                         size: 16,
                                       ),
                                       Text(
-                                        ' 4.5',
+                                       ' ' +
+                                            (data['pengerjaan'].containsKey(
+                                                        'ulasan') &&
+                                                    data['pengerjaan']['ulasan']
+                                                        .containsKey(
+                                                            'ulasan_pekerja')&& data['pengerjaan']['ulasan']
+                                                            ['ulasan_pekerja']
+                                                        ['bintang']!=null
+                                                ? data['pengerjaan']['ulasan']
+                                                            ['ulasan_pekerja']
+                                                        ['bintang'].toString()
+                                                    .toString()
+                                                : '0.0'),
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -1001,7 +1143,19 @@ class TabPengerjaanCard extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              'Lorem Ipsum',
+                              ' ' +
+                                            (data['pengerjaan'].containsKey(
+                                                        'ulasan') &&
+                                                    data['pengerjaan']['ulasan']
+                                                        .containsKey(
+                                                            'ulasan_pekerja')&& data['pengerjaan']['ulasan']
+                                                            ['ulasan_pekerja']
+                                                        ['bintang']!=null
+                                                ? data['pengerjaan']['ulasan']
+                                                            ['ulasan_pekerja']
+                                                        ['bintang'].toString()
+                                                    .toString()
+                                                : belumReview),
                               style: TextStyle(
                                 fontSize: 15,
                               ),
@@ -1018,6 +1172,180 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                 ],
               )),
+          data['pengerjaan'].containsKey(
+                                                        'ulasan') &&
+                                                    data['pengerjaan']['ulasan']
+                                                        .containsKey(
+                                                            'ulasan_klien')&& data['pengerjaan']['ulasan']
+                                                            ['ulasan_klien']
+                                                        ['bintang']!=null?Container(
+              margin: EdgeInsets.only(left: marginLeftKomen),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 8, bottom: 8),
+                    child: Text(
+                      'ULASAN PEKERJA',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //photo comment
+                      Container(
+                        alignment: Alignment.center,
+                        height: photoWidth,
+                        width: photoWidth,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(60),
+                        ),
+                        child: data['pengerjaan'].containsKey('ulasan') &&
+                                data['pengerjaan']['ulasan']
+                                    .containsKey('ulasan_klien')
+                            ? imageLoad(
+                                data['pengerjaan']['ulasan']['ulasan_klien']
+                                    ['foto'],
+                                true,
+                                photoWidth,
+                                photoWidth)
+                            : Image.asset(
+                                'assets/general/user.png',
+                                width: photoWidth,
+                                fit: BoxFit.fitWidth,
+                              ),
+                      ),
+                      Stack(
+                        children: [
+                          // nama & bintang
+                          Container(
+                            width: widthSub - photoWidth,
+                            padding: EdgeInsets.only(
+                                left: pembatas * 2 + wightboder),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Image.asset(
+                                      'assets/general/user_place.png',
+                                      width: 12,
+                                      fit: BoxFit.fitWidth,
+                                    ),
+                                    SizedBox(
+                                      width: widthSub -
+                                          12 -
+                                          photoWidth -
+                                          (pembatas * 2 + wightboder),
+                                      child: Text(
+                                        ' ' +
+                                            (data['pengerjaan'].containsKey(
+                                                        'ulasan') &&
+                                                    data['pengerjaan']['ulasan']
+                                                        .containsKey(
+                                                            'ulasan_klien')&& data['pengerjaan']['ulasan']
+                                                            ['ulasan_klien']
+                                                        ['nama']!=null
+                                                ? data['pengerjaan']['ulasan']
+                                                            ['ulasan_klien']
+                                                        ['nama']
+                                                    .toString()
+                                                : tanpaNama),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Icons.star,
+                                        color: Colors.yellow,
+                                        size: 16,
+                                      ),
+                                      Text(
+                                       ' ' +
+                                            (data['pengerjaan'].containsKey(
+                                                        'ulasan') &&
+                                                    data['pengerjaan']['ulasan']
+                                                        .containsKey(
+                                                            'ulasan_klien')&& data['pengerjaan']['ulasan']
+                                                            ['ulasan_klien']
+                                                        ['bintang']!=null
+                                                ? data['pengerjaan']['ulasan']
+                                                            ['ulasan_klien']
+                                                        ['bintang'].toString()
+                                                    .toString()
+                                                : '0.0'),
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          //komen frelencer
+                          Container(
+                            width: widthSub - btnRight,
+                            padding: EdgeInsets.only(
+                              left: pembatas,
+                              top: 33,
+                              bottom: 5,
+                            ),
+                            margin: EdgeInsets.only(left: pembatas),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                left: BorderSide(
+                                    width: wightboder,
+                                    color: AppTheme.geySolidCustom),
+                              ),
+                            ),
+                            child: Text(
+                              ' ' +
+                                            (data['pengerjaan'].containsKey(
+                                                        'ulasan') &&
+                                                    data['pengerjaan']['ulasan']
+                                                        .containsKey(
+                                                            'ulasan_klienulasan_klien')&& data['pengerjaan']['ulasan']
+                                                            ['ulasan_klienulasan_klien']
+                                                        ['bintang']!=null
+                                                ? data['pengerjaan']['ulasan']
+                                                            ['ulasan_klien']
+                                                        ['bintang'].toString()
+                                                    .toString()
+                                                : belumReview),
+                              style: TextStyle(
+                                fontSize: 15,
+                              ),
+                              maxLines: 4,
+                            ),
+                          ),
+                        ],
+                      ),
+                  
+                    ],
+                  ),
+                ],
+              )):Container(),
+        
+        
         ],
       ),
     );
