@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -5,6 +8,7 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+// import 'androidx.lifecycle.DefaultLifecycleObserver';
 
 class TabProyekView extends StatefulWidget {
   const TabProyekView(
@@ -43,7 +47,40 @@ class TabProyekView extends StatefulWidget {
 class _TabProyekViewState extends State<TabProyekView> {
   TextEditingController inputKategori = new TextEditingController();
   TextEditingController inputJudul = new TextEditingController();
-  RefreshController _refreshController = RefreshController();
+  List<File> lampiran = <File>[];
+
+  void lampiranSet() async {
+    FilePickerResult result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: [
+        'jpg',
+        'jpeg',
+        'gif',
+        'png',
+        'pdf',
+        'doc',
+        'docx',
+        'xls',
+        'xlsx',
+        'odt',
+        'ppt',
+        'pptx'
+      ],
+    );
+    setState(() {
+      lampiran = [];
+      if (result != null) {
+        lampiran = result.paths.map((path) => File(path)).toList();
+
+        lampiran.forEach((element) {
+          
+         });
+      } else {
+        // User canceled the picker
+      }
+    });
+  }
 
   String jnsProyek = 'publik';
   @override
@@ -402,7 +439,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                                 ]),
                                 Padding(padding: EdgeInsets.only(top: 3)),
                                 Text(
-                                  'Pilih File',
+                                  'Lampiran',
                                   style: TextStyle(
                                       fontSize: 11,
                                       color: AppTheme.geySolidCustom,
@@ -410,63 +447,69 @@ class _TabProyekViewState extends State<TabProyekView> {
                                 ),
                                 Padding(padding: EdgeInsets.only(top: 3)),
 
-                                Row(children: [
-                                  Container(
-                                    alignment: Alignment.centerLeft,
-                                    decoration: BoxDecoration(
-                                      color: AppTheme.geySofttCustom
-                                          .withOpacity(.8),
-                                      border: Border(
-                                        top: BorderSide(
-                                          color: AppTheme.geyCustom
-                                              .withOpacity(.4),
-                                        ),
-                                        bottom: BorderSide(
-                                          color: AppTheme.geyCustom
-                                              .withOpacity(.4),
-                                        ),
-                                        left: BorderSide(
-                                          color: AppTheme.geyCustom
-                                              .withOpacity(.4),
-                                        ),
-                                      ),
-                                    ),
-                                    width: (sizeu.width - 137) / 2 - 30,
-                                    height: 25,
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 11.0,
-                                      ),
-                                      maxLength: 4,
-                                      decoration: InputDecoration(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 10.0, horizontal: 5),
-                                        border: InputBorder.none,
-                                        hintText: '',
-                                        suffixStyle:
-                                            TextStyle(color: Colors.black),
-                                        counterStyle: TextStyle(
-                                          height: double.minPositive,
-                                        ),
-                                        counterText: "",
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                      width: 30,
-                                      height: 25,
-                                      alignment: Alignment.center,
+                                InkWell(
+                                  onTap: () => lampiranSet(),
+                                  child: Row(children: [
+                                    Container(
+                                      alignment: Alignment.centerLeft,
                                       decoration: BoxDecoration(
-                                        border: Border.all(
+                                        color: AppTheme.geySofttCustom
+                                            .withOpacity(.8),
+                                        border: Border(
+                                          top: BorderSide(
                                             color: AppTheme.geyCustom
-                                                .withOpacity(.2)),
+                                                .withOpacity(.4),
+                                          ),
+                                          bottom: BorderSide(
+                                            color: AppTheme.geyCustom
+                                                .withOpacity(.4),
+                                          ),
+                                          left: BorderSide(
+                                            color: AppTheme.geyCustom
+                                                .withOpacity(.4),
+                                          ),
+                                        ),
                                       ),
-                                      child: Icon(
-                                        Icons.insert_drive_file,
-                                        size: 12,
-                                      )),
-                                ]),
+                                      width: (sizeu.width - 137) / 2 - 30,
+                                      height: 25,
+                                      child: IgnorePointer(
+                                        child: TextField(
+                                          style: TextStyle(
+                                            fontSize: 11.0,
+                                          ),
+                                          maxLength: 4,
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    vertical: 10.0,
+                                                    horizontal: 5),
+                                            border: InputBorder.none,
+                                            hintText: '',
+                                            suffixStyle:
+                                                TextStyle(color: Colors.black),
+                                            counterStyle: TextStyle(
+                                              height: double.minPositive,
+                                            ),
+                                            counterText: "",
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                        width: 30,
+                                        height: 25,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                              color: AppTheme.geyCustom
+                                                  .withOpacity(.2)),
+                                        ),
+                                        child: Icon(
+                                          Icons.insert_drive_file,
+                                          size: 12,
+                                        )),
+                                  ]),
+                                ),
                               ],
                             ),
                           ),
@@ -687,12 +730,33 @@ class _TabProyekViewState extends State<TabProyekView> {
                   child: ListView.builder(
                       itemCount: widget.dataProyek.length,
                       // itemExtent: 100.0,
-                      itemBuilder: (c, i) =>
-                          cardProyek(widget.dataProyek[i], i)),
+                      itemBuilder: (c, i) {
+                        // transColor();
+                        return cardProyek(widget.dataProyek[i], i);
+                      }),
                   onRefresh: widget.dataReresh,
                   onLoading: widget.dataNext,
                 )),
     );
+  }
+
+  int colorChange = 0;
+
+  transColor(i) {
+    int res = 0;
+    if ((i + 1) % 1 == 0) {
+      res = 0;
+    }
+    if ((i + 1) % 2 == 0) {
+      res = 1;
+    }
+    if ((i + 1) % 3 == 0) {
+      res = 2;
+    }
+    if ((i + 1) % 4 == 0) {
+      res = 3;
+    }
+    return res;
   }
 
   Widget cardProyek(Map data, int i) {
@@ -715,7 +779,7 @@ class _TabProyekViewState extends State<TabProyekView> {
         ),
         padding: EdgeInsets.all(paddingCard),
         decoration: BoxDecoration(
-          color: AppTheme.bgRedSoft,
+          color: AppTheme.renoReno[transColor(i)],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Row(
@@ -834,7 +898,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                                     bottomLeft: Radius.circular(30.0),
                                   ), () {
                                 print('info');
-                              }),
+                              }, true),
                               btnTool(
                                   'assets/more_icon/file_alt.png',
                                   BorderRadius.only(
@@ -842,7 +906,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                                     bottomRight: Radius.circular(30.0),
                                   ), () {
                                 print('info');
-                              }),
+                              }, true),
                             ],
                           ),
                           Padding(
@@ -857,27 +921,49 @@ class _TabProyekViewState extends State<TabProyekView> {
                                     topLeft: Radius.circular(30.0),
                                     bottomLeft: Radius.circular(30.0),
                                   ), () {
-                                widget.editEvent(1);
-
-                                widget.toAddFunc();
-                              }),
+                                if (data['editable'] == 1) {
+                                  widget.editEvent(1);
+                                  widget.toAddFunc();
+                                } else {
+                                  openAlertBox(
+                                      context,
+                                      'Proyek telah dikerjakan!',
+                                      'Proyek tidak bisa diubah...',
+                                      'OK', () {
+                                    Navigator.pop(context);
+                                  });
+                                }
+                              }, data['editable'] == 1 ? true : false),
                               btnTool(
                                   'assets/more_icon/remove-file.png',
                                   BorderRadius.only(
                                     topRight: Radius.circular(30.0),
                                     bottomRight: Radius.circular(30.0),
                                   ), () {
-                                openAlertBoxTwo(
+                                if (data['editable'] == 1) {
+                                  openAlertBoxTwo(
                                     context,
                                     'KONFIRMASI HAPUS PROYEK',
                                     'Apa anda yakin hapus proyek ini? Proyek akan hilang!',
                                     'TIDAK',
-                                    'HAPUS', () {
-                                  Navigator.pop(context);
-                                }, () {
-                                  Navigator.pop(context);
-                                });
-                              }),
+                                    'HAPUS',
+                                    () {
+                                      Navigator.pop(context);
+                                    },
+                                    () {
+                                      Navigator.pop(context);
+                                    },
+                                  );
+                                } else {
+                                  openAlertBox(
+                                      context,
+                                      'Proyek telah dikerjakan!',
+                                      'Proyek tidak bisa dihapus...',
+                                      'OK', () {
+                                    Navigator.pop(context);
+                                  });
+                                }
+                              }, data['editable'] == 1 ? true : false),
                             ],
                           ),
                         ],
@@ -957,8 +1043,8 @@ class _TabProyekViewState extends State<TabProyekView> {
         ));
   }
 
-  Widget btnTool(
-      String locationImg, BorderRadius radius, Function linkRedirect) {
+  Widget btnTool(String locationImg, BorderRadius radius, Function linkRedirect,
+      bool active) {
     return InkWell(
       onTap: () {
         linkRedirect();
@@ -968,12 +1054,14 @@ class _TabProyekViewState extends State<TabProyekView> {
         height: 30,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
-          borderRadius: radius,
-          border: Border.all(
-            width: .5,
-            color: AppTheme.nearlyBlack,
-          ),
-        ),
+            borderRadius: radius,
+            border: Border.all(
+              width: .5,
+              color: AppTheme.nearlyBlack,
+            ),
+            color: (active
+                ? Colors.white
+                : AppTheme.geySoftCustom.withOpacity(.3))),
         child: Image.asset(
           locationImg,
           alignment: Alignment.center,

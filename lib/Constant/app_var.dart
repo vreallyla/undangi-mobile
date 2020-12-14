@@ -12,9 +12,12 @@ const String globalPathAuth = 'auth/';
 const String tokenJWT = 'Bearer ';
 
 //noticec
+
 const String notice = 'Silakan coba lagi...';
+const String baseNotice = 'Pemberitahuan';
 const String noticeForm = 'Silakan cek lagi form yang tersedia...';
 const String noticeTitle = 'Terjadi kesalahan!';
+
 
 //CONFIRM
 const String konfirm1 = 'OK';

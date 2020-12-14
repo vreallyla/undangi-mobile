@@ -32,7 +32,7 @@ class TabPengerjaanView extends StatefulWidget {
   final Function toProgressFunc;
   final Function dataReresh;
   final Function dataNext;
-  
+
   final bool toProgress;
   final bool loading;
   @override
@@ -45,7 +45,8 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
   }
 
   double star = 0;
-  
+
+  int colorChange = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -440,7 +441,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
     );
   }
 }
-
+int colorChange=0;
 class TabPengerjaanCard extends StatelessWidget {
   const TabPengerjaanCard({
     Key key,
@@ -461,6 +462,22 @@ class TabPengerjaanCard extends StatelessWidget {
   final Function(double st) starEvent;
 
   final double star;
+  transColor(i) {
+    int res = 0;
+    if ((i + 1) % 1 == 0) {
+      res = 0;
+    }
+    if ((i + 1) % 2 == 0) {
+      res = 1;
+    }
+    if ((i + 1) % 3 == 0) {
+      res = 2;
+    }
+    if ((i + 1) % 4 == 0) {
+      res = 3;
+    }
+    return res;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -477,7 +494,7 @@ class TabPengerjaanCard extends StatelessWidget {
         ),
         padding: EdgeInsets.all(paddingCard),
         decoration: BoxDecoration(
-          color: AppTheme.bgBlue2Soft,
+          color: AppTheme.renoReno[transColor(index)],
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
@@ -787,6 +804,8 @@ class TabPengerjaanCard extends StatelessWidget {
   }
 
   Widget komenCard(context, double paddingCard, double widthCard, Map data) {
+    final sizeu = MediaQuery.of(context).size;
+
     double marginLeft = widthCard / 6 / 3;
     double marginRight = 0;
     double photoWidth = 45;
@@ -833,7 +852,7 @@ class TabPengerjaanCard extends StatelessWidget {
               Stack(
                 children: [
                   // nama & bintang
-                  Padding(
+                  Container(
                     padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -891,6 +910,7 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                   //komen frelencer
                   Container(
+                    width: sizeu.width - photoWidth - 72,
                     padding: EdgeInsets.only(
                       left: pembatas,
                       top: 33,
@@ -907,6 +927,7 @@ class TabPengerjaanCard extends StatelessWidget {
                       (data['pengerjaan'].containsKey('pekerja')
                           ? data['pengerjaan']['pekerja']['status']
                           : empty),
+                      // '',
                       style: TextStyle(
                         fontSize: 15,
                       ),
@@ -1101,17 +1122,21 @@ class TabPengerjaanCard extends StatelessWidget {
                                         size: 16,
                                       ),
                                       Text(
-                                       ' ' +
+                                        ' ' +
                                             (data['pengerjaan'].containsKey(
                                                         'ulasan') &&
                                                     data['pengerjaan']['ulasan']
                                                         .containsKey(
-                                                            'ulasan_pekerja')&& data['pengerjaan']['ulasan']
-                                                            ['ulasan_pekerja']
-                                                        ['bintang']!=null
+                                                            'ulasan_pekerja') &&
+                                                    data['pengerjaan']['ulasan']
+                                                                [
+                                                                'ulasan_pekerja']
+                                                            ['bintang'] !=
+                                                        null
                                                 ? data['pengerjaan']['ulasan']
                                                             ['ulasan_pekerja']
-                                                        ['bintang'].toString()
+                                                        ['bintang']
+                                                    .toString()
                                                     .toString()
                                                 : '0.0'),
                                         style: TextStyle(
@@ -1144,18 +1169,18 @@ class TabPengerjaanCard extends StatelessWidget {
                             ),
                             child: Text(
                               ' ' +
-                                            (data['pengerjaan'].containsKey(
-                                                        'ulasan') &&
-                                                    data['pengerjaan']['ulasan']
-                                                        .containsKey(
-                                                            'ulasan_pekerja')&& data['pengerjaan']['ulasan']
-                                                            ['ulasan_pekerja']
-                                                        ['bintang']!=null
-                                                ? data['pengerjaan']['ulasan']
-                                                            ['ulasan_pekerja']
-                                                        ['bintang'].toString()
-                                                    .toString()
-                                                : belumReview),
+                                  (data['pengerjaan'].containsKey('ulasan') &&
+                                          data['pengerjaan']['ulasan']
+                                              .containsKey('ulasan_pekerja') &&
+                                          data['pengerjaan']['ulasan']
+                                                      ['ulasan_pekerja']
+                                                  ['deskripsi'] !=
+                                              null
+                                      ? data['pengerjaan']['ulasan']
+                                              ['ulasan_pekerja']['deskripsi']
+                                          .toString()
+                                          .toString()
+                                      : belumReview),
                               style: TextStyle(
                                 fontSize: 15,
                               ),
@@ -1172,180 +1197,195 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                 ],
               )),
-          data['pengerjaan'].containsKey(
-                                                        'ulasan') &&
-                                                    data['pengerjaan']['ulasan']
-                                                        .containsKey(
-                                                            'ulasan_klien')&& data['pengerjaan']['ulasan']
-                                                            ['ulasan_klien']
-                                                        ['bintang']!=null?Container(
-              margin: EdgeInsets.only(left: marginLeftKomen),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 8, bottom: 8),
-                    child: Text(
-                      'ULASAN PEKERJA',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                  Row(
+          data['pengerjaan'].containsKey('ulasan') &&
+                  data['pengerjaan']['ulasan'].containsKey('ulasan_klien') &&
+                  data['pengerjaan']['ulasan']['ulasan_klien']['bintang'] !=
+                      null
+              ? Container(
+                  margin: EdgeInsets.only(left: marginLeftKomen),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      //photo comment
-                      Container(
-                        alignment: Alignment.center,
-                        height: photoWidth,
-                        width: photoWidth,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(60),
+                      Padding(
+                        padding: EdgeInsets.only(top: 8, bottom: 8),
+                        child: Text(
+                          'ULASAN PEKERJA',
+                          style: TextStyle(fontSize: 12),
                         ),
-                        child: data['pengerjaan'].containsKey('ulasan') &&
-                                data['pengerjaan']['ulasan']
-                                    .containsKey('ulasan_klien')
-                            ? imageLoad(
-                                data['pengerjaan']['ulasan']['ulasan_klien']
-                                    ['foto'],
-                                true,
-                                photoWidth,
-                                photoWidth)
-                            : Image.asset(
-                                'assets/general/user.png',
-                                width: photoWidth,
-                                fit: BoxFit.fitWidth,
-                              ),
                       ),
-                      Stack(
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // nama & bintang
+                          //photo comment
                           Container(
-                            width: widthSub - photoWidth,
-                            padding: EdgeInsets.only(
-                                left: pembatas * 2 + wightboder),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Row(
+                            alignment: Alignment.center,
+                            height: photoWidth,
+                            width: photoWidth,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: data['pengerjaan'].containsKey('ulasan') &&
+                                    data['pengerjaan']['ulasan']
+                                        .containsKey('ulasan_klien')
+                                ? imageLoad(
+                                    data['pengerjaan']['ulasan']['ulasan_klien']
+                                        ['foto'],
+                                    true,
+                                    photoWidth,
+                                    photoWidth)
+                                : Image.asset(
+                                    'assets/general/user.png',
+                                    width: photoWidth,
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                          ),
+                          Stack(
+                            children: [
+                              // nama & bintang
+                              Container(
+                                width: widthSub - photoWidth,
+                                padding: EdgeInsets.only(
+                                    left: pembatas * 2 + wightboder),
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
-                                    Image.asset(
-                                      'assets/general/user_place.png',
-                                      width: 12,
-                                      fit: BoxFit.fitWidth,
-                                    ),
-                                    SizedBox(
-                                      width: widthSub -
-                                          12 -
-                                          photoWidth -
-                                          (pembatas * 2 + wightboder),
-                                      child: Text(
-                                        ' ' +
-                                            (data['pengerjaan'].containsKey(
-                                                        'ulasan') &&
-                                                    data['pengerjaan']['ulasan']
-                                                        .containsKey(
-                                                            'ulasan_klien')&& data['pengerjaan']['ulasan']
-                                                            ['ulasan_klien']
-                                                        ['nama']!=null
-                                                ? data['pengerjaan']['ulasan']
-                                                            ['ulasan_klien']
-                                                        ['nama']
-                                                    .toString()
-                                                : tanpaNama),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Image.asset(
+                                          'assets/general/user_place.png',
+                                          width: 12,
+                                          fit: BoxFit.fitWidth,
                                         ),
-                                        maxLines: 1,
+                                        SizedBox(
+                                          width: widthSub -
+                                              12 -
+                                              photoWidth -
+                                              (pembatas * 2 + wightboder),
+                                          child: Text(
+                                            ' ' +
+                                                (data['pengerjaan'].containsKey(
+                                                            'ulasan') &&
+                                                        data['pengerjaan']
+                                                                ['ulasan']
+                                                            .containsKey(
+                                                                'ulasan_klien') &&
+                                                        data['pengerjaan']
+                                                                        [
+                                                                        'ulasan']
+                                                                    [
+                                                                    'ulasan_klien']
+                                                                ['nama'] !=
+                                                            null
+                                                    ? data['pengerjaan']
+                                                                    ['ulasan']
+                                                                ['ulasan_klien']
+                                                            ['nama']
+                                                        .toString()
+                                                    : tanpaNama),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            maxLines: 1,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Icon(
+                                            Icons.star,
+                                            color: Colors.yellow,
+                                            size: 16,
+                                          ),
+                                          Text(
+                                            ' ' +
+                                                (data['pengerjaan'].containsKey(
+                                                            'ulasan') &&
+                                                        data['pengerjaan']
+                                                                ['ulasan']
+                                                            .containsKey(
+                                                                'ulasan_klien') &&
+                                                        data['pengerjaan']
+                                                                        [
+                                                                        'ulasan']
+                                                                    [
+                                                                    'ulasan_klien']
+                                                                ['bintang'] !=
+                                                            null
+                                                    ? data['pengerjaan']
+                                                                    ['ulasan']
+                                                                ['ulasan_klien']
+                                                            ['bintang']
+                                                        .toString()
+                                                        .toString()
+                                                    : '0.0'),
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                            maxLines: 1,
+                                          )
+                                        ],
                                       ),
-                                    )
+                                    ),
                                   ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 2),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Icon(
-                                        Icons.star,
-                                        color: Colors.yellow,
-                                        size: 16,
-                                      ),
-                                      Text(
-                                       ' ' +
-                                            (data['pengerjaan'].containsKey(
-                                                        'ulasan') &&
-                                                    data['pengerjaan']['ulasan']
-                                                        .containsKey(
-                                                            'ulasan_klien')&& data['pengerjaan']['ulasan']
-                                                            ['ulasan_klien']
-                                                        ['bintang']!=null
-                                                ? data['pengerjaan']['ulasan']
-                                                            ['ulasan_klien']
-                                                        ['bintang'].toString()
-                                                    .toString()
-                                                : '0.0'),
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        maxLines: 1,
-                                      )
-                                    ],
+                              ),
+                              //komen frelencer
+                              Container(
+                                width: widthSub - btnRight,
+                                padding: EdgeInsets.only(
+                                  left: pembatas,
+                                  top: 33,
+                                  bottom: 5,
+                                ),
+                                margin: EdgeInsets.only(left: pembatas),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    left: BorderSide(
+                                        width: wightboder,
+                                        color: AppTheme.geySolidCustom),
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                          //komen frelencer
-                          Container(
-                            width: widthSub - btnRight,
-                            padding: EdgeInsets.only(
-                              left: pembatas,
-                              top: 33,
-                              bottom: 5,
-                            ),
-                            margin: EdgeInsets.only(left: pembatas),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                left: BorderSide(
-                                    width: wightboder,
-                                    color: AppTheme.geySolidCustom),
+                                child: Text(
+                                  ' ' +
+                                      (data['pengerjaan']
+                                                  .containsKey('ulasan') &&
+                                              data['pengerjaan']['ulasan']
+                                                  .containsKey(
+                                                      'ulasan_klienulasan_klien') &&
+                                              data['pengerjaan']['ulasan'][
+                                                          'ulasan_klienulasan_klien']
+                                                      ['bintang'] !=
+                                                  null
+                                          ? data['pengerjaan']['ulasan']
+                                                  ['ulasan_klien']['bintang']
+                                              .toString()
+                                              .toString()
+                                          : belumReview),
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                  maxLines: 4,
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              ' ' +
-                                            (data['pengerjaan'].containsKey(
-                                                        'ulasan') &&
-                                                    data['pengerjaan']['ulasan']
-                                                        .containsKey(
-                                                            'ulasan_klienulasan_klien')&& data['pengerjaan']['ulasan']
-                                                            ['ulasan_klienulasan_klien']
-                                                        ['bintang']!=null
-                                                ? data['pengerjaan']['ulasan']
-                                                            ['ulasan_klien']
-                                                        ['bintang'].toString()
-                                                    .toString()
-                                                : belumReview),
-                              style: TextStyle(
-                                fontSize: 15,
-                              ),
-                              maxLines: 4,
-                            ),
+                            ],
                           ),
                         ],
                       ),
-                  
                     ],
-                  ),
-                ],
-              )):Container(),
-        
-        
+                  ))
+              : Container(),
         ],
       ),
     );

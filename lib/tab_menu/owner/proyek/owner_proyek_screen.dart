@@ -52,9 +52,11 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   RefreshController _refreshProyekController = RefreshController();
   RefreshController _refreshPengerjaanController = RefreshController();
 
+  TextEditingController searchController = TextEditingController();
+
   //0=proyek;1=pengerjaan;2=dua2nya
   void setLoading(int order, bool kond) {
-    order = kond ? order : loadingPosisi;
+    // order = kond ? order : loadingPosisi;
 
     setState(() {
       if (order == 0) {
@@ -84,7 +86,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   void chageTab(bool kond) {
     setState(() {
       tabChange = kond;
-      setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, true);
+      setLoading(!tabChange ? 0 : 1, true);
       _loadDataApi();
     });
   }
@@ -100,6 +102,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
         'limit_pengerjaan': getRowPengerjaan,
         'search_pengerjaan': searchPengerjaan,
       }).then((v) {
+        print('p' + (loadingPosisi == 2 || !tabChange ? 0 : 1).toString());
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
         print(loadingPosisi);
         if (loadingPosisi == 0) {
@@ -301,29 +304,37 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                                 color: AppTheme.geySolidCustom,
                               ),
                             ),
-                            Container(
+                            SizedBox(
                               height: 25,
                               width: 140,
-                              padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                border: Border.all(
-                                  width: .5,
-                                  color: AppTheme.geySolidCustom,
-                                ),
-                                color: Colors.white,
-                              ),
-                              child: SizedBox(
-                                child: TextField(
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '',
-                                    suffixStyle: TextStyle(color: Colors.black),
-                                    counterStyle: TextStyle(
-                                      height: double.minPositive,
+                              child: TextField(
+                                enabled:!toAdd,
+                                controller: searchController,
+                                onSubmitted: (v) {
+                                  setState(() {
+                                    searchProyek = searchPengerjaan = v;
+                                  });
+                                  _loadDataApi();
+                                },
+                                style: TextStyle(
+
+                                    //Font color change
+                                    fontSize: 11),
+                                decoration: InputDecoration(
+                                  border: new OutlineInputBorder(
+                                    borderRadius: const BorderRadius.all(
+                                      const Radius.circular(10.0),
                                     ),
-                                    counterText: "",
                                   ),
+                                  fillColor: Colors.white,
+
+                                  hintText: '',
+                                  suffixStyle: TextStyle(color: Colors.black),
+                                  isDense: true, // Added this
+                                  contentPadding: EdgeInsets.only(
+                                      top: 12, left: 9, right: 6), // Added this
+
+                                  counterText: "",
                                 ),
                               ),
                             ),
@@ -352,7 +363,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                       });
                     })
                 : TabProyekView(
-                   dataReresh: _loadDataApi,
+                    dataReresh: _loadDataApi,
                     dataNext: _nextDataApi,
                     refresh: _refreshProyekController,
                     dataProyek: dataProyek,

@@ -11,6 +11,15 @@ class AppTheme {
   static const Color primaryRed = Color(0xFFf90706);
   static const Color primaryBluePekat = Color(0xFF022b69);
 
+
+  static const List renoReno = [
+    Color(0xFFcadcdf),
+    Color(0xFFe5dbdf),
+    Color(0xFF6fe4b7),
+    Color(0xFFfaeba5),
+  ];
+
+
   static const Color biruLaut = Color(0xFF29a9ff);
 
   static const Color primaryBlue = Color(0xFF29adfe);
