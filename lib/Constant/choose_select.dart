@@ -25,11 +25,18 @@ class _ChooseSelectState extends State<ChooseSelect> {
   bool loading = false;
   TextEditingController cari = new TextEditingController();
   List dataOp = [];
+  ScrollController _controller = new ScrollController();
+
+  double sub = 0;
+
+  bool addSub = true;
 
   @override
   void initState() {
     super.initState();
-    _getApi();
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) =>  _getApi());
+   
   }
 
   loadingSet(bool v) {
@@ -46,14 +53,26 @@ class _ChooseSelectState extends State<ChooseSelect> {
         //connect
         () async {
       String urll = widget.url + ('&q=' + (cari.text ?? ''));
-      await ProfileModel.getOp(urll).then((v) {
+      await ProfileModel.getOp(urll).then((v) async {
         loadingSet(false);
 
         if (v.error) {
           errorRespon(context, v.data);
         } else {
           dataOp = v.data['daftar'];
-          addData();
+          await addData();
+            Future.delayed(Duration(microseconds: 500), () async {
+            if (_controller.hasClients) {
+           
+              await _controller.animateTo(
+                sub,
+                curve: Curves.easeOut,
+                duration: const Duration(milliseconds: 100),
+              );
+            
+            }
+          });
+          
         }
       });
     },
@@ -68,20 +87,56 @@ class _ChooseSelectState extends State<ChooseSelect> {
 
   List<Widget> dataWidget = <Widget>[];
 
-  addData() {
+  addData() async {
     dataWidget = <Widget>[];
-    setState(() {
-      dataOp.forEach((element) {
-        if (widget.grup && element.containsKey('sub')) {
-          dataWidget.add(signature(element));
-          element['sub'].forEach((el) {
-            dataWidget.add(selectOrNot(el));
+
+    dataOp.forEach((element) {
+      if (widget.grup && element.containsKey('sub')) {
+        dataWidget.add(signature(element));
+        if (addSub && widget.op['id'] != '') {
+          setState(() {
+            sub = sub + 30;
+          });
+        }
+        element['sub'].forEach((el) async {
+          await setWidget(selectOrNot(el));
+          if (addSub & el.containsKey('selected') && el['selected'] > 0) {
+            setState(() {
+              addSub = false;
+            });
+          } else {
+            if (addSub && widget.op['id'] != '') {
+              setState(() {
+                sub = sub + 50;
+              });
+            }
+          }
+        });
+      } else {
+        dataWidget.add(selectOrNot(element));
+        if (addSub & element.containsKey('selected') &&
+            element['selected'] > 0) {
+          setState(() {
+            addSub = false;
           });
         } else {
-          dataWidget.add(selectOrNot(element));
+          if (addSub) {
+            setState(() {
+              sub = sub + 50;
+            });
+          }
         }
-      });
+      }
+      setState(() {});
     });
+
+  
+  }
+
+  setWidget(Widget dt) {
+   setState(() {
+      dataWidget.add(dt);
+   });
   }
 
   Widget selectOrNot(Map v) {
@@ -160,6 +215,8 @@ class _ChooseSelectState extends State<ChooseSelect> {
                       ),
                       padding: EdgeInsets.all(10),
                       child: ListView(
+                        controller: _controller,
+                        shrinkWrap: true,
                         children: dataWidget,
                       ),
                     )
@@ -170,8 +227,9 @@ class _ChooseSelectState extends State<ChooseSelect> {
   }
 
   Widget signature(Map v) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 10, top: 10),
+    return Container(
+      height: 30,
+      // padding: EdgeInsets.only(bottom: 10, top: 10),
       child: Text(
         v['nama'],
         style: TextStyle(
@@ -190,7 +248,9 @@ class _ChooseSelectState extends State<ChooseSelect> {
       },
       child: Container(
         margin: EdgeInsets.all(10),
-        padding: EdgeInsets.only(bottom: 10),
+        height: 40,
+        alignment: Alignment.topLeft,
+        // padding: EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
             border: Border(
                 bottom: BorderSide(
@@ -213,7 +273,9 @@ class _ChooseSelectState extends State<ChooseSelect> {
         },
         child: Container(
           margin: EdgeInsets.all(10),
-          padding: EdgeInsets.only(bottom: 10),
+          height: 40,
+          alignment: Alignment.topLeft,
+          // padding: EdgeInsets.only(bottom: 10),
           decoration: BoxDecoration(
               border: Border(
                   bottom: BorderSide(

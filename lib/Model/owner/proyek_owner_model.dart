@@ -44,8 +44,6 @@ class ProyekOwnerModel {
       }
     });
 
-
-
     apiURL = apiURL + params;
     print(apiURL);
 
@@ -102,7 +100,130 @@ class ProyekOwnerModel {
     }
   }
 
-  static Future<ProyekOwnerModel> editProfile() async {
+  static Future<ProyekOwnerModel> addProyek(
+      Map other, List<File> lampiran, File thumb, String updateId) async {
+    var apiResult;
+    Map jsonObject = {};
+    String urll =
+        globalBaseUrl + "klien/proyek" + (updateId != null ? '/$updateId' : '');
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+
+    if (thumb != null || lampiran.length > 0) {
+      var multipartThumb;
+      if (thumb != null) {
+        var lengthThumb = await thumb.length();
+        var streamThumb =
+            new http.ByteStream(DelegatingStream.typed(thumb.openRead()));
+
+        multipartThumb = new http.MultipartFile(
+            "thumbnail", streamThumb, lengthThumb,
+            filename: path.basename(thumb.path));
+      }
+
+      var uri = Uri.parse(
+        urll,
+      );
+
+      var request = new http.MultipartRequest("POST", uri);
+
+      request.headers.addAll({'Authorization': tokenJWT + tokenFixed});
+      request.fields.addAll({
+        'judul': other['judul'],
+        'jenis': other['jenis'],
+        'waktu_pengerjaan': other['waktu_pengerjaan'],
+        'harga': other['harga'],
+        'deskripsi': other['deskripsi'],
+        'kategori': other['kategori'],
+      });
+      if (multipartThumb != null) {
+        request.files.add(multipartThumb);
+      }
+
+      lampiran.forEach((element) async {
+        print(element);
+        var lengthLampiran = await element.length();
+        var streamLampiran =
+            new http.ByteStream(DelegatingStream.typed(element.openRead()));
+
+        var multipartLampiran = new http.MultipartFile(
+            "lampiran[]", streamLampiran, lengthLampiran,
+            filename: path.basename(element.path));
+
+        request.files.add(multipartLampiran);
+      });
+
+      apiResult = await request.send();
+
+      await apiResult.stream.transform(utf8.decoder).listen((value) {
+        jsonObject = json.decode(value);
+        print(value);
+      });
+    } else {
+      String apiURL = urll;
+      print(apiURL);
+      apiResult = await http.post(apiURL,
+          headers: {
+            "Accept": "application/json",
+            "Authorization": tokenJWT + tokenFixed
+          },
+          body: other);
+      jsonObject = json.decode(apiResult.body);
+    }
+
+    print('add proyek status code : ' + apiResult.statusCode.toString());
+
+    // listen for response
+
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
+
+    try {
+      if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
+        return ProyekOwnerModel(
+          error: false,
+          data: {"message": jsonObject['message']},
+        );
+      } else if (apiResult.statusCode == 422) {
+        return ProyekOwnerModel(
+          error: true,
+          data: {"message": jsonObject['data']['message'], 'notValid': true},
+        );
+      } else {
+        if (apiResult.statusCode == 401) {
+          await GeneralModel.destroyToken().then((value) => null);
+          return ProyekOwnerModel(
+            error: true,
+            data: {
+              'message': message,
+              'not_login': apiResult.statusCode == 401,
+            },
+          );
+        } else {
+          return ProyekOwnerModel(
+            error: true,
+            data: {
+              'message': message,
+            },
+          );
+        }
+      }
+    } catch (e) {
+      print('error catch');
+      print(e);
+      return ProyekOwnerModel(
+        error: true,
+        data: {
+          'message': e.toString(),
+        },
+      );
+    }
+  }
+
+  static Future<ProyekOwnerModel> hapusProyek(
+      Map res, List lampiran, File thumb) async {
     // final LocalStorage storage = new LocalStorage('auth');
     String apiURL = globalBaseUrl + "user/edit";
 

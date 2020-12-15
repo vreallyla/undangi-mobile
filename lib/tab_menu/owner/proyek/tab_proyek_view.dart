@@ -1,13 +1,18 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Constant/choose_select.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Model/owner/proyek_owner_model.dart';
 // import 'androidx.lifecycle.DefaultLifecycleObserver';
 
 class TabProyekView extends StatefulWidget {
@@ -46,8 +51,154 @@ class TabProyekView extends StatefulWidget {
 
 class _TabProyekViewState extends State<TabProyekView> {
   TextEditingController inputKategori = new TextEditingController();
-  TextEditingController inputJudul = new TextEditingController();
+  TextEditingController judulController = new TextEditingController();
   List<File> lampiran = <File>[];
+
+  TextEditingController thumbController = new TextEditingController();
+  TextEditingController lampiranController = new TextEditingController();
+
+  TextEditingController waktuController = new TextEditingController();
+  TextEditingController hargaController = new TextEditingController();
+
+  TextEditingController deskripsiController = new TextEditingController();
+
+  Map kategoriSelect = {
+    "id": '',
+    "nama": '',
+  };
+
+  File _image;
+  final picker = ImagePicker();
+  String imgBase64;
+
+  //ambil gambar camera
+  Future getImageCamera(context) async {
+    final pickedFile =
+        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
+
+    if (pickedFile != null) {
+      _image = File(pickedFile.path);
+      // File imageResized = await FlutterNativeImage.compressImage(_image.path,
+      //     quality: 100, targetWidth: 120, targetHeight: 120);
+
+      List<int> imageBytes = _image.readAsBytesSync();
+
+      imgBase64 = base64Encode(imageBytes);
+      setState(() {});
+      setThumb(_image);
+
+      // _showPicker(context);
+    } else {
+      print('No image selected.');
+    }
+  }
+
+//image from galery
+  Future getImageGalerry(context) async {
+    final pickedFile =
+        await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
+    _image = File(pickedFile.path);
+
+    List<int> imageBytes = _image.readAsBytesSync();
+
+    imgBase64 = base64Encode(imageBytes);
+
+    setState(() {
+      if (pickedFile != null) {
+        // _showPicker(context);
+      } else {
+        print('No image selected.');
+      }
+    });
+    setThumb(_image);
+  }
+
+  setThumb(File img) {
+    setState(() {
+      thumbController.text = img.path.split('/').last;
+    });
+  }
+
+  //op imgae picker
+  void _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: new Wrap(
+                children: <Widget>[
+                  Wrap(
+                    children: [
+                      new ListTile(
+                          leading: new Icon(Icons.photo_library),
+                          title: new Text('Ambil dari galleri'),
+                          onTap: () {
+                            getImageGalerry(context);
+                            Navigator.of(context).pop();
+                          }),
+                      new ListTile(
+                        leading: new Icon(Icons.photo_camera),
+                        title: new Text('Ambil dari kamera'),
+                        onTap: () {
+                          getImageCamera(context);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  _saveApi() async {
+    // onLoading(context);
+
+    // loadingSet2(true);
+
+    Map dataSend = {
+      'judul': judulController.text.toString(),
+      'jenis': jnsProyek,
+      'waktu_pengerjaan': waktuController.text.toString(),
+      'harga': hargaController.text.toString(),
+      'deskripsi': deskripsiController.text.toString(),
+      'kategori': kategoriSelect['id'].toString(),
+    };
+    GeneralModel.checCk(
+        //connect
+        () async {
+      // setErrorNotif({});
+      ProyekOwnerModel.addProyek(dataSend,lampiran,_image,null).then((v) {
+        // Navigator.pop(context);
+
+        // loadingSet2(false);
+
+        if (v.error) {
+          if (v.data.containsKey('notValid')) {
+            // setErrorNotif(v.data['message']);
+            openAlertBox(context, noticeTitle, noticeForm, konfirm1, () {
+              Navigator.pop(context);
+            });
+          } else {
+            errorRespon(context, v.data);
+          }
+        } else {
+          // Navigator.pop(context, true);
+        }
+      });
+    },
+        //disconect
+        () {
+      // Navigator.pop(context);
+      // loadingSet2(false);
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
 
   void lampiranSet() async {
     FilePickerResult result = await FilePicker.platform.pickFiles(
@@ -67,22 +218,52 @@ class _TabProyekViewState extends State<TabProyekView> {
         'ppt',
         'pptx'
       ],
+      allowCompression: true,
     );
+
+    List<File> selectionLamp = <File>[];
+    List<String> moreThan5Mb = [];
+
     setState(() {
-      lampiran = [];
       if (result != null) {
+        lampiran = <File>[];
         lampiran = result.paths.map((path) => File(path)).toList();
 
         lampiran.forEach((element) {
-          
-         });
+          // kurang dari 5 mb
+          if (element.lengthSync() <= 5e+6) {
+            selectionLamp.add(element);
+          } else {
+            moreThan5Mb.add(element.path.split('/').last);
+          }
+        });
+
+        lampiran = selectionLamp;
       } else {
         // User canceled the picker
       }
+
+      lampiranController.text = lampiran.length > 0
+          ? lampiran.length.toString() + ' lampiran dipilih'
+          : '';
     });
+    if (moreThan5Mb.length > 0) {
+      openAlertBox(
+          context,
+          'Pemberitahuan!',
+          moreThan5Mb.join(', ') + ' melebih quota 5MB/lampiran',
+          'OK',
+          () => Navigator.pop(context));
+    }
   }
 
   String jnsProyek = 'publik';
+  @override
+  void initState(){
+    super.initState();
+  print('dads');
+  }
+
   @override
   Widget build(BuildContext context) {
     double marginLeftRight = 10;
@@ -150,13 +331,50 @@ class _TabProyekViewState extends State<TabProyekView> {
                               ))
                         ],
                       ),
-                      inputHug(
-                        'Kategori proyek anda',
-                        FaIcon(
-                          FontAwesomeIcons.tag,
-                          size: 16,
+                      InkWell(
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChooseSelect(
+                                  op: kategoriSelect,
+                                  grup: true,
+                                  judul: 'Kategori Proyek',
+                                  url: 'grup_kategori' +
+                                      (kategoriSelect['id'] == null
+                                          ? ''
+                                          : '?id=' +
+                                              kategoriSelect['id'].toString()),
+                                  setValue: (Map v) {
+                                    setState(() {
+                                      kategoriSelect = v;
+                                    });
+                                  }),
+                            )),
+                        child: IgnorePointer(
+                          child: Stack(
+                            children: [
+                              inputHug(
+                                kategoriSelect['nama'] != ''
+                                    ? kategoriSelect['nama'].toString()
+                                    : 'Kategori proyek anda',
+                                FaIcon(
+                                  FontAwesomeIcons.tag,
+                                  size: 16,
+                                ),
+                                inputKategori,
+                              ),
+                              Container(
+                                  alignment: Alignment.topRight,
+                                  height: 30,
+                                  padding: EdgeInsets.only(right: 20, top: 10),
+                                  child: FaIcon(
+                                    FontAwesomeIcons.chevronDown,
+                                    color: AppTheme.geyCustom,
+                                    size: 14,
+                                  ))
+                            ],
+                          ),
                         ),
-                        inputKategori,
                       ),
                       Padding(padding: EdgeInsets.only(top: gangInput)),
                       judulLabel('Judul'),
@@ -166,7 +384,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                           FontAwesomeIcons.pen,
                           size: 16,
                         ),
-                        inputJudul,
+                        judulController,
                       ),
                       Padding(padding: EdgeInsets.only(top: gangInput)),
                       judulLabel('Deskripsi'),
@@ -175,7 +393,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                         child: TextField(
                           style: TextStyle(
                               fontSize: 13.0, height: 1, color: Colors.black),
-                          // controller: catatanInput,
+                          controller: deskripsiController,
                           textAlign: TextAlign.start,
                           maxLines: 4,
                           maxLength: 250,
@@ -250,6 +468,8 @@ class _TabProyekViewState extends State<TabProyekView> {
                                     width: ((sizeu.width - 137) / 2) - 60,
                                     height: 25,
                                     child: TextField(
+                                      controller: waktuController,
+                                      keyboardType: TextInputType.number,
                                       style: TextStyle(
                                         fontSize: 11.0,
                                       ),
@@ -296,7 +516,7 @@ class _TabProyekViewState extends State<TabProyekView> {
 
                                 Row(children: [
                                   Container(
-                                    alignment: Alignment.centerLeft,
+                                    alignment: Alignment.topLeft,
                                     decoration: BoxDecoration(
                                       color: AppTheme.geySofttCustom
                                           .withOpacity(.8),
@@ -317,23 +537,30 @@ class _TabProyekViewState extends State<TabProyekView> {
                                     ),
                                     width: (sizeu.width - 137) / 2 - 30,
                                     height: 25,
-                                    child: TextField(
-                                      style: TextStyle(
-                                        fontSize: 11.0,
-                                      ),
-                                      maxLength: 4,
-                                      decoration: InputDecoration(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                vertical: 10.0, horizontal: 5),
-                                        border: InputBorder.none,
-                                        hintText: '',
-                                        suffixStyle:
-                                            TextStyle(color: Colors.black),
-                                        counterStyle: TextStyle(
-                                          height: double.minPositive,
+                                    child: InkWell(
+                                      onTap: () => _showPicker(context),
+                                      child: IgnorePointer(
+                                        child: TextField(
+                                          controller: thumbController,
+                                          style: TextStyle(
+                                            fontSize: 11.0,
+                                          ),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.only(
+                                                    bottom: 13,
+                                                    left: 5,
+                                                    right: 5),
+                                            border: InputBorder.none,
+                                            hintText: '',
+                                            suffixStyle:
+                                                TextStyle(color: Colors.black),
+                                            counterStyle: TextStyle(
+                                              height: double.minPositive,
+                                            ),
+                                            counterText: "",
+                                          ),
                                         ),
-                                        counterText: "",
                                       ),
                                     ),
                                   ),
@@ -404,10 +631,12 @@ class _TabProyekViewState extends State<TabProyekView> {
                                     width: (sizeu.width - 137) / 2 - 60,
                                     height: 25,
                                     child: TextField(
+                                      controller: hargaController,
+                                      keyboardType: TextInputType.number,
                                       style: TextStyle(
                                         fontSize: 11.0,
                                       ),
-                                      maxLength: 4,
+                                      maxLength: 9,
                                       decoration: InputDecoration(
                                         contentPadding:
                                             const EdgeInsets.symmetric(
@@ -474,6 +703,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                                       height: 25,
                                       child: IgnorePointer(
                                         child: TextField(
+                                          controller: lampiranController,
                                           style: TextStyle(
                                             fontSize: 11.0,
                                           ),
@@ -596,8 +826,9 @@ class _TabProyekViewState extends State<TabProyekView> {
                           width: 80,
                           child: RaisedButton(
                             onPressed: () {
-                              widget.editEvent(0);
-                              widget.toAddFunc();
+                              // widget.editEvent(0);
+                              // widget.toAddFunc();
+                              _saveApi();
                             },
                             color: AppTheme.primaryBlue,
                             child: Text(

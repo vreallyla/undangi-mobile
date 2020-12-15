@@ -204,186 +204,191 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
       onWillPop: () {
         backHomeOrbackStay();
       },
-      child: Scaffold(
-        appBar: appBarColloring(),
-        body: Container(
-            child: Column(
-          children: [
-            // menu & photo
-            appDashboard(
-              context,
-              urlPoto,
-              condTransform() ? Text('') : menuPublik(),
-              menuLeft(),
-            ),
-            //motto
-            Padding(
-              padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-              child: SizedBox(
-                // width: sizeu.width - 50 - 40,
-                child: Text(
-                  motto ?? '',
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppTheme.geyCustom,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w300,
+      child: new GestureDetector(
+              onTap: () {
+                FocusScope.of(context).requestFocus(new FocusNode());
+              },
+              child: Scaffold(
+          appBar: appBarColloring(),
+          body: Container(
+              child: Column(
+            children: [
+              // menu & photo
+              appDashboard(
+                context,
+                urlPoto,
+                condTransform() ? Text('') : menuPublik(),
+                menuLeft(),
+              ),
+              //motto
+              Padding(
+                padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                child: SizedBox(
+                  // width: sizeu.width - 50 - 40,
+                  child: Text(
+                    motto ?? '',
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: AppTheme.geyCustom,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w300,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // tab,
-            tabHead(),
+              // tab,
+              tabHead(),
 
-            //tool
-            Container(
-                margin:
-                    EdgeInsets.fromLTRB(marginLeftRight, 5, marginLeftRight, 0),
-                padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: AppTheme.bgBlueSoft,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            toAdd = true;
-                            tabChange = false;
-                          });
-                        },
-                        child: Container(
-                            width: 100,
-                            height: 30,
-                            margin: EdgeInsets.only(left: 5),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30.0),
-                              border: Border.all(
-                                width: .5,
-                                color: AppTheme.nearlyBlack,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                FaIcon(
-                                  FontAwesomeIcons.plusCircle,
-                                  size: 16,
-                                  color: AppTheme.geySolidCustom,
+              //tool
+              Container(
+                  margin:
+                      EdgeInsets.fromLTRB(marginLeftRight, 5, marginLeftRight, 0),
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppTheme.bgBlueSoft,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              toAdd = true;
+                              tabChange = false;
+                            });
+                          },
+                          child: Container(
+                              width: 100,
+                              height: 30,
+                              margin: EdgeInsets.only(left: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30.0),
+                                border: Border.all(
+                                  width: .5,
+                                  color: AppTheme.nearlyBlack,
                                 ),
-                                Text(' ' + 'TAMBAH',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: AppTheme.geySolidCustom,
-                                    )),
-                              ],
-                            )),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        margin: EdgeInsets.only(right: 5),
-                        width: sizeu.width,
-                        alignment: Alignment.centerRight,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text(
-                              'Cari : ',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: AppTheme.geySolidCustom,
                               ),
-                            ),
-                            SizedBox(
-                              height: 25,
-                              width: 140,
-                              child: TextField(
-                                enabled:!toAdd,
-                                controller: searchController,
-                                onSubmitted: (v) {
-                                  setState(() {
-                                    searchProyek = searchPengerjaan = v;
-                                  });
-                                  _loadDataApi();
-                                },
-                                style: TextStyle(
-
-                                    //Font color change
-                                    fontSize: 11),
-                                decoration: InputDecoration(
-                                  border: new OutlineInputBorder(
-                                    borderRadius: const BorderRadius.all(
-                                      const Radius.circular(10.0),
-                                    ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  FaIcon(
+                                    FontAwesomeIcons.plusCircle,
+                                    size: 16,
+                                    color: AppTheme.geySolidCustom,
                                   ),
-                                  fillColor: Colors.white,
-
-                                  hintText: '',
-                                  suffixStyle: TextStyle(color: Colors.black),
-                                  isDense: true, // Added this
-                                  contentPadding: EdgeInsets.only(
-                                      top: 12, left: 9, right: 6), // Added this
-
-                                  counterText: "",
-                                ),
-                              ),
-                            ),
-                          ],
+                                  Text(' ' + 'TAMBAH',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: AppTheme.geySolidCustom,
+                                      )),
+                                ],
+                              )),
                         ),
                       ),
-                    )
-                  ],
-                )),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          margin: EdgeInsets.only(right: 5),
+                          width: sizeu.width,
+                          alignment: Alignment.centerRight,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Cari : ',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppTheme.geySolidCustom,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 25,
+                                width: 140,
+                                child: TextField(
+                                  enabled:!toAdd,
+                                  controller: searchController,
+                                  onSubmitted: (v) {
+                                    setState(() {
+                                      searchProyek = searchPengerjaan = v;
+                                    });
+                                    _loadDataApi();
+                                  },
+                                  style: TextStyle(
 
-            //tab proyek
-            tabChange
-                ? TabPengerjaanView(
-                    dataReresh: _loadDataApi,
-                    dataNext: _nextDataApi,
-                    refresh: _refreshPengerjaanController,
-                    bottomKey: double.parse(bottom.toString()),
-                    loading: loadingPengerjaan,
-                    dataPengerjaan: dataPengerjaan,
-                    paddingTop: paddingPhone.top,
-                    paddingBottom: paddingPhone.bottom,
-                    toProgress: toProgress,
-                    toProgressFunc: () {
-                      setState(() {
-                        toProgress = !toProgress;
-                      });
-                    })
-                : TabProyekView(
-                    dataReresh: _loadDataApi,
-                    dataNext: _nextDataApi,
-                    refresh: _refreshProyekController,
-                    dataProyek: dataProyek,
-                    loading: loadingProyek,
-                    bottomKey: double.parse(bottom.toString()),
-                    paddingTop: paddingPhone.top,
-                    paddingBottom: paddingPhone.bottom,
-                    toAdd: toAdd,
-                    editId: editId,
-                    editEvent: (int id) {
-                      editId = id;
-                      setState(() {});
-                    },
-                    toAddFunc: () {
-                      setState(() {
-                        toAdd = !toAdd;
-                      });
-                    }),
-          ],
-        )),
+                                      //Font color change
+                                      fontSize: 11),
+                                  decoration: InputDecoration(
+                                    border: new OutlineInputBorder(
+                                      borderRadius: const BorderRadius.all(
+                                        const Radius.circular(10.0),
+                                      ),
+                                    ),
+                                    fillColor: Colors.white,
+
+                                    hintText: '',
+                                    suffixStyle: TextStyle(color: Colors.black),
+                                    isDense: true, // Added this
+                                    contentPadding: EdgeInsets.only(
+                                        top: 12, left: 9, right: 6), // Added this
+
+                                    counterText: "",
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  )),
+
+              //tab proyek
+              tabChange
+                  ? TabPengerjaanView(
+                      dataReresh: _loadDataApi,
+                      dataNext: _nextDataApi,
+                      refresh: _refreshPengerjaanController,
+                      bottomKey: double.parse(bottom.toString()),
+                      loading: loadingPengerjaan,
+                      dataPengerjaan: dataPengerjaan,
+                      paddingTop: paddingPhone.top,
+                      paddingBottom: paddingPhone.bottom,
+                      toProgress: toProgress,
+                      toProgressFunc: () {
+                        setState(() {
+                          toProgress = !toProgress;
+                        });
+                      })
+                  : TabProyekView(
+                      dataReresh: _loadDataApi,
+                      dataNext: _nextDataApi,
+                      refresh: _refreshProyekController,
+                      dataProyek: dataProyek,
+                      loading: loadingProyek,
+                      bottomKey: double.parse(bottom.toString()),
+                      paddingTop: paddingPhone.top,
+                      paddingBottom: paddingPhone.bottom,
+                      toAdd: toAdd,
+                      editId: editId,
+                      editEvent: (int id) {
+                        editId = id;
+                        setState(() {});
+                      },
+                      toAddFunc: () {
+                        setState(() {
+                          toAdd = !toAdd;
+                        });
+                      }),
+            ],
+          )),
+        ),
       ),
     );
   }
