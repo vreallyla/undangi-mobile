@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:undangi/Constant/app_theme.dart';
 
 import 'package:flutter/material.dart';
@@ -21,11 +22,17 @@ import 'package:undangi/tab_menu/profile/sub/profil_skill_delete_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_skill_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_summary_view.dart';
 import 'package:undangi/tab_menu/tab_screen.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
 
 import 'tab_menu/home/sub_menu/layanan_list/layanan_list_screen.dart';
 import 'tab_menu/search/search_tab_screen.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(
+      debug: true // optional: set false to disable printing logs to console
+      );
+
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
     DeviceOrientation.portraitUp,
@@ -72,6 +79,10 @@ class MyApp extends StatelessWidget {
         '/owner_layanan': (context) => OwnerLayananScreen(),
         '/owner_proyek': (context) => OwnerProyekScreen(),
         '/owner_proyek_payment': (context) => PaymentProyekScreen(),
+
+        //tampilan publik
+        '/publik': (context) => TampianPublikScreen(id: 0,),
+
 
         //frelencer tab
         '/udagi_pay': (context) => PayFrelenceScreen(),

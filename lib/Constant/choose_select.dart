@@ -30,6 +30,7 @@ class _ChooseSelectState extends State<ChooseSelect> {
   double sub = 0;
 
   bool addSub = true;
+  bool firstLoad=true;
 
   @override
   void initState() {
@@ -62,13 +63,16 @@ class _ChooseSelectState extends State<ChooseSelect> {
           dataOp = v.data['daftar'];
           await addData();
             Future.delayed(Duration(microseconds: 500), () async {
-            if (_controller.hasClients) {
+            if (_controller.hasClients && firstLoad) {
            
               await _controller.animateTo(
                 sub,
                 curve: Curves.easeOut,
                 duration: const Duration(milliseconds: 100),
               );
+              setState(() {
+                firstLoad=false;
+              });
             
             }
           });

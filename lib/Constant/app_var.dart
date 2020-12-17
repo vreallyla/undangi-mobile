@@ -5,7 +5,7 @@ const String generalAssets = 'assets/general/';
 
 //url
 const String domainUrl = '10.0.2.2';
-const String globalBaseUrl = 'http://${domainUrl}:8000/api/';
+const String globalBaseUrl = 'http://$domainUrl:8000/api/';
 const String globalPathAuth = 'auth/';
 
 //key

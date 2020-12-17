@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -53,6 +55,43 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   RefreshController _refreshPengerjaanController = RefreshController();
 
   TextEditingController searchController = TextEditingController();
+
+  TextEditingController judulController = new TextEditingController();
+  List<File> lampiran = <File>[];
+
+  TextEditingController thumbController = new TextEditingController();
+  TextEditingController lampiranController = new TextEditingController();
+
+  TextEditingController waktuController = new TextEditingController();
+  TextEditingController hargaController = new TextEditingController();
+
+  TextEditingController deskripsiController = new TextEditingController();
+
+  Map kategoriSelect = {
+    "id": '',
+    "nama": '',
+  };
+
+  File _image;
+  String jnsProyek = 'publik';
+
+  resetFormProyek() {
+    setState(() {
+      jnsProyek = 'publik';
+      _image = null;
+      kategoriSelect = {
+        "id": '',
+        "nama": '',
+      };
+      judulController = new TextEditingController();
+      thumbController = new TextEditingController();
+      lampiranController = new TextEditingController();
+      waktuController = new TextEditingController();
+      hargaController = new TextEditingController();
+      deskripsiController = new TextEditingController();
+      lampiran = <File>[];
+    });
+  }
 
   //0=proyek;1=pengerjaan;2=dua2nya
   void setLoading(int order, bool kond) {
@@ -205,10 +244,10 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
         backHomeOrbackStay();
       },
       child: new GestureDetector(
-              onTap: () {
-                FocusScope.of(context).requestFocus(new FocusNode());
-              },
-              child: Scaffold(
+        onTap: () {
+          FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: Scaffold(
           appBar: appBarColloring(),
           body: Container(
               child: Column(
@@ -243,8 +282,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
 
               //tool
               Container(
-                  margin:
-                      EdgeInsets.fromLTRB(marginLeftRight, 5, marginLeftRight, 0),
+                  margin: EdgeInsets.fromLTRB(
+                      marginLeftRight, 5, marginLeftRight, 0),
                   padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
                   height: 60,
                   decoration: BoxDecoration(
@@ -258,6 +297,9 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                         flex: 1,
                         child: InkWell(
                           onTap: () {
+                            if (!toAdd) {
+                              resetFormProyek();
+                            }
                             setState(() {
                               toAdd = true;
                               tabChange = false;
@@ -312,7 +354,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                                 height: 25,
                                 width: 140,
                                 child: TextField(
-                                  enabled:!toAdd,
+                                  enabled: !toAdd,
                                   controller: searchController,
                                   onSubmitted: (v) {
                                     setState(() {
@@ -336,7 +378,9 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                                     suffixStyle: TextStyle(color: Colors.black),
                                     isDense: true, // Added this
                                     contentPadding: EdgeInsets.only(
-                                        top: 12, left: 9, right: 6), // Added this
+                                        top: 12,
+                                        left: 9,
+                                        right: 6), // Added this
 
                                     counterText: "",
                                   ),
@@ -367,6 +411,67 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                         });
                       })
                   : TabProyekView(
+                      judulController: judulController,
+                      lampiran: lampiran,
+                      thumbController: thumbController,
+                      lampiranController: lampiranController,
+                      waktuController: waktuController,
+                      hargaController: hargaController,
+                      deskripsiController: deskripsiController,
+                      kategoriSelect: kategoriSelect,
+                      image: _image,
+                      jnsProyek: jnsProyek,
+                      valueEdit: (Map dt) {
+                        setState(() {
+                          kategoriSelect = dt['subkategori'];
+                          judulController.text = dt['judul'];
+                          deskripsiController.text = dt['deskripsi'];
+                          hargaController.text = dt['harga'];
+                          waktuController.text = dt['waktu_pengerjaan'];
+                          jnsProyek = dt['jenis'];
+                          thumbController.text = dt['thumbnail'] != null
+                              ? dt['thumbnail'].split('/').last
+                              : '';
+                        });
+                        print(dt);
+                      },
+
+                      //change value
+                      changeKategori: (Map v) {
+                        setState(() {
+                          kategoriSelect = v;
+                        });
+                      },
+                      changeImg: (File v) {
+                        setState(() {
+                          _image = v;
+                        });
+                      },
+                      reloadGetApi: () {
+                        setLoading(0, true);
+                        _loadDataApi();
+                      },
+                      changeThumb: (String v) {
+                        setState(() {
+                          thumbController.text = v;
+                        });
+                      },
+                      changeLampiran: (List<File> v) {
+                        print(v);
+                        setState(() {
+                          lampiran = v;
+                        });
+                      },
+                      changeLampiranText: (String v) {
+                        setState(() {
+                          lampiranController.text = v;
+                        });
+                      },
+                      changeJenis: (String v) {
+                        setState(() {
+                          jnsProyek = v;
+                        });
+                      },
                       dataReresh: _loadDataApi,
                       dataNext: _nextDataApi,
                       refresh: _refreshProyekController,
@@ -378,6 +483,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                       toAdd: toAdd,
                       editId: editId,
                       editEvent: (int id) {
+                        resetFormProyek();
                         editId = id;
                         setState(() {});
                       },
@@ -416,7 +522,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
         ),
         onSelected: (newValue) {
           if (newValue == 0) {
-            // Navigator.pushNamed(context, '/ganti_password');
+            Navigator.pushNamed(context, '/publik');
           }
         },
         itemBuilder: (context) => [

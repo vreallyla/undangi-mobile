@@ -535,6 +535,85 @@ openAlertBox(
       });
 }
 
+openAlertSuccessBox(
+    context, String title, String sub, String textBtn, Function eventButton) {
+  Color myColor = AppTheme.primarymenu;
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color(0xfff7f7f7),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          contentPadding: EdgeInsets.only(top: 10.0),
+          content: Container(
+            width: 400.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Container(
+                    alignment: Alignment.topRight,
+                    padding: EdgeInsets.only(right: 20),
+                    child: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: FaIcon(
+                          FontAwesomeIcons.times,
+                          color: AppTheme.geyCustom,
+                          size: 16,
+                        ))),
+                Container(
+                  width: 80,
+                  height: 83,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: (AssetImage('assets/general/check_cicle.png')),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Text(
+                  title,
+                  style:
+                      TextStyle(fontSize: 20, color: AppTheme.geySolidCustom),
+                  textAlign: TextAlign.center,
+                ),
+                Text(
+                  sub,
+                  style: TextStyle(fontSize: 14, color: AppTheme.geyCustom),
+                  textAlign: TextAlign.center,
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.only(top: 15, bottom: 5),
+                  child: RaisedButton(
+                    color: myColor,
+                    onPressed: () {
+                      eventButton();
+                    },
+                    child: Text(
+                      textBtn,
+                      style: TextStyle(
+                        color: AppTheme.nearlyWhite,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      });
+}
+
+
 openAlertBoxTwo(context, String title, String sub, String leftText,
     String rightText, Function eventLeft, Function eventRight) {
   return showDialog(
