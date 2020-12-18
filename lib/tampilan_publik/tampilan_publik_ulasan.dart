@@ -6,17 +6,12 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_layanan.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_portfolio.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_profil.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_proyek.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_ulasan.dart';
 
-class TampianPublikScreen extends StatefulWidget {
+class TampilanPublikUlasan extends StatefulWidget {
   @override
-  _TampianPublikScreenState createState() => _TampianPublikScreenState();
+  _TampilanPublikUlasanState createState() => _TampilanPublikUlasanState();
 
-  const TampianPublikScreen({
+  const TampilanPublikUlasan({
     Key key,
     this.id = 0,
   }) : super(key: key);
@@ -24,10 +19,12 @@ class TampianPublikScreen extends StatefulWidget {
   final int id;
 }
 
-class _TampianPublikScreenState extends State<TampianPublikScreen> {
+class _TampilanPublikUlasanState extends State<TampilanPublikUlasan> {
   String urlPhoto;
   String summary;
+  String nameUser;
   Map jumlah = {};
+  List dataUlasan = [];
   bool itsMe = true;
   bool loading = true;
 
@@ -35,12 +32,9 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
     setState(() {
       urlPhoto = data.containsKey('user') ? data['user']['foto'] : null;
       summary = data.containsKey('user') ? data['user']['summary'] : null;
-      jumlah = {
-        'proyek': data['jumlah_proyek'],
-        'layanan': data['jumlah_layanan'],
-        'portfolio': data['jumlah_portfolio'],
-        'ulasan': data['jumlah_ulasan'],
-      };
+      nameUser = data.containsKey('user') ? data['user']['nama'] : null;
+      dataUlasan = data['ulasan'] ?? [];
+
       itsMe = data['its_me'] ?? false;
     });
   }
@@ -51,7 +45,7 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
         //connect
         () async {
       setLoading(true);
-      PublikModel.get(widget.id==0?'':widget.id.toString()).then((v) {
+      PublikModel.ulasan(widget.id == 0 ? '' : widget.id.toString()).then((v) {
         setLoading(false);
         if (v.error) {
           errorRespon(context, v.data);
@@ -111,86 +105,31 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
               defaultPanelState: PanelState.OPEN,
               header: Container(width: sizeu.width, child: slideSign()),
               panel: Container(
+                height: sizeu.height -
+                    paddingPhone.top -
+                    paddingPhone.bottom -
+                    bottom -
+                    298 +
+                    5,
                 margin: EdgeInsets.only(
                   top: 40,
                 ),
-                child: ListView(
-                  children: [
-                    cardPublic(
-                        bottom,
-                        0,
-                        getJumlah('proyek'),
-                        'Proyek',
-                        FaIcon(
-                          FontAwesomeIcons.suitcase,
-                          color: AppTheme.geyCustom,
-                          size: 25,
-                        ), () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikProyek(
-                                    id: widget.id,
-                                  )));
-                    }),
-                    cardPublic(
-                        bottom,
-                        1,
-                        getJumlah('layanan'),
-                        'Layanan',
-                        FaIcon(
-                          FontAwesomeIcons.tools,
-                          color: AppTheme.geyCustom,
-                          size: 25,
-                        ), () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikLayanan(
-                                    id: widget.id,
-                                  )));
-                    }),
-                    cardPublic(
-                        bottom,
-                        2,
-                        getJumlah('portfolio'),
-                        'Portfolio',
-                        FaIcon(
-                          FontAwesomeIcons.solidStickyNote,
-                          color: AppTheme.geyCustom,
-                          size: 25,
-                        ), () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikPortfolio(
-                                    id: widget.id,
-                                  )));
-                    }),
-                    cardPublic(
-                        bottom,
-                        3,
-                        getJumlah('ulasan'),
-                        'Ulasan',
-                        FaIcon(
-                          FontAwesomeIcons.thumbsUp,
-                          color: AppTheme.geyCustom,
-                          size: 25,
+                child: dataUlasan.length > 0
+                    ? ListView.builder(
+                        itemCount: dataUlasan.length,
+                        // itemExtent: 100.0,
+                        itemBuilder: (c, i) => cardProyek(i, dataUlasan))
+                    : Container(
+                        padding: EdgeInsets.only(
+                          bottom: 50,
                         ),
-                        () {
-                            Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikUlasan(
-                                    id: widget.id,
-                                  )));
-                        }),
-                  ],
-                ),
+                        child: Text(
+                          'Data Layanan Kosong...',
+                          style: TextStyle(
+                              // color: Colors.grey,
+                              fontSize: 22),
+                        ),
+                      ),
               ),
               body: Center(
                 child: Stack(
@@ -223,15 +162,7 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
                               Navigator.pop(context);
                             }),
                       ),
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              TampilanPublikProfil(
-                            id: widget.id,
-                          ),
-                        ),
-                      ),
+                      () => Navigator.pushNamed(context, '/publik_profil'),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: sizeu.height - 30),
@@ -262,12 +193,13 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
                                 Row(
                                   children: [
                                     FaIcon(
-                                      FontAwesomeIcons.fileAlt,
+                                      FontAwesomeIcons.tools,
                                       color: AppTheme.geySolidCustom,
                                       size: 18,
                                     ),
                                     Text(
-                                      ' Summary',
+                                      ' Layanan ' +
+                                          (nameUser != null ? nameUser : ''),
                                       style: TextStyle(
                                           color: AppTheme.geySolidCustom,
                                           fontSize: 18,
@@ -296,85 +228,6 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
                 ),
               ),
             ),
-    );
-  }
-
-  Widget cardPublic(bottom, int indexWarna, int jmlh, String judul, FaIcon icon,
-      Function linkToRoute) {
-    final sizeu = MediaQuery.of(context).size;
-    final paddingPhone = MediaQuery.of(context).padding;
-    return Container(
-      height: (sizeu.height -
-              paddingPhone.top -
-              paddingPhone.bottom -
-              bottom -
-              298 +
-              5 -
-              20 -
-              55) /
-          4,
-      width: double.infinity,
-      margin: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: 10,
-      ),
-      padding: EdgeInsets.all(15),
-      decoration: BoxDecoration(
-          color: AppTheme.renoReno[indexWarna],
-          borderRadius: BorderRadius.circular(15)),
-      child: InkWell(
-        onTap: () => linkToRoute(),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          SizedBox(
-            width: 30,
-            child: icon,
-          ),
-          Container(
-            width: sizeu.width - 60 - 70,
-            padding: EdgeInsets.only(left: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  judul,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 3),
-                  child: Text(
-                    pointGroup(jmlh) + ' $judul',
-                    style: TextStyle(
-                      color: AppTheme.textPink,
-                      fontSize: 12,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/home/circle_quatral.png'),
-                fit: BoxFit.fill,
-              ),
-            ),
-            child: FaIcon(
-              FontAwesomeIcons.play,
-              color: AppTheme.textPink,
-              size: 12,
-            ),
-          )
-        ]),
-      ),
     );
   }
 
@@ -476,6 +329,42 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
               ),
             ),
           )
+        ],
+      ),
+    );
+  }
+
+  Widget cardProyek(int i, data) {
+    final sizeu = MediaQuery.of(context).size;
+
+    Map value = data[i];
+    return Container(
+      margin: EdgeInsets.only(left: 20, right: 20, bottom: 10),
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: AppTheme.bgGreenSoft,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.only(right: 10),
+            margin: EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+                border: Border(
+                    right:
+                        BorderSide(width: .5, color: AppTheme.geySofttCustom))),
+            child: imageLoad(value['foto'], true, 60, 60),
+          ),
+          SizedBox(
+              width: sizeu.width - 141,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(value['nama'],style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500),),
+                ],
+              ))
         ],
       ),
     );

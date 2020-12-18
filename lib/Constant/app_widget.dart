@@ -150,19 +150,60 @@ Widget appDashboard(context, String photo, Widget btnMenu, Widget btnLeft) {
       btnLeft,
       //photo
       ShimmerLoading(
-        loading: photo==null,
-              child: Container(
+        loading: photo == null,
+        child: Container(
+            alignment: Alignment.center,
+            height: 120,
+            width: 120,
+            margin: EdgeInsets.only(top: 20, left: sizeu.width / 2 - 60),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(60),
+              color: Colors.grey[200],
+            ),
+            child: photo != null ? imageLoad(photo, true, 120, 120) : Text('')),
+      ),
+    ],
+  );
+}
+
+Widget appDashboardLinkPhoto(context, String photo, Widget btnMenu,
+    Widget btnLeft, Function eventPhoto) {
+  final sizeu = MediaQuery.of(context).size;
+
+  return Stack(
+    children: [
+      //bg
+      Container(
+        height: 80,
+        width: sizeu.width,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.only(
+            bottomRight: Radius.circular(30.0),
+            bottomLeft: Radius.circular(30.0),
+          ),
+          color: AppTheme.primaryBlue,
+        ),
+      ),
+      //icon right
+      btnMenu,
+      //icon left
+      btnLeft,
+      //photo
+      ShimmerLoading(
+        loading: photo == null,
+        child: Container(
           alignment: Alignment.center,
           height: 120,
           width: 120,
           margin: EdgeInsets.only(top: 20, left: sizeu.width / 2 - 60),
           decoration: BoxDecoration(
-            
             borderRadius: BorderRadius.circular(60),
-          color: Colors.grey[200],
+            color: Colors.grey[200],
           ),
-          child:photo!=null?imageLoad(photo, true, 120, 120):Text('')
-
+          child: InkWell(
+              onTap: () => eventPhoto(),
+              child:
+                  photo != null ? imageLoad(photo, true, 120, 120) : Text('')),
         ),
       ),
     ],
@@ -292,56 +333,50 @@ onLoading(context) {
   // });
 }
 
-Widget loadingCircle(){
+Widget loadingCircle() {
   return Align(
-                                alignment: Alignment.center,
-                                child: Container(
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(50),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 1,
-                                        blurRadius: 2,
-                                        offset: Offset(
-                                            0, 0), // changes position of shadow
-                                      ),
-                                    ],
-                                  ),
-                                  width: 20,
-                                  alignment: Alignment.center,
-                                  child: SizedBox(
-                                    child: new CircularProgressIndicator(
-                                        strokeWidth: 2.0),
-                                    height: 10.0,
-                                    width: 10.0,
-                                  ),
-                                ),
-                              );
+    alignment: Alignment.center,
+    child: Container(
+      height: 20,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(50),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: Offset(0, 0), // changes position of shadow
+          ),
+        ],
+      ),
+      width: 20,
+      alignment: Alignment.center,
+      child: SizedBox(
+        child: new CircularProgressIndicator(strokeWidth: 2.0),
+        height: 10.0,
+        width: 10.0,
+      ),
+    ),
+  );
 }
 
-Widget imageLoad(String url,bool circle,double height,double width){
+Widget imageLoad(String url, bool circle, double height, double width) {
   return CachedNetworkImage(
-                      imageUrl: url,
-                      fit: BoxFit.fitHeight,
-                      imageBuilder: (context, imageProvider) => Container(
-                        width: width,
-                        height: height,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              width: 1, color: AppTheme.geySoftCustom),
-                          shape: circle ?BoxShape.circle:BoxShape.rectangle,
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.cover),
-                        ),
-                      ),
-                      placeholder: (context, url) => loadingCircle(),
-                      errorWidget: (context, url, error) =>
-                          new Icon(Icons.error),
-                    )
-                  ;
+    imageUrl: url,
+    fit: BoxFit.fitHeight,
+    imageBuilder: (context, imageProvider) => Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: AppTheme.geySoftCustom),
+        shape: circle ? BoxShape.circle : BoxShape.rectangle,
+        image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+      ),
+    ),
+    placeholder: (context, url) => loadingCircle(),
+    errorWidget: (context, url, error) => new Icon(Icons.error),
+  );
 }
 
 Widget onLoading2() {
@@ -613,7 +648,6 @@ openAlertSuccessBox(
       });
 }
 
-
 openAlertBoxTwo(context, String title, String sub, String leftText,
     String rightText, Function eventLeft, Function eventRight) {
   return showDialog(
@@ -828,7 +862,7 @@ passwordCheck(context, Function checkEvent) {
       });
 }
 
-Widget dataKosong(){
+Widget dataKosong() {
   return Center(child: Text('Data Kosong'));
 }
 
@@ -942,5 +976,3 @@ Widget noticeText(trgt, validation) {
     ),
   );
 }
-
-

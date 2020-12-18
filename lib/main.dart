@@ -22,6 +22,9 @@ import 'package:undangi/tab_menu/profile/sub/profil_skill_delete_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_skill_view.dart';
 import 'package:undangi/tab_menu/profile/sub/profil_summary_view.dart';
 import 'package:undangi/tab_menu/tab_screen.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_layanan.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_profil.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_proyek.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
 
 import 'tab_menu/home/sub_menu/layanan_list/layanan_list_screen.dart';
@@ -81,8 +84,11 @@ class MyApp extends StatelessWidget {
         '/owner_proyek_payment': (context) => PaymentProyekScreen(),
 
         //tampilan publik
-        '/publik': (context) => TampianPublikScreen(id: 0,),
-
+        '/publik': (context) => TampianPublikScreen(),
+        '/publik_profil': (context) => TampilanPublikProfil(),
+        '/publik_proyek': (context) => TampilanPublikProyek(),
+        '/publik_layanan': (context) => TampilanPublikLayanan(),
+        '/publik_portfolio': (context) => TampilanPublikLayanan(),
 
         //frelencer tab
         '/udagi_pay': (context) => PayFrelenceScreen(),

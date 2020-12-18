@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -6,17 +7,12 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_layanan.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_portfolio.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_profil.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_proyek.dart';
-import 'package:undangi/tampilan_publik/tampilan_publik_ulasan.dart';
 
-class TampianPublikScreen extends StatefulWidget {
+class TampilanPublikPortfolio extends StatefulWidget {
   @override
-  _TampianPublikScreenState createState() => _TampianPublikScreenState();
+  _TampilanPublikPortfolioState createState() => _TampilanPublikPortfolioState();
 
-  const TampianPublikScreen({
+  const TampilanPublikPortfolio({
     Key key,
     this.id = 0,
   }) : super(key: key);
@@ -24,25 +20,26 @@ class TampianPublikScreen extends StatefulWidget {
   final int id;
 }
 
-class _TampianPublikScreenState extends State<TampianPublikScreen> {
+class _TampilanPublikPortfolioState extends State<TampilanPublikPortfolio> {
   String urlPhoto;
   String summary;
+  String nameUser;
   Map jumlah = {};
+  List dataPort = [];
   bool itsMe = true;
   bool loading = true;
 
   setDataPublik(Map data) {
+    // print(data);
     setState(() {
       urlPhoto = data.containsKey('user') ? data['user']['foto'] : null;
       summary = data.containsKey('user') ? data['user']['summary'] : null;
-      jumlah = {
-        'proyek': data['jumlah_proyek'],
-        'layanan': data['jumlah_layanan'],
-        'portfolio': data['jumlah_portfolio'],
-        'ulasan': data['jumlah_ulasan'],
-      };
+      nameUser = data.containsKey('user') ? data['user']['nama'] : null;
+      dataPort = data['portfolio'] ?? [];
       itsMe = data['its_me'] ?? false;
     });
+
+    print(dataPort);
   }
 
   // refresh user
@@ -51,7 +48,7 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
         //connect
         () async {
       setLoading(true);
-      PublikModel.get(widget.id==0?'':widget.id.toString()).then((v) {
+      PublikModel.portfolio(widget.id==0?'':widget.id.toString()).then((v) {
         setLoading(false);
         if (v.error) {
           errorRespon(context, v.data);
@@ -111,86 +108,34 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
               defaultPanelState: PanelState.OPEN,
               header: Container(width: sizeu.width, child: slideSign()),
               panel: Container(
+                height: sizeu.height -
+                    paddingPhone.top -
+                    paddingPhone.bottom -
+                    bottom -
+                    298 +
+                    5,
                 margin: EdgeInsets.only(
                   top: 40,
                 ),
-                child: ListView(
-                  children: [
-                    cardPublic(
-                        bottom,
-                        0,
-                        getJumlah('proyek'),
-                        'Proyek',
-                        FaIcon(
-                          FontAwesomeIcons.suitcase,
-                          color: AppTheme.geyCustom,
-                          size: 25,
-                        ), () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikProyek(
-                                    id: widget.id,
-                                  )));
-                    }),
-                    cardPublic(
-                        bottom,
-                        1,
-                        getJumlah('layanan'),
-                        'Layanan',
-                        FaIcon(
-                          FontAwesomeIcons.tools,
-                          color: AppTheme.geyCustom,
-                          size: 25,
-                        ), () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikLayanan(
-                                    id: widget.id,
-                                  )));
-                    }),
-                    cardPublic(
-                        bottom,
-                        2,
-                        getJumlah('portfolio'),
-                        'Portfolio',
-                        FaIcon(
-                          FontAwesomeIcons.solidStickyNote,
-                          color: AppTheme.geyCustom,
-                          size: 25,
-                        ), () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikPortfolio(
-                                    id: widget.id,
-                                  )));
-                    }),
-                    cardPublic(
-                        bottom,
-                        3,
-                        getJumlah('ulasan'),
-                        'Ulasan',
-                        FaIcon(
-                          FontAwesomeIcons.thumbsUp,
-                          color: AppTheme.geyCustom,
-                          size: 25,
+                child:  dataPort.length > 0?ListView.builder(
+                  itemCount: dataPort.length,
+                  // itemExtent: 100.0,
+                  itemBuilder: (c, i) =>
+                       cardProyek(i, dataPort)
+                   )   : Container(
+                     alignment: Alignment.center,
+                          padding: EdgeInsets.only(
+                            bottom: 50,
+                          ),
+                         
+                          child: Text(
+                            'Data Portfolio Kosong...',
+                            style: TextStyle(
+                                // color: Colors.grey,
+                                fontSize: 22),
+                          ),
                         ),
-                        () {
-                            Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikUlasan(
-                                    id: widget.id,
-                                  )));
-                        }),
-                  ],
-                ),
+                
               ),
               body: Center(
                 child: Stack(
@@ -223,15 +168,7 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
                               Navigator.pop(context);
                             }),
                       ),
-                      () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              TampilanPublikProfil(
-                            id: widget.id,
-                          ),
-                        ),
-                      ),
+                      () => Navigator.pushNamed(context, '/publik_profil'),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: sizeu.height - 30),
@@ -262,12 +199,13 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
                                 Row(
                                   children: [
                                     FaIcon(
-                                      FontAwesomeIcons.fileAlt,
+                                      FontAwesomeIcons.solidStickyNote,
                                       color: AppTheme.geySolidCustom,
                                       size: 18,
                                     ),
                                     Text(
-                                      ' Summary',
+                                      ' Portfolio ' +
+                                          (nameUser != null ? nameUser : ''),
                                       style: TextStyle(
                                           color: AppTheme.geySolidCustom,
                                           fontSize: 18,
@@ -296,85 +234,6 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
                 ),
               ),
             ),
-    );
-  }
-
-  Widget cardPublic(bottom, int indexWarna, int jmlh, String judul, FaIcon icon,
-      Function linkToRoute) {
-    final sizeu = MediaQuery.of(context).size;
-    final paddingPhone = MediaQuery.of(context).padding;
-    return Container(
-      height: (sizeu.height -
-              paddingPhone.top -
-              paddingPhone.bottom -
-              bottom -
-              298 +
-              5 -
-              20 -
-              55) /
-          4,
-      width: double.infinity,
-      margin: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        bottom: 10,
-      ),
-      padding: EdgeInsets.all(15),
-      decoration: BoxDecoration(
-          color: AppTheme.renoReno[indexWarna],
-          borderRadius: BorderRadius.circular(15)),
-      child: InkWell(
-        onTap: () => linkToRoute(),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          SizedBox(
-            width: 30,
-            child: icon,
-          ),
-          Container(
-            width: sizeu.width - 60 - 70,
-            padding: EdgeInsets.only(left: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  judul,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 3),
-                  child: Text(
-                    pointGroup(jmlh) + ' $judul',
-                    style: TextStyle(
-                      color: AppTheme.textPink,
-                      fontSize: 12,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Container(
-            width: 30,
-            height: 30,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/home/circle_quatral.png'),
-                fit: BoxFit.fill,
-              ),
-            ),
-            child: FaIcon(
-              FontAwesomeIcons.play,
-              color: AppTheme.textPink,
-              size: 12,
-            ),
-          )
-        ]),
-      ),
     );
   }
 
@@ -480,4 +339,102 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
       ),
     );
   }
+
+ Widget cardProyek(int i,data) {
+   Map value=data[i];
+    final sizeu = MediaQuery.of(context).size;
+
+    return Container(
+        margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
+        decoration: BoxDecoration(
+          // border: Border.all(width: .5, color: Colors.black),
+          borderRadius: BorderRadius.circular(10),
+          color: AppTheme.bgBlueSoft,
+        ),
+        child: Stack(children: [
+          Container(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //gambar portfolio
+                Container(
+                  width: (sizeu.width - 70) / 2.5,
+                  margin: EdgeInsets.only(right: 10, bottom: 10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      value.containsKey('foto') && value['foto'] != null
+                          ? CachedNetworkImage(
+                              imageUrl: domainChange(value['foto']),
+                              fit: BoxFit.fitWidth,
+                              placeholder: (context, url) => SizedBox(
+                                  width: 80,
+                                  child: new CircularProgressIndicator()),
+                              errorWidget: (context, url, error) =>
+                                  new Icon(Icons.error),
+                            )
+                          : Image.asset('assets/general/photo_holder.png'),
+                      Container(
+                        alignment: Alignment.center,
+                        width: double.infinity,
+                        height: 25,
+                        margin: EdgeInsets.fromLTRB(0, 8, 0, 0),
+                        decoration: BoxDecoration(
+                          color: AppTheme.bgChatBlue,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          value['tahun'],
+                          style: TextStyle(
+                            color: AppTheme.nearlyWhite,
+                            fontSize: 14,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Container(
+                  alignment: Alignment.topLeft,
+                  // margin: EdgeInsets.only(top: 15),
+                  width: (sizeu.width - 70) - (sizeu.width - 70) / 2.5,
+                  padding: const EdgeInsets.only(top: 15.0, bottom: 10),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 4.0),
+                          child: Text(value['judul'],
+                              maxLines: 2,
+                              style: TextStyle(
+                                  color: AppTheme.textBlue,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 6.0),
+                          child: Text(value['tautan'],
+                              maxLines: 2,
+                              style: TextStyle(
+                                  color: AppTheme.geySolidCustom,
+                                  fontSize: 12)),
+                        ),
+                        Text(value['deskripsi'],
+                            textAlign: TextAlign.justify,
+                            maxLines: 4,
+                            style: TextStyle(
+                                color: AppTheme.textBlue, fontSize: 12)),
+                      ]),
+                )
+              ],
+            ),
+          ),
+          //other option
+ ]),
+      );
+      }
+
 }
