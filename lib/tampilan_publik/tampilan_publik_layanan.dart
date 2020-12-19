@@ -367,6 +367,20 @@ class _TampilanPublikLayananState extends State<TampilanPublikLayanan> {
         widthKonten / defaultWidthKonten * sizeKeteranganKonten;
     // double widthIcoKonten = defaultWidthKonten / 12;
 
+       int z = i + 1;
+    if (z % 1 == 0) {
+      z = 0;
+    }
+    if (i % 2 == 0) {
+      z = 1;
+    }
+    if (i % 3 == 0) {
+      z = 2;
+    }
+    if (i % 4 == 0) {
+      z = 3;
+    }
+
     return Container(
       margin: EdgeInsets.only(
         top: 10,
@@ -385,7 +399,7 @@ class _TampilanPublikLayananState extends State<TampilanPublikLayanan> {
             offset: Offset(0, 2), // changes position of shadow
           ),
         ],
-        color: !i.isOdd ? AppTheme.cardBlue : AppTheme.cardWhite,
+        color: AppTheme.renoReno[z],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

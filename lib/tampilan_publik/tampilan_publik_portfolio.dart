@@ -344,12 +344,26 @@ class _TampilanPublikPortfolioState extends State<TampilanPublikPortfolio> {
    Map value=data[i];
     final sizeu = MediaQuery.of(context).size;
 
+       int z = i + 1;
+    if (z % 1 == 0) {
+      z = 0;
+    }
+    if (i % 2 == 0) {
+      z = 1;
+    }
+    if (i % 3 == 0) {
+      z = 2;
+    }
+    if (i % 4 == 0) {
+      z = 3;
+    }
+
     return Container(
         margin: EdgeInsets.fromLTRB(20, 20, 20, 0),
         decoration: BoxDecoration(
           // border: Border.all(width: .5, color: Colors.black),
           borderRadius: BorderRadius.circular(10),
-          color: AppTheme.bgBlueSoft,
+          color: AppTheme.renoReno[z],
         ),
         child: Stack(children: [
           Container(

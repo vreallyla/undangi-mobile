@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:icon_shadow/icon_shadow.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
@@ -124,7 +125,7 @@ class _TampilanPublikUlasanState extends State<TampilanPublikUlasan> {
                           bottom: 50,
                         ),
                         child: Text(
-                          'Data Layanan Kosong...',
+                          'Data Ulasan Kosong...',
                           style: TextStyle(
                               // color: Colors.grey,
                               fontSize: 22),
@@ -193,12 +194,12 @@ class _TampilanPublikUlasanState extends State<TampilanPublikUlasan> {
                                 Row(
                                   children: [
                                     FaIcon(
-                                      FontAwesomeIcons.tools,
+                                      FontAwesomeIcons.thumbsUp,
                                       color: AppTheme.geySolidCustom,
                                       size: 18,
                                     ),
                                     Text(
-                                      ' Layanan ' +
+                                      ' Ulasan ' +
                                           (nameUser != null ? nameUser : ''),
                                       style: TextStyle(
                                           color: AppTheme.geySolidCustom,
@@ -336,6 +337,19 @@ class _TampilanPublikUlasanState extends State<TampilanPublikUlasan> {
 
   Widget cardProyek(int i, data) {
     final sizeu = MediaQuery.of(context).size;
+    int z = i + 1;
+    if (z % 1 == 0) {
+      z = 0;
+    }
+    if (i % 2 == 0) {
+      z = 1;
+    }
+    if (i % 3 == 0) {
+      z = 2;
+    }
+    if (i % 4 == 0) {
+      z = 3;
+    }
 
     Map value = data[i];
     return Container(
@@ -343,26 +357,80 @@ class _TampilanPublikUlasanState extends State<TampilanPublikUlasan> {
       padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        color: AppTheme.bgGreenSoft,
+        color: AppTheme.renoReno[z],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.only(right: 10),
-            margin: EdgeInsets.only(right: 10),
-            decoration: BoxDecoration(
-                border: Border(
-                    right:
-                        BorderSide(width: .5, color: AppTheme.geySofttCustom))),
+           
             child: imageLoad(value['foto'], true, 60, 60),
           ),
-          SizedBox(
+          Container(
               width: sizeu.width - 141,
+               padding: EdgeInsets.only(left: 10),
+              decoration: BoxDecoration(
+                border: Border(
+                  left: BorderSide(width: 5, color: AppTheme.geyCustom),
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(value['nama'],style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500),),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/general/user_place.png',
+                        width: 30,
+                        height: 30,
+                      ),
+                      Container(
+                        padding: EdgeInsets.only(left: 5),
+                        width: sizeu.width - 30 - 141-15,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              value['nama'],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w500),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 3.0, bottom: 3),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconShadowWidget(
+                                    Icon(
+                                      Icons.star,
+                                      size: 16,
+                                      color: Colors.yellow,
+                                    ),
+                                    shadowColor: AppTheme.geyCustom,
+                                  ),
+                                  Text(
+                                    ' ' + value['bintang'].toString(),
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w100),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    value['deskripsi'],
+                    textAlign: TextAlign.justify,
+                  )
                 ],
               ))
         ],
