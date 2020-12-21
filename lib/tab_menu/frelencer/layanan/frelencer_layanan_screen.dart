@@ -6,18 +6,19 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Model/frelencer/layanan_frelencer_model.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/owner/proyek_owner_model.dart';
 
 import 'tab_layanan_pengerjaan_view.dart';
 import 'tab_layanan_view.dart';
 
-class OwnerLayananScreen extends StatefulWidget {
+class FrelencerLayananScreen extends StatefulWidget {
   @override
-  _OwnerLayananScreenState createState() => _OwnerLayananScreenState();
+  _FrelencerLayananScreenState createState() => _FrelencerLayananScreenState();
 }
 
-class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
+class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
   bool tabChange = false; //false=proyek;true=pengerjaan
 
   //ganti konten tab pengerjaan ke progress ketika ditekan button progress
@@ -45,9 +46,9 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
 
   String urlPoto;
   String motto;
-  List dataProyek = [];
+  List dataLayanan = [];
   List dataPengerjaan = [];
-  int jmlhProyek = 0;
+  int jmlhLayanan = 0;
   int jmlhPengerjaan = 0;
 
   //refesh controller
@@ -110,13 +111,13 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   }
 
   //set data proyek & pengerjaan
-  setDataProyek(Map data) {
+  setDataLayanan(Map data) {
     setState(() {
-      dataProyek = data.containsKey('proyek') ? data['proyek'] : [];
-      dataPengerjaan = data.containsKey('Pengerjaan') ? data['Pengerjaan'] : [];
+      dataLayanan = data.containsKey('layanan') ? data['layanan'] : [];
+      dataPengerjaan = data.containsKey('pengerjaan') ? data['pengerjaan'] : [];
       jmlhPengerjaan =
-          data.containsKey('Pengerjaan_count') ? data['Pengerjaan_count'] : 0;
-      jmlhProyek = data.containsKey('proyek_count') ? data['proyek_count'] : 0;
+          data.containsKey('count_pengerjaan') ? data['count_pengerjaan'] : 0;
+      jmlhLayanan = data.containsKey('count_layanan') ? data['count_layanan'] : 0;
       urlPoto = data.containsKey('bio') ? data['bio']['foto'] : null;
       motto = data.containsKey('bio') ? data['bio']['status'] : null;
     });
@@ -135,14 +136,12 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
     GeneralModel.checCk(
         //connect
         () async {
-      ProyekOwnerModel.get({
-        'limit_proyek': getRowProyek,
-        'search_proyek': searchProyek,
-        'limit_pengerjaan': getRowPengerjaan,
-        'search_pengerjaan': searchPengerjaan,
+      LayananFrelencerModel.get({
+        'limit': getRowProyek,
+        'q': searchProyek,
+     
       }).then((v) {
-        print('p' + (loadingPosisi == 2 || !tabChange ? 0 : 1).toString());
-        setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
+       setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
         print(loadingPosisi);
         if (loadingPosisi == 0) {
           _refreshProyekController.refreshCompleted();
@@ -153,7 +152,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
         if (v.error) {
           errorRespon(context, v.data);
         } else {
-          setDataProyek(v.data);
+          setDataLayanan(v.data);
         //disconect
         }
       });
@@ -202,7 +201,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
         if (v.error) {
           errorRespon(context, v.data);
         } else {
-          setDataProyek(v.data);
+          setDataLayanan(v.data);
         }
       });
     },
@@ -475,7 +474,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                       dataReresh: _loadDataApi,
                       dataNext: _nextDataApi,
                       refresh: _refreshProyekController,
-                      dataProyek: dataProyek,
+                      dataLayanan: dataLayanan,
                       loading: loadingProyek,
                       bottomKey: double.parse(bottom.toString()),
                       paddingTop: paddingPhone.top,
@@ -637,7 +636,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(moreThan99(jmlhProyek),
+                      child: Text(moreThan99(jmlhLayanan),
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w500,

@@ -404,15 +404,15 @@ class _TampilanPublikProyekState extends State<TampilanPublikProyek> {
         color: AppTheme.renoReno[z],
       ),
       child: InkWell(
-        onTap: ()=>  Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampilanPublikProyekDetail(
-                                    id: data[i]['id'],
-                              
-                                  ))),
-              child: Column(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => TampilanPublikProyekDetail(
+              id: data[i]['id'],
+            ),
+          ),
+        ),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(

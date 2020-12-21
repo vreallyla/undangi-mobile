@@ -72,7 +72,7 @@ class TabIconData {
         
         {
           "name": "Dashboard Layanan",
-          "route": "/owner_layanan",
+          "route": "/layanan_frelence",
           'index': 2,
         }
       ],

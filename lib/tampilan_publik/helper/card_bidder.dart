@@ -18,7 +18,7 @@ class cardBidder extends StatefulWidget {
 }
 
 class _cardBidderState extends State<cardBidder> {
-  bool lihat = true;
+  bool lihat = false;
 
   @override
   void initState() {
