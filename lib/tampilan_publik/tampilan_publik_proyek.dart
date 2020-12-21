@@ -410,7 +410,7 @@ class _TampilanPublikProyekState extends State<TampilanPublikProyek> {
                               builder: (BuildContext context) =>
                                   TampilanPublikProyekDetail(
                                     id: data[i]['id'],
-                                    userId:widget.id,
+                              
                                   ))),
               child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -8,6 +8,7 @@ import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
+import 'package:undangi/tampilan_publik/helper/modal_bid.dart';
 
 import 'card_bidder.dart';
 
@@ -19,11 +20,9 @@ class TampilanPublikProyekDetail extends StatefulWidget {
   const TampilanPublikProyekDetail({
     Key key,
     this.id = 0,
-    this.userId = 0,
   }) : super(key: key);
 
   final int id;
-  final int userId;
 }
 
 class _TampilanPublikProyekDetailState
@@ -31,21 +30,27 @@ class _TampilanPublikProyekDetailState
   String urlPhoto;
   String summary;
   String nameUser;
+  int userId;
   Map jumlah = {};
   Map dataProyek = {};
   bool itsMe = true;
   bool loading = true;
+  bool alreadBid = false;
+
+  //INPUT
 
   setDataPublik(Map data) {
     setState(() {
       urlPhoto = data.containsKey('user') ? data['user']['foto'] : null;
       summary = data.containsKey('user') ? data['user']['summary'] : null;
       nameUser = data.containsKey('user') ? data['user']['nama'] : null;
+      userId = data.containsKey('user') ? data['user']['id'] : null;
       dataProyek = data['proyek'] ?? [];
 
       itsMe = data['its_me'] ?? false;
+      alreadBid = data['already_bid'] ?? false;
     });
-    print(dataProyek);
+    // print(dataProyek['bid']);
   }
 
   // refresh user
@@ -231,8 +236,7 @@ class _TampilanPublikProyekDetailState
                             itemCount: dataProyek['bid'].length,
                             // itemExtent: 100.0,
                             itemBuilder: (c, i) =>
-                            cardBidder(i:i,data:dataProyek['bid'][i])
-                              )
+                                cardBidder(i: i, data: dataProyek['bid'][i]))
                         : Container(
                             alignment: Alignment.center,
                             padding: EdgeInsets.only(
@@ -248,292 +252,254 @@ class _TampilanPublikProyekDetailState
                   ),
                 ],
               ),
-              body: Center(
-                child: Stack(
-                  children: [
-                    // BG
+              body: userId == null
+                  ? dataKosong()
+                  : Stack(
+                      children: [
+                        // BG
 
-                    Container(
-                      height: sizeu.height,
-                      width: sizeu.width,
-                      decoration: BoxDecoration(
-                        color: AppTheme.bgChatBlue,
-                        image: DecorationImage(
-                          image: AssetImage('assets/general/abstract_bg.png'),
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-
-                    appDashboardLinkPhoto(
-                      context,
-                      urlPhoto,
-                      Text(''),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 10),
-                        child: IconButton(
-                            icon: Icon(
-                              Icons.arrow_back_ios,
-                              color: AppTheme.nearlyWhite,
-                              size: AppTheme.sizeIconMenu,
+                        Container(
+                          height: sizeu.height,
+                          width: sizeu.width,
+                          decoration: BoxDecoration(
+                            color: AppTheme.bgChatBlue,
+                            image: DecorationImage(
+                              image:
+                                  AssetImage('assets/general/abstract_bg.png'),
+                              fit: BoxFit.fill,
                             ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            }),
-                      ),
-                      () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  TampianPublikScreen(
-                                    id: widget.userId,
-                                  ))),
-                    ),
+                          ),
+                        ),
 
-                    Container(
-                      margin: EdgeInsets.only(top: 140),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //bid
-                          Container(
-                            padding: EdgeInsets.fromLTRB(10, 15, 10, 15),
-                            margin: EdgeInsets.fromLTRB(20, 10, 20, 20),
-                            decoration: BoxDecoration(
-                                color: AppTheme.bgGreenBlueSoft,
-                                borderRadius: BorderRadius.circular(10)),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                        Container(
+                          // margin: EdgeInsets.only(top: 140),
+                          child: ListView(
+                            children: [
+                              SizedBox(
+                                height: 140,
+                              ),
+                              //bid
+                              Container(
+                                padding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+                                margin: EdgeInsets.fromLTRB(20, 10, 20, 20),
+                                decoration: BoxDecoration(
+                                    color: AppTheme.bgGreenBlueSoft,
+                                    borderRadius: BorderRadius.circular(10)),
+                                width: double.infinity,
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 0.0),
-                                      child: Container(
-                                        margin: EdgeInsets.only(right: 10),
-                                        decoration: BoxDecoration(
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black54,
-                                              spreadRadius: .5,
-                                              blurRadius: 2,
-                                              offset: Offset(0,
-                                                  2), // changes position of shadow
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 0.0),
+                                          child: Container(
+                                            margin: EdgeInsets.only(right: 10),
+                                            decoration: BoxDecoration(
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black54,
+                                                  spreadRadius: .5,
+                                                  blurRadius: 2,
+                                                  offset: Offset(0,
+                                                      2), // changes position of shadow
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        width: imgProyek,
-                                        child: imageLoad(
-                                            dataProyek['thumbnail'],
-                                            false,
-                                            imgProyek,
-                                            imgProyek),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      width: widthKonten,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            alignment: Alignment.bottomLeft,
-                                            child: Text(
-                                              (dataProyek['judul'] ??
-                                                  'Tidak Ada Judul'),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: AppTheme.bgChatBlue,
-                                                fontSize: textJudulKonten + 2,
-                                              ),
-                                              maxLines: 2,
-                                            ),
+                                            width: imgProyek,
+                                            child: imageLoad(
+                                                dataProyek['thumbnail'],
+                                                false,
+                                                imgProyek,
+                                                imgProyek),
                                           ),
-                                          Row(
+                                        ),
+                                        SizedBox(
+                                          width: widthKonten,
+                                          child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              SizedBox(
-                                                width: widthKonten - 80,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      'Rp' +
-                                                          pointGroup(int.parse(
-                                                              dataProyek['harga']
-                                                                      .toString() ??
-                                                                  '0')),
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                        color: AppTheme
-                                                            .nearlyBlack,
-                                                        fontSize:
-                                                            sizeJudulKonten + 4,
-                                                      ),
-                                                      maxLines: 2,
-                                                    ),
-                                                    Text(
-                                                      'Kategori ${(dataProyek['kategori'] != null ? (dataProyek['kategori']['nama'] ?? 'tidak ada') : 'tidak ada')}:',
-                                                      style: TextStyle(
-                                                        color: AppTheme
-                                                            .geySolidCustom,
-                                                        fontSize:
-                                                            textSubKonten + 2,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                    Text(
-                                                      (dataProyek['subkategori'] !=
-                                                              null
-                                                          ? (dataProyek[
-                                                                      'subkategori']
-                                                                  ['nama'] ??
-                                                              'tidak ada')
-                                                          : 'tidak ada'),
-                                                      style: TextStyle(
-                                                        color: AppTheme
-                                                            .primaryBlue,
-                                                        fontSize:
-                                                            textSubKonten + 2.5,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ],
+                                              Container(
+                                                alignment: Alignment.bottomLeft,
+                                                child: Text(
+                                                  (dataProyek['judul'] ??
+                                                      'Tidak Ada Judul'),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                    color: AppTheme.bgChatBlue,
+                                                    fontSize:
+                                                        textJudulKonten + 2,
+                                                  ),
+                                                  maxLines: 2,
                                                 ),
                                               ),
-                                              SizedBox(
-                                                width: 80,
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Container(
-                                                      margin: EdgeInsets.only(
-                                                        top: 5,
-                                                      ),
-                                                      padding: EdgeInsets.only(
-                                                          top: 3, bottom: 3),
-                                                      alignment:
-                                                          Alignment.center,
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          color: true
-                                                              ? AppTheme
-                                                                  .bgChatBlue
-                                                              : AppTheme
-                                                                  .primaryRed),
-                                                      child: Text(
-                                                        dataProyek['jenis']
-                                                            .toUpperCase(),
-                                                        style: TextStyle(
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(
+                                                    width: widthKonten - 80,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          'Rp' +
+                                                              pointGroup(
+                                                                int.parse(dataProyek[
+                                                                            'harga'] !=
+                                                                        null
+                                                                    ? dataProyek[
+                                                                            'harga']
+                                                                        .toString()
+                                                                    : '0'),
+                                                              ),
+                                                          style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: AppTheme
+                                                                .nearlyBlack,
+                                                            fontSize:
+                                                                sizeJudulKonten +
+                                                                    4,
+                                                          ),
+                                                          maxLines: 2,
+                                                        ),
+                                                        Text(
+                                                          'Kategori ${(dataProyek['kategori'] != null ? (dataProyek['kategori']['nama'] ?? 'tidak ada') : 'tidak ada')}:',
+                                                          style: TextStyle(
+                                                            color: AppTheme
+                                                                .geySolidCustom,
                                                             fontSize:
                                                                 textSubKonten +
-                                                                    1,
+                                                                    2,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                          ),
+                                                        ),
+                                                        Text(
+                                                          (dataProyek['subkategori'] !=
+                                                                  null
+                                                              ? (dataProyek[
+                                                                          'subkategori']
+                                                                      [
+                                                                      'nama'] ??
+                                                                  'tidak ada')
+                                                              : 'tidak ada'),
+                                                          // 'hello',
+                                                          style: TextStyle(
                                                             color: AppTheme
-                                                                .nearlyWhite),
-                                                      ),
-                                                    ),
-                                                    Container(
-                                                      margin: EdgeInsets.only(
-                                                        top: 5,
-                                                      ),
-                                                      padding: EdgeInsets.only(
-                                                          top: 3, bottom: 3),
-                                                      alignment:
-                                                          Alignment.center,
-                                                      decoration: BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          border: Border.all(
-                                                              width: 1,
-                                                              color: AppTheme
-                                                                  .geyCustom),
-                                                          color: Colors
-                                                              .transparent),
-                                                      child: Text(
-                                                        'LAMPIRAN',
-                                                        style: TextStyle(
+                                                                .primaryBlue,
                                                             fontSize:
                                                                 textSubKonten +
-                                                                    1,
-                                                            color: AppTheme
-                                                                .geyCustom),
-                                                      ),
+                                                                    2.5,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                          ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ],
-                                                ),
-                                              )
+                                                  ),
+                                                  SizedBox(
+                                                    width: 80,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                            top: 5,
+                                                          ),
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  top: 3,
+                                                                  bottom: 3),
+                                                          alignment:
+                                                              Alignment.center,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              color: true
+                                                                  ? AppTheme
+                                                                      .bgChatBlue
+                                                                  : AppTheme
+                                                                      .primaryRed),
+                                                          child: Text(
+                                                            (dataProyek['jenis'] ??
+                                                                    '-')
+                                                                .toUpperCase(),
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    textSubKonten +
+                                                                        1,
+                                                                color: AppTheme
+                                                                    .nearlyWhite),
+                                                          ),
+                                                        ),
+                                                        Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                            top: 5,
+                                                          ),
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  top: 3,
+                                                                  bottom: 3),
+                                                          alignment:
+                                                              Alignment.center,
+                                                          decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10),
+                                                              border: Border.all(
+                                                                  width: 1,
+                                                                  color: AppTheme
+                                                                      .geyCustom),
+                                                              color: Colors
+                                                                  .transparent),
+                                                          child: Text(
+                                                            'LAMPIRAN',
+                                                            style: TextStyle(
+                                                                fontSize:
+                                                                    textSubKonten +
+                                                                        1,
+                                                                color: AppTheme
+                                                                    .geyCustom),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
                                             ],
                                           ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.only(left: imgProyek + 10),
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: (widthKonten) * 35 / 100,
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Total Bid:',
-                                              style: TextStyle(
-                                                color: AppTheme.geySolidCustom,
-                                                fontSize: textSubKonten + 1.5,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            Text(
-                                              moreThan99(
-                                                      dataProyek['total_bid'] ??
-                                                          0) +
-                                                  ' ORANG',
-                                              style: TextStyle(
-                                                color: AppTheme.primaryBlue,
-                                                fontSize: textSubKonten + 3,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: (widthKonten) * 65 / 100,
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: textSubKonten + 8,
-                                              height: textSubKonten + 8,
-                                              decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                  image: (AssetImage(
-                                                      'assets/more_icon/calender.png')),
-                                                  fit: BoxFit.fitWidth,
-                                                ),
-                                              ),
-                                            ),
-                                            Column(
+                                        )
+                                      ],
+                                    ),
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.only(left: imgProyek + 10),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(
+                                            width: (widthKonten) * 35 / 100,
+                                            child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  '  Batas Waktu: ',
+                                                  'Total Bid:',
                                                   style: TextStyle(
                                                     color:
                                                         AppTheme.geySolidCustom,
@@ -543,122 +509,222 @@ class _TampilanPublikProyekDetailState
                                                   ),
                                                 ),
                                                 Text(
-                                                  '  ${pointGroup(int.parse(dataProyek['waktu_pengerjaan'].toString() ?? '0'))} HARI',
+                                                  moreThan99(dataProyek[
+                                                              'total_bid'] ??
+                                                          0) +
+                                                      ' ORANG',
+                                                  // 'helo',
                                                   style: TextStyle(
                                                     color: AppTheme.primaryBlue,
                                                     fontSize: textSubKonten + 3,
                                                     fontWeight: FontWeight.w600,
                                                   ),
-                                                )
+                                                ),
                                               ],
                                             ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                itsMe?Container():Container(
-                                  // margin: EdgeInsets.only(left: imgProyek + 10),
-                                  padding: EdgeInsets.only(
-                                    top: 5,
-                                  ),
-                                  alignment: Alignment.centerRight,
-                                  child: SizedBox(
-                                    width: widthKonten + imgProyek + 10,
-                                    height: 30,
-                                    child: RaisedButton(
-                                      color: AppTheme.bgChatBlue,
-                                      onPressed: () {},
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5.0),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'BID ',
-                                            style: TextStyle(
-                                              color:  AppTheme.nearlyWhite,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
+                                          ),
+                                          SizedBox(
+                                            width: (widthKonten) * 65 / 100,
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: textSubKonten + 8,
+                                                  height: textSubKonten + 8,
+                                                  decoration: BoxDecoration(
+                                                    image: DecorationImage(
+                                                      image: (AssetImage(
+                                                          'assets/more_icon/calender.png')),
+                                                      fit: BoxFit.fitWidth,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '  Batas Waktu: ',
+                                                      style: TextStyle(
+                                                        color: AppTheme
+                                                            .geySolidCustom,
+                                                        fontSize:
+                                                            textSubKonten + 1.5,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '  ${pointGroup(int.parse((dataProyek['waktu_pengerjaan'] != null ? dataProyek['waktu_pengerjaan'].toString() : '0')))} HARI',
+                                                      // 'asd',
+                                                      style: TextStyle(
+                                                        color: AppTheme
+                                                            .primaryBlue,
+                                                        fontSize:
+                                                            textSubKonten + 3,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          FaIcon(
-                                            FontAwesomeIcons.solidPaperPlane,
-                                            size: 14,
-                                            color: AppTheme.nearlyWhite,
-                                          )
                                         ],
                                       ),
                                     ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          //deskripsi
-                          Container(
-                            padding: EdgeInsets.fromLTRB(10, 15, 10, 15),
-                            margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-                            decoration: BoxDecoration(
-                                color: AppTheme.bgBlueSoft,
-                                borderRadius: BorderRadius.circular(10)),
-                            width: double.infinity,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                //judul
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 20,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: (AssetImage(
-                                              'assets/more_icon/file.png')),
-                                          fit: BoxFit.fitWidth,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                        width:
-                                            widthKonten + imgProyek + 10 - 20,
-                                        child: Text(
-                                          ' Deskripsi',
-                                          style: TextStyle(
-                                            color: AppTheme.textBlue,
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ))
+                                    itsMe
+                                        ? Container()
+                                        : Container(
+                                            // margin: EdgeInsets.only(left: imgProyek + 10),
+                                            padding: EdgeInsets.only(
+                                              top: 5,
+                                            ),
+                                            alignment: Alignment.centerRight,
+                                            child: SizedBox(
+                                              width:
+                                                  widthKonten + imgProyek + 10,
+                                              height: 30,
+                                              child: RaisedButton(
+                                                color: alreadBid
+                                                    ? AppTheme.geyCustom
+                                                    : AppTheme.bgChatBlue,
+                                                onPressed: () {
+                                                  
+                                                  showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return ModalBid(
+                                                          tawarHarga: dataProyek['harga'].toString(),
+                                                          tawarWaktu:dataProyek['waktu_pengerjaan'].toString(),
+                                                          tawarTask: '',
+                                                        );
+                                                      });
+                                                },
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          5.0),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      'BID ',
+                                                      style: TextStyle(
+                                                        color: AppTheme
+                                                            .nearlyWhite,
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                    FaIcon(
+                                                      FontAwesomeIcons
+                                                          .solidPaperPlane,
+                                                      size: 14,
+                                                      color:
+                                                          AppTheme.nearlyWhite,
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          )
                                   ],
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    dataProyek['deskripsi'] ??
-                                        'Belum ada deskripsi...',
-                                    style: TextStyle(
-                                      color: AppTheme.textBlue,
-                                      fontSize: 14,
-                                      // fontWeight: FontWeight.w500,
+                              ),
+                              //deskripsi
+                              Container(
+                                padding: EdgeInsets.fromLTRB(10, 15, 10, 15),
+                                margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                                decoration: BoxDecoration(
+                                    color: AppTheme.bgBlueSoft,
+                                    borderRadius: BorderRadius.circular(10)),
+                                width: double.infinity,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    //judul
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          width: 20,
+                                          height: 20,
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: (AssetImage(
+                                                  'assets/more_icon/file.png')),
+                                              fit: BoxFit.fitWidth,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                            width: widthKonten +
+                                                imgProyek +
+                                                10 -
+                                                20,
+                                            child: Text(
+                                              ' Deskripsi',
+                                              style: TextStyle(
+                                                color: AppTheme.textBlue,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ))
+                                      ],
                                     ),
-                                  ),
-                                )
-                              ],
-                            ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        dataProyek['deskripsi'] ??
+                                            'Belum ada deskripsi...',
+                                        style: TextStyle(
+                                          color: AppTheme.textBlue,
+                                          fontSize: 14,
+                                          // fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 120,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
+                        ),
+                        appDashboardLinkPhoto(
+                          context,
+                          urlPhoto,
+                          Text(''),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: IconButton(
+                                icon: Icon(
+                                  Icons.arrow_back_ios,
+                                  color: AppTheme.nearlyWhite,
+                                  size: AppTheme.sizeIconMenu,
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                }),
+                          ),
+                          () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      TampianPublikScreen(
+                                        id: userId,
+                                      ))),
+                        ),
+                      ],
+                    ),
             ),
     );
   }
@@ -790,39 +856,36 @@ class _TampilanPublikProyekDetailState
             ],
           ),
           lihat
-              ?
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('asdasd'),
-                        Padding(
-                          padding: const EdgeInsets.only(top:15),
-                          child: InkWell(
-                  onTap: () {
-                    
-                      lihat = !lihat;
-             
-                      print(lihat);
+              ? Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('asdasd'),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15),
+                        child: InkWell(
+                          onTap: () {
+                            lihat = !lihat;
 
-                  },
-                  child: Align(
-                              alignment: Alignment.center,
-                              child: Text(
-                                'SEMBUNYIKAN PENAWARAN TASK',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                  color: AppTheme.geyCustom,
-                                ),
+                            print(lihat);
+                          },
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              'SEMBUNYIKAN PENAWARAN TASK',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: AppTheme.geyCustom,
                               ),
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  )
+                      ),
+                    ],
+                  ),
+                )
               : Container(
                   alignment: Alignment.center,
                   margin: EdgeInsets.only(top: 8),

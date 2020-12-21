@@ -910,7 +910,7 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                   //komen frelencer
                   Container(
-                    width: sizeu.width - photoWidth - 72,
+                    width: sizeu.width - photoWidth - 74,
                     padding: EdgeInsets.only(
                       left: pembatas,
                       top: 33,
@@ -1386,6 +1386,8 @@ class TabPengerjaanCard extends StatelessWidget {
                     ],
                   ))
               : Container(),
+
+          
         ],
       ),
     );

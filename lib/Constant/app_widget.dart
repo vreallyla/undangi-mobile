@@ -362,7 +362,7 @@ Widget loadingCircle() {
 }
 
 Widget imageLoad(String url, bool circle, double height, double width) {
-  return CachedNetworkImage(
+  return url==null?loadingCircle(): CachedNetworkImage(
     imageUrl: url,
     fit: BoxFit.fitHeight,
     imageBuilder: (context, imageProvider) => Container(
@@ -856,6 +856,86 @@ passwordCheck(context, Function checkEvent) {
                   ),
                 ),
               ],
+            ),
+          ),
+        );
+      });
+}
+
+
+
+modalWithLogo(context,Widget child) {
+  Color myColor = AppTheme.bgChatBlue;
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          // shape: RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          contentPadding: EdgeInsets.only(top: 10.0),
+          content: Container(
+            width: 350.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(left: 8, right: 8),
+                  child: Row(
+                    // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Expanded(
+                          flex: 2,
+                          child: SizedBox(
+                            width: 80,
+                            child: Image.asset(
+                              'assets/general/logo.png',
+                              width: 80,
+                              fit: BoxFit.fitWidth,
+                            ),
+                          )),
+                      Expanded(
+                          flex: 3,
+                          child: Container(
+                            padding: EdgeInsets.only(right: 8),
+                            alignment: Alignment.centerRight,
+                            child: InkWell(
+                                onTap: () => Navigator.pop(context),
+                                child: FaIcon(
+                                  FontAwesomeIcons.times,
+                                  size: 14,
+                                )),
+                          )),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 5.0,
+                  decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              color: Colors.grey.withOpacity(.1), width: .5))),
+                ),
+                Container(
+                  height: 2,
+                  decoration: BoxDecoration(
+                      // color: Colors.white,
+                      // border: Border(
+                      // bottom: BorderSide(width: .5,color: Colors.grey.withOpacity(.5))
+                      // ),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey.withOpacity(.5),
+                            blurRadius: 3.0,
+                            offset: Offset(0.0, 0.75))
+                      ]),
+                ),
+                child
+            ],
             ),
           ),
         );
