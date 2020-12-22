@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-//import 'dart:developer';
+// import 'dart:developer';
 
 import 'package:http/http.dart' as http;
 
@@ -58,7 +58,8 @@ class LayananFrelencerModel {
 
     print('get klien proyek status code : ' + apiResult.statusCode.toString());
     Map jsonObject = json.decode(apiResult.body);
-
+print(jsonObject);
+print('asd');
     String message = jsonObject.containsKey('message')
         ? jsonObject['message'].toString()
         : notice;
@@ -100,12 +101,12 @@ class LayananFrelencerModel {
     }
   }
 
-  static Future<LayananFrelencerModel> addLayanan(
+   static Future<LayananFrelencerModel> addLayanan(
       Map other, List<File> lampiran, File thumb, String updateId) async {
     var apiResult;
     Map jsonObject = {};
     String urll =
-        globalBaseUrl + "klien/proyek" + (updateId != null ? '/$updateId' : '');
+        globalBaseUrl + "pekerja/layanan" + (updateId != null ? '/$updateId' : '');
     await GeneralModel.token().then((value) {
       tokenFixed = value.res;
     });
@@ -132,7 +133,7 @@ class LayananFrelencerModel {
       request.fields.addAll({
         'judul': other['judul'],
         'jenis': other['jenis'],
-        'waktu_pengerjaan': other['waktu_pengerjaan'],
+        'pengerjaan': other['pengerjaan'],
         'harga': other['harga'],
         'deskripsi': other['deskripsi'],
         'kategori': other['kategori'],
@@ -173,7 +174,7 @@ class LayananFrelencerModel {
       jsonObject = json.decode(apiResult.body);
     }
 
-    print('add proyek status code : ' + apiResult.statusCode.toString());
+    print('add layanan status code : ' + apiResult.statusCode.toString());
     print(jsonObject);
     // listen for response
 
@@ -223,9 +224,11 @@ class LayananFrelencerModel {
     }
   }
 
-  static Future<LayananFrelencerModel> hapusProyek(String id) async {
+
+
+  static Future<LayananFrelencerModel> hapusLayanan(String id) async {
     // final LocalStorage storage = new LocalStorage('auth');
-    String apiURL = globalBaseUrl + "klien/proyek/" + id;
+    String apiURL = globalBaseUrl + "pekerja/layanan/" + id;
 
     await GeneralModel.token().then((value) {
       tokenFixed = value.res;
@@ -236,7 +239,7 @@ class LayananFrelencerModel {
       "Authorization": tokenJWT + tokenFixed
     });
 
-    print('hapus proyek status code : ' + apiResult.statusCode.toString());
+    print('hapus Layanan status code : ' + apiResult.statusCode.toString());
     Map jsonObject = json.decode(apiResult.body);
     String message = jsonObject.containsKey('message')
         ? jsonObject['message'].toString()

@@ -3,6 +3,7 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Constant/html_read.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
 
@@ -10,15 +11,16 @@ class ModalBid extends StatefulWidget {
   @override
   _ModalBidState createState() => _ModalBidState();
 
-  const ModalBid({
-    Key key,
-    this.tawarHarga,
-    this.tawarWaktu,
-    this.tawarTask,
-    this.proyekId,
-    this.loadAgain,
-    this.bottom,
-  }) : super(key: key);
+  const ModalBid(
+      {Key key,
+      this.tawarHarga,
+      this.tawarWaktu,
+      this.tawarTask,
+      this.proyekId,
+      this.loadAgain,
+      this.bottom,
+      this.other})
+      : super(key: key);
 
   final String tawarHarga;
   final String tawarWaktu;
@@ -26,6 +28,7 @@ class ModalBid extends StatefulWidget {
   final String proyekId;
   final Function loadAgain;
   final double bottom;
+  final Map other;
 }
 
 class _ModalBidState extends State<ModalBid> {
@@ -85,10 +88,8 @@ class _ModalBidState extends State<ModalBid> {
           await widget.loadAgain();
 
           Future.delayed(Duration(microseconds: 500), () {
-            openAlertSuccessBox(
-                context, 'Berhasil!', 'Proyek berhasil dibid', 'OK', () {
-              Navigator.pop(context);
-            });
+            openAlertSuccessBoxGoon(
+                context, 'Berhasil!', 'Proyek berhasil dibid', 'OK');
           });
         }
       });
@@ -221,9 +222,8 @@ class _ModalBidState extends State<ModalBid> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(left:10,right:10),
-                      child: noticeText('negoharga', error)),
-                    
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        child: noticeText('negoharga', error)),
                     Padding(
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
                       child: Text('Waktu Pengerjaan'),
@@ -252,10 +252,9 @@ class _ModalBidState extends State<ModalBid> {
                         maxLength: 40,
                       ),
                     ),
-                      Padding(
-                      padding: EdgeInsets.only(left:10,right:10),
-                      child: noticeText('negowaktu', error)),
-                    
+                    Padding(
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        child: noticeText('negowaktu', error)),
                     Padding(
                       padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
                       child: Text('Ajukan Lingkup Task Pengerjaan'),
@@ -285,9 +284,8 @@ class _ModalBidState extends State<ModalBid> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(left:10,right:10),
-                      child: noticeText('task', error)),
-                    
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        child: noticeText('task', error)),
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
                       child: Row(
@@ -304,11 +302,28 @@ class _ModalBidState extends State<ModalBid> {
                             ),
                           ),
                           Text(' Saya Setuju '),
-                          Text(
-                            'Syarat dan Ketentuan',
-                            style: TextStyle(
-                              color: AppTheme.bgChatBlue,
-                              fontWeight: FontWeight.w500,
+                          InkWell(
+                            onTap: () async {
+                              String token = '';
+                              await GeneralModel.token().then((value) {
+                                token = value.res;
+                              });
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          HtmlRead(
+                                            url: globalBaseUrl +
+                                                'aggrement_proyek?name=' +
+                                                widget.other['nama']+'&token='+token,
+                                          )));
+                            },
+                            child: Text(
+                              'Syarat dan Ketentuan',
+                              style: TextStyle(
+                                color: AppTheme.bgChatBlue,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           )
                         ],
@@ -336,11 +351,13 @@ class _ModalBidState extends State<ModalBid> {
                             padding: const EdgeInsets.only(left: 5, right: 10),
                             child: RaisedButton(
                               onPressed: () {
-                                if(setujuAnggrement){
+                                if (setujuAnggrement) {
                                   _loadDataApi();
                                 }
                               },
-                              color: setujuAnggrement?AppTheme.bgChatBlue:Colors.grey,
+                              color: setujuAnggrement
+                                  ? AppTheme.bgChatBlue
+                                  : Colors.grey,
                               child: Text(
                                 'KIRIM',
                                 style: TextStyle(color: AppTheme.nearlyWhite),

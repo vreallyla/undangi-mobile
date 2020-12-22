@@ -13,6 +13,7 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/choose_select.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/Model/frelencer/layanan_frelencer_model.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/owner/proyek_owner_model.dart';
 
@@ -207,27 +208,27 @@ class _TabLayananViewState extends State<TabLayananView> {
   }
 
   _saveApi() async {
-    onLoading(context);
+    // onLoading(context);
     Map dataSend = {
       'judul': widget.judulController.text.toString(),
       'jenis': widget.jnsProyek,
-      'waktu_pengerjaan': widget.waktuController.text.toString(),
+      'pengerjaan': widget.waktuController.text.toString(),
       'harga': widget.hargaController.text.toString(),
       'deskripsi': widget.deskripsiController.text.toString(),
       'kategori': widget.kategoriSelect['id'].toString(),
     };
-    // if (widget.editId > 0) {
-    //   dataSend['id'] = widget.editId.toString();
-    // }
+    if (widget.editId > 0) {
+      dataSend['id'] = widget.editId.toString();
+    }
 
     GeneralModel.checCk(
         //connect
         () async {
       setErrorNotif({});
-      ProyekOwnerModel.addProyek(dataSend, widget.lampiran, widget.image,
+      LayananFrelencerModel.addLayanan(dataSend, widget.lampiran, widget.image,
               (widget.editId > 0 ? widget.editId.toString() : null))
           .then((v) {
-        Navigator.pop(context);
+        // Navigator.pop(context);
 
         if (v.error) {
           if (v.data.containsKey('notValid')) {
@@ -247,12 +248,13 @@ class _TabLayananViewState extends State<TabLayananView> {
     },
         //disconect
         () {
-      Navigator.pop(context);
+      // Navigator.pop(context);
 
       openAlertBox(context, noticeTitle, notice, konfirm1, () {
         Navigator.pop(context, false);
       });
     });
+  
   }
 
  
@@ -263,7 +265,7 @@ class _TabLayananViewState extends State<TabLayananView> {
         //connect
         () async {
       // setErrorNotif({});
-      ProyekOwnerModel.hapusProyek(id).then((v) {
+      LayananFrelencerModel.hapusLayanan(id).then((v) {
         Navigator.pop(context);
 
         if (v.error) {
@@ -533,7 +535,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                     ),
                                   ),
                                 ]),
-                                noticeText('waktu_pengerjaan', error),
+                                noticeText('pengerjaan', error),
 
                                 Padding(padding: EdgeInsets.only(top: 3)),
                                 Text(
@@ -1065,7 +1067,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                     topLeft: Radius.circular(30.0),
                                     bottomLeft: Radius.circular(30.0),
                                   ), () {
-                                if (data['editable'] == 1) {
+                                if (data['can_delete'] == 1) {
                                   widget.editEvent(data['id']);
                                   widget.toAddFunc();
                                   widget.valueEdit(data);
@@ -1078,14 +1080,14 @@ class _TabLayananViewState extends State<TabLayananView> {
                                     Navigator.pop(context);
                                   });
                                 }
-                              }, data['editable'] == 1 ? true : false),
+                              }, data['can_delete'] == 1 ? true : false),
                               btnTool(
                                   'assets/more_icon/remove-file.png',
                                   BorderRadius.only(
                                     topRight: Radius.circular(30.0),
                                     bottomRight: Radius.circular(30.0),
                                   ), () {
-                                if (data['editable'] == 1) {
+                                if (data['can_delete'] == 1) {
                                   openAlertBoxTwo(
                                     context,
                                     'KONFIRMASI HAPUS PROYEK',
@@ -1110,7 +1112,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                     Navigator.pop(context);
                                   });
                                 }
-                              }, data['editable'] == 1 ? true : false),
+                              }, data['can_delete'] == 1 ? true : false),
                             ],
                           ),
                           Container(

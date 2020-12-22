@@ -27,9 +27,16 @@ class TampilanPublikProyekDetail extends StatefulWidget {
   const TampilanPublikProyekDetail({
     Key key,
     this.id = 0,
+    this.sortHarga,
+    this.sortWaktu,
+    this.sortTask,
   }) : super(key: key);
 
   final int id;
+  final String sortHarga;
+  final String sortWaktu;
+  final String sortTask;
+
 }
 
 class _TampilanPublikProyekDetailState
@@ -47,7 +54,7 @@ class _TampilanPublikProyekDetailState
   //DOWNLOADER
   ReceivePort _receivePort = ReceivePort();
   bool loadDownloadLampiran = false;
-  int progress=0;
+  int progress = 0;
 
   setDataPublik(Map data) {
     setState(() {
@@ -275,7 +282,7 @@ class _TampilanPublikProyekDetailState
     });
   }
 
-    static downloadingCallback(id, status, progress) {
+  static downloadingCallback(id, status, progress) {
     ///Looking up for a send port
     SendPort sendPort = IsolateNameServer.lookupPortByName("Undangi");
 
@@ -283,7 +290,7 @@ class _TampilanPublikProyekDetailState
     sendPort.send([id, status, progress]);
   }
 
-   void _unbindBackgroundIsolate() {
+  void _unbindBackgroundIsolate() {
     IsolateNameServer.removePortNameMapping('download file');
   }
 
@@ -299,7 +306,7 @@ class _TampilanPublikProyekDetailState
     // TODO: implement initState
     super.initState();
 
-      ///register a send port for the other isolates
+    ///register a send port for the other isolates
     IsolateNameServer.registerPortWithName(
         _receivePort.sendPort, "downloading");
 
@@ -346,6 +353,22 @@ class _TampilanPublikProyekDetailState
     final sizeu = MediaQuery.of(context).size;
     final paddingPhone = MediaQuery.of(context).padding;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+
+
+
+     changeSort( String val) {
+      String res;
+     setState(() {
+        if (val == 'asc') {
+        res = 'desc';
+      } else if (val == null) {
+        res = 'asc';
+      }
+     });
+      print(res+'asd');
+
+      return res;
+    }
 
     double imgProyek = (sizeu.width - 50) / 5;
     double defaultWidthKonten = 218.54591836734696;
@@ -450,21 +473,83 @@ class _TampilanPublikProyekDetailState
                                         ],
                                       ),
                                     ),
-                                    onSelected: (newValue) {
+                                    onSelected: (newValue) async{
                                       if (newValue == 0) {
-                                      } else {}
+                                        changeSort(widget.sortHarga);
+                                       
+                                      } else if (newValue == 1) {
+                                        changeSort(widget.sortWaktu);
+
+                                       
+                                      } else {
+                                        changeSort(widget.sortTask);
+                                      }
                                     },
                                     itemBuilder: (context) => [
                                       PopupMenuItem(
-                                        child: Text("Harga"),
+                                        child: SizedBox(
+                                            width: 130,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                    width: 100,
+                                                    child: Text("Harga")),
+                                                SizedBox(
+                                                    width: 30,
+                                                    child: widget.sortHarga == 'null'
+                                                        ? FaIcon(widget.sortHarga ==
+                                                                'desc'
+                                                            ? FontAwesomeIcons
+                                                                .sortNumericUp
+                                                            : FontAwesomeIcons
+                                                                .sortNumericDown)
+                                                        : Container())
+                                              ],
+                                            )),
                                         value: 0,
                                       ),
                                       PopupMenuItem(
-                                        child: Text("Batas Waktu"),
+                                        child: SizedBox(
+                                            width: 130,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                    width: 100,
+                                                    child: Text("Batas Waktu")),
+                                                SizedBox(
+                                                    width: 30,
+                                                    child: widget.sortWaktu == 'null'
+                                                        ? FaIcon(widget.sortWaktu ==
+                                                                'desc'
+                                                            ? FontAwesomeIcons
+                                                                .sortNumericUp
+                                                            : FontAwesomeIcons
+                                                                .sortNumericDown)
+                                                        : Container())
+                                              ],
+                                            )),
                                         value: 1,
                                       ),
                                       PopupMenuItem(
-                                        child: Text("Task"),
+                                        child: SizedBox(
+                                            width: 130,
+                                            child: Row(
+                                              children: [
+                                                SizedBox(
+                                                    width: 100,
+                                                    child: Text("Task")),
+                                                SizedBox(
+                                                    width: 30,
+                                                    child: widget.sortTask == 'null'
+                                                        ? FaIcon(widget.sortTask ==
+                                                                'desc'
+                                                            ? FontAwesomeIcons
+                                                                .sortAlphaUp
+                                                            : FontAwesomeIcons
+                                                                .sortAlphaDown)
+                                                        : Container())
+                                              ],
+                                            )),
                                         value: 2,
                                       ),
                                     ],
@@ -732,8 +817,10 @@ class _TampilanPublikProyekDetailState
                                                                   color: Colors
                                                                       .transparent),
                                                               child: InkWell(
-                                                                onTap: ()=>lampiranPopup(context),
-                                                                                                                              child: Text(
+                                                                onTap: () =>
+                                                                    lampiranPopup(
+                                                                        context),
+                                                                child: Text(
                                                                   'LAMPIRAN',
                                                                   style: TextStyle(
                                                                       fontSize:
@@ -878,6 +965,11 @@ class _TampilanPublikProyekDetailState
                                                                 tawarHarga: dataProyek[
                                                                         'harga']
                                                                     .toString(),
+                                                                other: {
+                                                                  "nama":
+                                                                      dataProyek[
+                                                                          'judul']
+                                                                },
                                                                 tawarWaktu: dataProyek[
                                                                         'waktu_pengerjaan']
                                                                     .toString(),

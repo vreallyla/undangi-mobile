@@ -46,6 +46,7 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
 
   String urlPoto;
   String motto;
+  Map dataBio = {};
   List dataLayanan = [];
   List dataPengerjaan = [];
   int jmlhLayanan = 0;
@@ -117,9 +118,12 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
       dataPengerjaan = data.containsKey('pengerjaan') ? data['pengerjaan'] : [];
       jmlhPengerjaan =
           data.containsKey('count_pengerjaan') ? data['count_pengerjaan'] : 0;
-      jmlhLayanan = data.containsKey('count_layanan') ? data['count_layanan'] : 0;
+      jmlhLayanan =
+          data.containsKey('count_layanan') ? data['count_layanan'] : 0;
       urlPoto = data.containsKey('bio') ? data['bio']['foto'] : null;
       motto = data.containsKey('bio') ? data['bio']['status'] : null;
+      dataBio = data.containsKey('bio') ? (data['bio'] ?? {}) : {};
+    // print(dataBio);
     });
   }
 
@@ -139,9 +143,8 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
       LayananFrelencerModel.get({
         'limit': getRowProyek,
         'q': searchProyek,
-     
       }).then((v) {
-       setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
+        setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
         print(loadingPosisi);
         if (loadingPosisi == 0) {
           _refreshProyekController.refreshCompleted();
@@ -153,11 +156,10 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
           errorRespon(context, v.data);
         } else {
           setDataLayanan(v.data);
-        //disconect
+          //disconect
         }
       });
-    },
-        () {
+    }, () {
       setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
       if (loadingPosisi == 0) {
         _refreshProyekController.refreshCompleted();
@@ -184,11 +186,9 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
     GeneralModel.checCk(
         //connect
         () async {
-      ProyekOwnerModel.get({
-        'limit_proyek': getRowProyek,
-        'search_proyek': searchProyek,
-        'limit_pengerjaan': getRowPengerjaan,
-        'search_pengerjaan': searchPengerjaan,
+      LayananFrelencerModel.get({
+       'limit': getRowProyek,
+        'q': searchProyek,
       }).then((v) {
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
         print(loadingPosisi);
@@ -400,6 +400,7 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
                       refresh: _refreshPengerjaanController,
                       bottomKey: double.parse(bottom.toString()),
                       loading: loadingPengerjaan,
+                      bio:dataBio,
                       dataPengerjaan: dataPengerjaan,
                       paddingTop: paddingPhone.top,
                       paddingBottom: paddingPhone.bottom,
@@ -421,13 +422,14 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
                       image: _image,
                       jnsProyek: jnsProyek,
                       valueEdit: (Map dt) {
+                        print(dt);
                         setState(() {
                           kategoriSelect = dt['subkategori'];
                           judulController.text = dt['judul'];
                           deskripsiController.text = dt['deskripsi'];
-                          hargaController.text = dt['harga'];
-                          waktuController.text = dt['waktu_pengerjaan'];
-                          jnsProyek = dt['jenis'];
+                          hargaController.text = dt['harga'].toString();
+                          waktuController.text = dt['hari_pengerjaan'].toString();
+                          // jnsProyek = dt['jenis'];
                           thumbController.text = dt['thumbnail'] != null
                               ? dt['thumbnail'].split('/').last
                               : '';

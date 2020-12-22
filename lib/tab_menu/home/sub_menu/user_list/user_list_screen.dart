@@ -7,6 +7,7 @@ import 'package:undangi/Constant/search_box.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/tab_model.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
 
 import 'user_card_view.dart';
 
@@ -210,8 +211,16 @@ class _UserListScreenState extends State<UserListScreen> {
         if (z > 0) {
           dataChild.add(Padding(padding: EdgeInsets.only(left: 10)));
         }
-        dataChild.add(UserCardView(
-          data: data[k],
+        dataChild.add(InkWell(
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => TampianPublikScreen(
+                        id: data[k]['id'],
+                      ))),
+          child: UserCardView(
+            data: data[k],
+          ),
         ));
         z++;
       });
@@ -220,8 +229,16 @@ class _UserListScreenState extends State<UserListScreen> {
         if (z > 0) {
           dataChild.add(Padding(padding: EdgeInsets.only(left: 10)));
         }
-        dataChild.add(UserCardView(
-          data: v,
+        dataChild.add(InkWell(
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) => TampianPublikScreen(
+                        id: v['id'],
+                      ))),
+                  child: UserCardView(
+            data: v,
+          ),
         ));
         z++;
       });
