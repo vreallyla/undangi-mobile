@@ -51,3 +51,14 @@ decimalPointTwo(String value) {
 moreThan99(int val) {
   return val > 99 ? '99+' : val.toString();
 }
+
+setParams(Map res){
+  String params='?';
+
+    res.forEach((key, value) {
+      if(value!=null){
+        params=params+key+'='+value+'&';
+      }
+    });
+    return params.substring(0,params.length-1);
+}

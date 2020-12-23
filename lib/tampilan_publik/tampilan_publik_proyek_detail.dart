@@ -27,16 +27,15 @@ class TampilanPublikProyekDetail extends StatefulWidget {
   const TampilanPublikProyekDetail({
     Key key,
     this.id = 0,
-    this.sortHarga,
-    this.sortWaktu,
-    this.sortTask,
+    this.sortHarga = null,
+    this.sortWaktu = null,
+    this.sortTask = null,
   }) : super(key: key);
 
   final int id;
   final String sortHarga;
   final String sortWaktu;
   final String sortTask;
-
 }
 
 class _TampilanPublikProyekDetailState
@@ -253,11 +252,17 @@ class _TampilanPublikProyekDetailState
 
   // refresh user
   void _loadDataApi() async {
+
+    Map res={
+      'sort_harga':widget.sortHarga,
+      'sort_waktu':widget.sortWaktu,
+      'sort_task':widget.sortTask,
+    };
     GeneralModel.checCk(
         //connect
         () async {
       setLoading(true);
-      PublikModel.proyekDetail(widget.id == 0 ? '' : widget.id.toString())
+      PublikModel.proyekDetail(widget.id == 0 ? '' : widget.id.toString(),res)
           .then((v) {
         setLoading(false);
         if (v.error) {
@@ -274,6 +279,7 @@ class _TampilanPublikProyekDetailState
         Navigator.pop(context, false);
       });
     });
+  
   }
 
   setLoading(bool kond) {
@@ -302,6 +308,7 @@ class _TampilanPublikProyekDetailState
 
   @override
   void initState() {
+    print(widget.sortHarga);
     _loadDataApi();
     // TODO: implement initState
     super.initState();
@@ -348,24 +355,44 @@ class _TampilanPublikProyekDetailState
     return jumlah.containsKey(nama) ? (jumlah[nama] ?? 0) : 0;
   }
 
+  redirectAgain(String name, String value) {
+    String v = null;
+
+    setState(() {
+      if (value == 'asc') {
+        v = 'desc';
+      } else if (value == null) {
+        v = 'asc';
+      }
+    });
+
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => TampilanPublikProyekDetail(
+                  id: widget.id,
+                  sortHarga: 'sortHarga' == name ? v : widget.sortHarga,
+                  sortWaktu: 'sortWaktu' == name ? v : widget.sortWaktu,
+                  sortTask: 'sortTask' == name ? v : widget.sortTask,
+                )));
+  }
+
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
     final paddingPhone = MediaQuery.of(context).padding;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
 
-
-
-     changeSort( String val) {
+    changeSort(String val) {
       String res;
-     setState(() {
+      setState(() {
         if (val == 'asc') {
-        res = 'desc';
-      } else if (val == null) {
-        res = 'asc';
-      }
-     });
-      print(res+'asd');
+          res = 'desc';
+        } else if (val == 'null') {
+          res = 'asc';
+        }
+      });
+      print(res + 'asd');
 
       return res;
     }
@@ -400,7 +427,11 @@ class _TampilanPublikProyekDetailState
                       298 +
                       5 +
                       150,
-                  defaultPanelState: PanelState.CLOSED,
+                  defaultPanelState: widget.sortTask != null ||
+                          widget.sortHarga != null ||
+                          widget.sortWaktu != null
+                      ? PanelState.OPEN
+                      : PanelState.CLOSED,
                   header: Container(
                       width: sizeu.width,
                       child: Column(
@@ -473,16 +504,17 @@ class _TampilanPublikProyekDetailState
                                         ],
                                       ),
                                     ),
-                                    onSelected: (newValue) async{
+                                    onSelected: (newValue) async {
+                                  
                                       if (newValue == 0) {
-                                        changeSort(widget.sortHarga);
-                                       
+                                        redirectAgain(
+                                            'sortHarga', widget.sortHarga);
                                       } else if (newValue == 1) {
-                                        changeSort(widget.sortWaktu);
-
-                                       
+                                        redirectAgain(
+                                            'sortWaktu', widget.sortWaktu);
                                       } else {
-                                        changeSort(widget.sortTask);
+                                        redirectAgain(
+                                            'sortTask', widget.sortTask);
                                       }
                                     },
                                     itemBuilder: (context) => [
@@ -496,14 +528,16 @@ class _TampilanPublikProyekDetailState
                                                     child: Text("Harga")),
                                                 SizedBox(
                                                     width: 30,
-                                                    child: widget.sortHarga == 'null'
-                                                        ? FaIcon(widget.sortHarga ==
+                                                    child: widget.sortHarga ==
+                                                            null
+                                                        ? Container():FaIcon(widget
+                                                                    .sortHarga ==
                                                                 'desc'
                                                             ? FontAwesomeIcons
                                                                 .sortNumericUp
                                                             : FontAwesomeIcons
                                                                 .sortNumericDown)
-                                                        : Container())
+                                                        )
                                               ],
                                             )),
                                         value: 0,
@@ -518,14 +552,15 @@ class _TampilanPublikProyekDetailState
                                                     child: Text("Batas Waktu")),
                                                 SizedBox(
                                                     width: 30,
-                                                    child: widget.sortWaktu == 'null'
-                                                        ? FaIcon(widget.sortWaktu ==
+                                                    child: widget.sortWaktu ==
+                                                            null
+                                                        ? Container():FaIcon(widget
+                                                                    .sortWaktu ==
                                                                 'desc'
                                                             ? FontAwesomeIcons
                                                                 .sortNumericUp
                                                             : FontAwesomeIcons
-                                                                .sortNumericDown)
-                                                        : Container())
+                                                                .sortNumericDown))
                                               ],
                                             )),
                                         value: 1,
@@ -540,14 +575,15 @@ class _TampilanPublikProyekDetailState
                                                     child: Text("Task")),
                                                 SizedBox(
                                                     width: 30,
-                                                    child: widget.sortTask == 'null'
-                                                        ? FaIcon(widget.sortTask ==
+                                                    child: widget.sortTask ==
+                                                            null
+                                                        ? Container():FaIcon(widget
+                                                                    .sortTask ==
                                                                 'desc'
                                                             ? FontAwesomeIcons
                                                                 .sortAlphaUp
                                                             : FontAwesomeIcons
-                                                                .sortAlphaDown)
-                                                        : Container())
+                                                                .sortAlphaDown))
                                               ],
                                             )),
                                         value: 2,
@@ -572,7 +608,10 @@ class _TampilanPublikProyekDetailState
                                 itemCount: dataProyek['bid'].length,
                                 // itemExtent: 100.0,
                                 itemBuilder: (c, i) => cardBidder(
-                                    i: i, data: dataProyek['bid'][i]))
+                                    i: i, data: dataProyek['bid'][i],
+                                    itsMe:itsMe,
+                                    ),
+                                    )
                             : Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.only(
@@ -1147,13 +1186,13 @@ class _TampilanPublikProyekDetailState
     if (z % 1 == 0) {
       z = 0;
     }
-    if (i % 2 == 0) {
+    if (z % 2 == 0) {
       z = 1;
     }
-    if (i % 3 == 0) {
+    if (z % 3 == 0) {
       z = 2;
     }
-    if (i % 4 == 0) {
+    if (z % 4 == 0) {
       z = 3;
     }
 

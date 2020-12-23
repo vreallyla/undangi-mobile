@@ -314,10 +314,10 @@ class PublikModel {
     }
   }
 
-  static Future<PublikModel> proyekDetail(String id) async {
+  static Future<PublikModel> proyekDetail(String id,Map res) async {
     // final LocalStorage storage = new LocalStorage('auth');
-    String apiURL = globalBaseUrl + "public/proyek/" + id;
-
+    String apiURL = globalBaseUrl + "public/proyek/" + id+setParams(res);
+print(apiURL);
     await GeneralModel.token().then((value) {
       tokenFixed = value.res;
     });
