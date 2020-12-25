@@ -6,6 +6,8 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
+import 'package:undangi/tampilan_publik/helper/btn_option.dart';
+import 'package:undangi/tampilan_publik/helper/modal_pilih_proyek.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_layanan.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_portfolio.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_profil.dart';
@@ -30,6 +32,7 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
   Map jumlah = {};
   bool itsMe = true;
   bool loading = true;
+  List dataProyekAvail=[];
 
   setDataPublik(Map data) {
     setState(() {
@@ -42,6 +45,7 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
         'ulasan': data['jumlah_ulasan'],
       };
       itsMe = data['its_me'] ?? false;
+      dataProyekAvail = data['proyek_tersedia'] ?? [];
     });
   }
 
@@ -56,6 +60,8 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
         if (v.error) {
           errorRespon(context, v.data);
         } else {
+        print(v.data);
+
           setDataPublik(v.data);
         }
       });
@@ -245,7 +251,15 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          btnOp(),
+                          BtnOption(
+                            bottom:bottom,
+                            dataProyekAvail: dataProyekAvail,
+                            id:widget.id,
+                            itsMe: itsMe,
+                            loadAgain:(){
+                              _loadDataApi();
+                            }
+                          ),
 
                           //summary
                           Container(
@@ -304,15 +318,7 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
     final sizeu = MediaQuery.of(context).size;
     final paddingPhone = MediaQuery.of(context).padding;
     return Container(
-      height: (sizeu.height -
-              paddingPhone.top -
-              paddingPhone.bottom -
-              bottom -
-              298 +
-              5 -
-              20 -
-              55) /
-          4,
+      height: 90,
       width: double.infinity,
       margin: EdgeInsets.only(
         left: 20,
@@ -393,91 +399,5 @@ class _TampianPublikScreenState extends State<TampianPublikScreen> {
     );
   }
 
-  Widget btnOp() {
-    final sizeu = MediaQuery.of(context).size;
-
-    return Container(
-      padding: EdgeInsets.only(left: 8, right: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: (sizeu.width - 16) / 2,
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              width: 135,
-              child: RaisedButton(
-                color: itsMe ? Colors.grey[400] : AppTheme.biruLaut,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-                onPressed: () {
-                  if (!itsMe) {
-                    //jika undang
-                  } else {
-                    openAlertBox(context, 'Pemberitahuan!',
-                        'Tidak bisa mengundang akun anda sendiri!', 'OK', () {
-                      Navigator.pop(context);
-                    });
-                  }
-                },
-                child: Row(
-                  children: [
-                    Text(
-                      'UNDANG SAYA  ',
-                      style:
-                          TextStyle(color: AppTheme.nearlyWhite, fontSize: 12),
-                    ),
-                    FaIcon(
-                      FontAwesomeIcons.envelope,
-                      color: AppTheme.nearlyWhite,
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Container(
-            width: (sizeu.width - 16) / 2,
-            alignment: Alignment.centerRight,
-            // padding: EdgeInsets.only(right:10),
-            child: SizedBox(
-              width: 135,
-              child: RaisedButton(
-                color: itsMe ? Colors.grey[400] : AppTheme.biruLaut,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                ),
-                onPressed: () {
-                  if (!itsMe) {
-                    //jika undang
-                  } else {
-                    openAlertBox(context, 'Pemberitahuan!',
-                        'Tidak bisa memilih akun anda sendiri!', 'OK', () {
-                      Navigator.pop(context);
-                    });
-                  }
-                },
-                child: Row(
-                  children: [
-                    Text(
-                      '   PILIH SAYA     ',
-                      style:
-                          TextStyle(color: AppTheme.nearlyWhite, fontSize: 12),
-                    ),
-                    FaIcon(
-                      FontAwesomeIcons.paperPlane,
-                      color: AppTheme.nearlyWhite,
-                      size: 14,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
+  
 }

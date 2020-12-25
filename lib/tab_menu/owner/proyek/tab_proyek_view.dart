@@ -26,6 +26,8 @@ class TabProyekView extends StatefulWidget {
       {Key key,
       this.paddingTop,
       this.dataReresh,
+      this.waktuLoadRepeat,
+      this.pauseLoad,
       this.dataNext,
       this.refresh,
       this.paddingBottom,
@@ -60,6 +62,9 @@ class TabProyekView extends StatefulWidget {
   final Function dataReresh;
   final Function dataNext;
   final RefreshController refresh;
+
+  final Function(int waktu) waktuLoadRepeat;
+  final Function(bool pauseLoad) pauseLoad;
 
   final double bottomKey;
   final double paddingTop;
@@ -1150,7 +1155,7 @@ class _TabProyekViewState extends State<TabProyekView> {
       height: 30,
       margin: EdgeInsets.only(top: 3),
       width: sizeu.width,
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Container(
           child: icon,
           width: 40,
@@ -1424,6 +1429,8 @@ class _TabProyekViewState extends State<TabProyekView> {
                                     topLeft: Radius.circular(30.0),
                                     bottomLeft: Radius.circular(30.0),
                                   ), () {
+                                widget.waktuLoadRepeat(560);
+                                widget.pauseLoad(true);
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -1432,7 +1439,10 @@ class _TabProyekViewState extends State<TabProyekView> {
                                       id: data['id'],
                                     ),
                                   ),
-                                );
+                                ).then((value) {
+                                  widget.waktuLoadRepeat(3);
+                                  widget.pauseLoad(false);
+                                });
                               }, true),
                               btnTool(
                                   'assets/more_icon/file_alt.png',

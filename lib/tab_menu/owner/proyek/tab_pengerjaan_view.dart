@@ -8,11 +8,14 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/tab_menu/owner/proyek/sub/payment_proyek_screen.dart';
 
 class TabPengerjaanView extends StatefulWidget {
   const TabPengerjaanView({
     Key key,
     this.paddingTop,
+    this.waktuLoadRepeat,
+    this.pauseLoad,
     this.dataReresh,
     this.dataNext,
     this.refresh,
@@ -32,6 +35,9 @@ class TabPengerjaanView extends StatefulWidget {
   final Function toProgressFunc;
   final Function dataReresh;
   final Function dataNext;
+
+  final Function(int waktu) waktuLoadRepeat;
+  final Function(bool pauseLoad) pauseLoad;
 
   final bool toProgress;
   final bool loading;
@@ -405,6 +411,8 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                       // itemExtent: 100.0,
                       itemBuilder: (c, i) {
                         return TabPengerjaanCard(
+                            waktuLoadRepeat: (c) => widget.waktuLoadRepeat(c),
+                            pauseLoad: (c) => widget.pauseLoad(c),
                             marginLeftRight: marginLeftRight,
                             marginCard: marginCard,
                             changeProgress: () {
@@ -441,12 +449,16 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
     );
   }
 }
-int colorChange=0;
+
+int colorChange = 0;
+
 class TabPengerjaanCard extends StatelessWidget {
   const TabPengerjaanCard({
     Key key,
     this.data,
     this.index,
+    this.waktuLoadRepeat,
+    this.pauseLoad,
     this.marginLeftRight: 0,
     this.marginCard: 0,
     this.changeProgress,
@@ -460,6 +472,9 @@ class TabPengerjaanCard extends StatelessWidget {
   final int index;
   final Function() changeProgress;
   final Function(double st) starEvent;
+
+  final Function(int v) waktuLoadRepeat;
+  final Function(bool v) pauseLoad;
 
   final double star;
   transColor(i) {
@@ -626,7 +641,10 @@ class TabPengerjaanCard extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Menunggu Konfirmasi',
+                          data['pengerjaan'] != null
+                              ? (data['pengerjaan']['status'] ??
+                                  'belum diketahui')
+                              : 'belum diketahui',
                           style: TextStyle(
                             color: AppTheme.nearlyWhite,
                             fontSize: 12,
@@ -1019,7 +1037,21 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       btnTool('assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
-                        Navigator.pushNamed(context, '/owner_proyek_payment');
+                           
+                        waktuLoadRepeat(560);
+                        pauseLoad(true);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                PaymentProyekScreen(
+                              proyekId: data['id'],
+                            ),
+                          ),
+                        ).then((value) {
+                          waktuLoadRepeat(3);
+                          pauseLoad(false);
+                        });
                       }),
                     ]),
               ),
@@ -1386,8 +1418,6 @@ class TabPengerjaanCard extends StatelessWidget {
                     ],
                   ))
               : Container(),
-
-          
         ],
       ),
     );

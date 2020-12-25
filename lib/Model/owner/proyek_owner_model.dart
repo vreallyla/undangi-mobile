@@ -227,6 +227,8 @@ class ProyekOwnerModel {
     // final LocalStorage storage = new LocalStorage('auth');
     String apiURL = globalBaseUrl + "klien/proyek/" + id;
 
+    print(apiURL);
+
     await GeneralModel.token().then((value) {
       tokenFixed = value.res;
     });

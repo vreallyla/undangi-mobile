@@ -252,17 +252,16 @@ class _TampilanPublikProyekDetailState
 
   // refresh user
   void _loadDataApi() async {
-
-    Map res={
-      'sort_harga':widget.sortHarga,
-      'sort_waktu':widget.sortWaktu,
-      'sort_task':widget.sortTask,
+    Map res = {
+      'sort_harga': widget.sortHarga,
+      'sort_waktu': widget.sortWaktu,
+      'sort_task': widget.sortTask,
     };
     GeneralModel.checCk(
         //connect
         () async {
       setLoading(true);
-      PublikModel.proyekDetail(widget.id == 0 ? '' : widget.id.toString(),res)
+      PublikModel.proyekDetail(widget.id == 0 ? '' : widget.id.toString(), res)
           .then((v) {
         setLoading(false);
         if (v.error) {
@@ -279,7 +278,6 @@ class _TampilanPublikProyekDetailState
         Navigator.pop(context, false);
       });
     });
-  
   }
 
   setLoading(bool kond) {
@@ -505,7 +503,6 @@ class _TampilanPublikProyekDetailState
                                       ),
                                     ),
                                     onSelected: (newValue) async {
-                                  
                                       if (newValue == 0) {
                                         redirectAgain(
                                             'sortHarga', widget.sortHarga);
@@ -530,14 +527,14 @@ class _TampilanPublikProyekDetailState
                                                     width: 30,
                                                     child: widget.sortHarga ==
                                                             null
-                                                        ? Container():FaIcon(widget
+                                                        ? Container()
+                                                        : FaIcon(widget
                                                                     .sortHarga ==
                                                                 'desc'
                                                             ? FontAwesomeIcons
                                                                 .sortNumericUp
                                                             : FontAwesomeIcons
-                                                                .sortNumericDown)
-                                                        )
+                                                                .sortNumericDown))
                                               ],
                                             )),
                                         value: 0,
@@ -554,7 +551,8 @@ class _TampilanPublikProyekDetailState
                                                     width: 30,
                                                     child: widget.sortWaktu ==
                                                             null
-                                                        ? Container():FaIcon(widget
+                                                        ? Container()
+                                                        : FaIcon(widget
                                                                     .sortWaktu ==
                                                                 'desc'
                                                             ? FontAwesomeIcons
@@ -577,7 +575,8 @@ class _TampilanPublikProyekDetailState
                                                     width: 30,
                                                     child: widget.sortTask ==
                                                             null
-                                                        ? Container():FaIcon(widget
+                                                        ? Container()
+                                                        : FaIcon(widget
                                                                     .sortTask ==
                                                                 'desc'
                                                             ? FontAwesomeIcons
@@ -608,10 +607,15 @@ class _TampilanPublikProyekDetailState
                                 itemCount: dataProyek['bid'].length,
                                 // itemExtent: 100.0,
                                 itemBuilder: (c, i) => cardBidder(
-                                    i: i, data: dataProyek['bid'][i],
-                                    itsMe:itsMe,
-                                    ),
-                                    )
+                                  loadDataApi: () => _loadDataApi(),
+                                  bottom: bottom,
+                                  proyekId: widget.id,
+                                  other: {"nama": dataProyek['judul']},
+                                  i: i,
+                                  data: dataProyek['bid'][i],
+                                  itsMe: itsMe,
+                                ),
+                              )
                             : Container(
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.only(

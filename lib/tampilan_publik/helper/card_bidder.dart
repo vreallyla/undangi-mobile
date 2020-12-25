@@ -4,6 +4,7 @@ import 'package:icon_shadow/icon_shadow.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/tampilan_publik/helper/modal_accept_bid.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
 
 class cardBidder extends StatefulWidget {
@@ -12,13 +13,21 @@ class cardBidder extends StatefulWidget {
   const cardBidder({
     Key key,
     this.data,
+    this.proyekId,
+    this.loadDataApi,
+    this.bottom,
+    this.other,
     this.i = 0,
     this.itsMe: true,
   }) : super(key: key);
 
   final int i;
+  final int proyekId;
   final Map data;
   final bool itsMe;
+  final Function loadDataApi;
+  final double bottom;
+  final Map other;
 }
 
 class _cardBidderState extends State<cardBidder> {
@@ -215,45 +224,68 @@ class _cardBidderState extends State<cardBidder> {
             ),
           ),
         ),
-        !widget.itsMe?Container(): Container(
-          width: 80,
-          margin: EdgeInsets.only(left: sizeu.width - 80, top: 40),
-          alignment: Alignment.center,
-          padding: EdgeInsets.only(top: 5, bottom: 5),
-          decoration: BoxDecoration(
-              color: value['tolak'] != null
-                  ? (value['tolak'] == 0 ? AppTheme.bgChatBlue : Colors.red)
-                  : Colors.grey[600],
-              borderRadius: BorderRadius.circular(15)),
-          child: Text(
-            value['tolak']==null?'Menunggu Konfirmasi':(value['tolak']==0?'Diterima':'Ditolak'),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: AppTheme.nearlyWhite,
-                fontSize: 11,
-                fontWeight: FontWeight.w500),
-          ),
-        ),
-        widget.itsMe && value['tolak']==null
+        !widget.itsMe
+            ? Container()
+            : Container(
+                width: 80,
+                margin: EdgeInsets.only(left: sizeu.width - 80, top: 40),
+                alignment: Alignment.center,
+                padding: EdgeInsets.only(top: 5, bottom: 5),
+                decoration: BoxDecoration(
+                    color: value['tolak'] != null
+                        ? (value['tolak'] == 0
+                            ? AppTheme.bgChatBlue
+                            : Colors.red)
+                        : Colors.grey[600],
+                    borderRadius: BorderRadius.circular(15)),
+                child: Text(
+                  value['tolak'] == null
+                      ? 'Menunggu Konfirmasi'
+                      : (value['tolak'] == 0 ? 'Diterima' : 'Ditolak'),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: AppTheme.nearlyWhite,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+        widget.itsMe && value['tolak'] == null
             ? Container(
                 margin: EdgeInsets.only(
-                  left: sizeu.width - 40 - 10,
+                  left: sizeu.width - 40 -30,
                   top: 10,
                 ),
                 child: PopupMenuButton(
-                  child: SizedBox(
+                  child: Container(
+                    alignment: Alignment.center,
+                    // color: Colors.grey,
                       width: 30,
+                      height: 30,
                       child: FaIcon(
                         FontAwesomeIcons.ellipsisV,
                         size: 16,
                         color: Colors.grey[700],
                       )),
                   onSelected: (newValue) async {
-                    if (newValue == 0) {}
+                    if (newValue == 0) {
+                      print('bid');
+                      showDialog(
+                          barrierDismissible: false,
+                          context: context,
+                          builder: (BuildContext context) {
+                            return ModalAcceptBid(
+                              proyekId: widget.proyekId.toString(),
+                              userId: value['id'].toString(),
+                              loadAgain: () => widget.loadDataApi(),
+                              bottom: widget.bottom,
+                              other: {"nama":widget.other['nama'],"bidder":value['nama']},
+                            );
+                          });
+                    }
                   },
                   itemBuilder: (context) => [
                     PopupMenuItem(
-                      child: Text('Pilih Bidder'),
+                      child: Text('Terima Bidder'),
                       value: 0,
                     ),
                   ],

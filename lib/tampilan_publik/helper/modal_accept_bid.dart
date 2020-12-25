@@ -6,32 +6,29 @@ import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/html_read.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
+import 'package:undangi/tab_menu/owner/proyek/sub/payment_proyek_screen.dart';
 
-class ModalBid extends StatefulWidget {
+class ModalAcceptBid extends StatefulWidget {
   @override
-  _ModalBidState createState() => _ModalBidState();
+  _ModalAcceptBidState createState() => _ModalAcceptBidState();
 
-  const ModalBid(
+  const ModalAcceptBid(
       {Key key,
-      this.tawarHarga,
-      this.tawarWaktu,
-      this.tawarTask,
       this.proyekId,
+      this.userId,
       this.loadAgain,
       this.bottom,
       this.other})
       : super(key: key);
 
-  final String tawarHarga;
-  final String tawarWaktu;
-  final String tawarTask;
   final String proyekId;
+  final String userId;
   final Function loadAgain;
   final double bottom;
   final Map other;
 }
 
-class _ModalBidState extends State<ModalBid> {
+class _ModalAcceptBidState extends State<ModalAcceptBid> {
   InputDecoration textfieldDesign(String hint) {
     return InputDecoration(
       border: InputBorder.none,
@@ -43,9 +40,6 @@ class _ModalBidState extends State<ModalBid> {
     );
   }
 
-  TextEditingController tawarHarga = new TextEditingController();
-  TextEditingController tawarWaktu = new TextEditingController();
-  TextEditingController tawarTask = new TextEditingController();
   bool setujuAnggrement = false;
 
   Map error = {};
@@ -66,13 +60,11 @@ class _ModalBidState extends State<ModalBid> {
       onLoading(context);
 
       Map res = {
-        'negowaktu': tawarWaktu.text,
-        'negoharga': tawarHarga.text,
-        'task': tawarTask.text,
         'proyek_id': widget.proyekId,
+        'user_id': widget.userId,
         'aggrement': setujuAnggrement ? '1' : '0',
       };
-      PublikModel.bidProyek(res).then((v) async {
+      PublikModel.terimaBid(res).then((v) async {
         Navigator.pop(context);
         // print(v.data);
         if (v.error) {
@@ -88,8 +80,89 @@ class _ModalBidState extends State<ModalBid> {
           await widget.loadAgain();
 
           Future.delayed(Duration(microseconds: 500), () {
-            openAlertSuccessBoxGoon(
-                context, 'Berhasil!', 'Proyek berhasil dibid', 'OK');
+            Color myColor = AppTheme.primarymenu;
+
+            return showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    backgroundColor: Color(0xfff7f7f7),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(32.0))),
+                    contentPadding: EdgeInsets.only(top: 10.0),
+                    content: Container(
+                      width: 400.0,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Container(
+                              alignment: Alignment.topRight,
+                              padding: EdgeInsets.only(right: 20),
+                              child: InkWell(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: FaIcon(
+                                    FontAwesomeIcons.times,
+                                    color: AppTheme.geyCustom,
+                                    size: 16,
+                                  ))),
+                          Container(
+                            width: 80,
+                            height: 83,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: (AssetImage(
+                                    'assets/general/check_cicle.png')),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5.0,
+                          ),
+                          Text(
+                            "Berhasil",
+                            style: TextStyle(
+                                fontSize: 20, color: AppTheme.geySolidCustom),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            v.data['message'],
+                            style: TextStyle(
+                                fontSize: 14, color: AppTheme.geyCustom),
+                            textAlign: TextAlign.center,
+                          ),
+                          Container(
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.only(top: 15, bottom: 5),
+                            child: RaisedButton(
+                              color: myColor,
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            PaymentProyekScreen(
+                                              proyekId:
+                                                  int.parse(widget.proyekId),
+                                            )));
+                              },
+                              child: Text(
+                                'OK',
+                                style: TextStyle(
+                                  color: AppTheme.nearlyWhite,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                });
           });
         }
       });
@@ -106,11 +179,6 @@ class _ModalBidState extends State<ModalBid> {
 
   @override
   void initState() {
-    setState(() {
-      tawarHarga.text = widget.tawarHarga;
-      tawarWaktu.text = widget.tawarWaktu;
-      tawarTask.text = widget.tawarTask;
-    });
     super.initState();
   }
 
@@ -188,106 +256,12 @@ class _ModalBidState extends State<ModalBid> {
                     ]),
               ),
               Container(
-                height: 360 - bottom + (bottom > 0 ? 100 : 0),
+                height: 150 - bottom + (bottom > 0 ? 100 : 0),
                 child: ListView(
                   children: [
                     Padding(
-                      padding: EdgeInsets.fromLTRB(10, 20, 10, 5),
-                      child: Text('Tawar Harga'),
-                    ),
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                      ),
-                      margin: EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 1, color: AppTheme.geySolidCustom),
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        onChanged: (v) {
-                          print(bottom);
-                        },
-                        controller: tawarHarga,
-                        keyboardType: TextInputType.number,
-                        decoration: textfieldDesign('Masukkan Harga'),
-                        maxLength: 40,
-                      ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: noticeText('negoharga', error)),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
-                      child: Text('Waktu Pengerjaan'),
-                    ),
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                      ),
-                      margin: EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 1, color: AppTheme.geySolidCustom),
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        controller: tawarWaktu,
-                        keyboardType: TextInputType.number,
-                        decoration:
-                            textfieldDesign('Masukkan Waktu (Dihitung Hari)'),
-                        maxLength: 40,
-                      ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: noticeText('negowaktu', error)),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
-                      child: Text('Ajukan Lingkup Task Pengerjaan'),
-                    ),
-                    Container(
-                      height: 80,
-                      padding: EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                      ),
-                      margin: EdgeInsets.only(
-                        left: 10,
-                        right: 10,
-                        // bottom: ,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            width: 1, color: AppTheme.geySolidCustom),
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        controller: tawarTask,
-                        maxLines: 4,
-                        maxLength: 250,
-                        decoration: textfieldDesign('Masukkan Usulan Task'),
-                      ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: noticeText('task', error)),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
+                      padding:
+                          const EdgeInsets.only(left: 10, top: 10, bottom: 10),
                       child: Row(
                         children: [
                           SizedBox(
@@ -301,7 +275,13 @@ class _ModalBidState extends State<ModalBid> {
                               },
                             ),
                           ),
-                          Text(' Saya Setuju terkait'),
+                          InkWell(
+                              onTap: () {
+                                setState(() {
+                                  setujuAnggrement = !setujuAnggrement;
+                                });
+                              },
+                              child: Text(' Saya Setuju terkait ')),
                           InkWell(
                             onTap: () async {
                               String token = '';
@@ -315,7 +295,10 @@ class _ModalBidState extends State<ModalBid> {
                                           HtmlRead(
                                             url: globalBaseUrl +
                                                 'aggrement_proyek?name=' +
-                                                widget.other['nama']+'&token='+token,
+                                                widget.other['nama']
+                                                    .toString() +
+                                                '&token=' +
+                                                token,
                                           )));
                             },
                             child: Text(
@@ -352,14 +335,24 @@ class _ModalBidState extends State<ModalBid> {
                             child: RaisedButton(
                               onPressed: () {
                                 if (setujuAnggrement) {
-                                  _loadDataApi();
+                                  openAlertBoxTwo(
+                                      context,
+                                      'Peringatan!',
+                                      'Apakah Anda yakin akan membuat ${widget.other['bidder']} menjadi pekerja untuk tugas/proyek "tidak ada"? Anda tidak dapat mengembalikannya!',
+                                      'TIDAK',
+                                      'YA',
+                                      () => Navigator.pop(context), () {
+                                    Navigator.pop(context);
+
+                                    _loadDataApi();
+                                  });
                                 }
                               },
                               color: setujuAnggrement
                                   ? AppTheme.bgChatBlue
                                   : Colors.grey,
                               child: Text(
-                                'KIRIM',
+                                'TERIMA BID',
                                 style: TextStyle(color: AppTheme.nearlyWhite),
                               ),
                             ),

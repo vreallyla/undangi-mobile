@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -75,6 +76,10 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   File _image;
   String jnsProyek = 'publik';
 
+  bool stopLoad = false;
+  Timer loadMore;
+  int timerRepeat = 3;
+
   resetFormProyek() {
     setState(() {
       jnsProyek = 'publik';
@@ -132,44 +137,49 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
 
   // refresh user
   void _loadDataApi() async {
-    GeneralModel.checCk(
-        //connect
-        () async {
-      ProyekOwnerModel.get({
-        'limit_proyek': getRowProyek,
-        'search_proyek': searchProyek,
-        'limit_pengerjaan': getRowPengerjaan,
-        'search_pengerjaan': searchPengerjaan,
-      }).then((v) {
-        print('p' + (loadingPosisi == 2 || !tabChange ? 0 : 1).toString());
+    if (!stopLoad) {
+      GeneralModel.checCk(
+          //connect
+          () async {
+        ProyekOwnerModel.get({
+          'limit_proyek': getRowProyek,
+          'search_proyek': searchProyek,
+          'limit_pengerjaan': getRowPengerjaan,
+          'search_pengerjaan': searchPengerjaan,
+        }).then((v) {
+          // print('p' + (loadingPosisi == 2 || !tabChange ? 0 : 1).toString());
+          setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
+          // print(loadingPosisi);
+          if (loadingPosisi == 0) {
+            _refreshProyekController.refreshCompleted();
+          } else if (loadingPosisi == 1) {
+            _refreshPengerjaanController.refreshCompleted();
+          }
+
+          if (v.error) {
+            setState(() {
+              stopLoad = true;
+            });
+            errorRespon(context, v.data);
+          } else {
+            setDataProyek(v.data);
+          }
+        });
+      },
+          //disconect
+          () {
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
-        print(loadingPosisi);
         if (loadingPosisi == 0) {
           _refreshProyekController.refreshCompleted();
         } else if (loadingPosisi == 1) {
           _refreshPengerjaanController.refreshCompleted();
         }
 
-        if (v.error) {
-          errorRespon(context, v.data);
-        } else {
-          setDataProyek(v.data);
-        }
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          Navigator.pop(context, false);
+        });
       });
-    },
-        //disconect
-        () {
-      setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
-      if (loadingPosisi == 0) {
-        _refreshProyekController.refreshCompleted();
-      } else if (loadingPosisi == 1) {
-        _refreshPengerjaanController.refreshCompleted();
-      }
-
-      openAlertBox(context, noticeTitle, notice, konfirm1, () {
-        Navigator.pop(context, false);
-      });
-    });
+    }
   }
 
   // refresh user
@@ -192,7 +202,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
         'search_pengerjaan': searchPengerjaan,
       }).then((v) {
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
-        print(loadingPosisi);
+        // print(loadingPosisi);
         if (loadingPosisi == 0) {
           _refreshProyekController.loadComplete();
         } else if (loadingPosisi == 1) {
@@ -222,11 +232,21 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
   }
 
   @override
+  void dispose() {
+    loadMore?.cancel();
+    // TODO: implement dispose
+    super.dispose();
+  }
+
+  @override
   void initState() {
     setLoading(2, true);
     _loadDataApi();
 
     super.initState();
+    loadMore = Timer.periodic(Duration(seconds: timerRepeat), (Timer t) {
+      _loadDataApi();
+    });
   }
 
   @override
@@ -396,6 +416,16 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
               //tab proyek
               tabChange
                   ? TabPengerjaanView(
+                    waktuLoadRepeat: (int v) {
+                        setState(() {
+                          timerRepeat=v;
+                        });
+                      },
+                      pauseLoad: (bool e) {
+                        setState(() {
+                          stopLoad=e;
+                        });
+                      },
                       dataReresh: _loadDataApi,
                       dataNext: _nextDataApi,
                       refresh: _refreshPengerjaanController,
@@ -411,6 +441,16 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                         });
                       })
                   : TabProyekView(
+                      waktuLoadRepeat: (int v) {
+                        setState(() {
+                          timerRepeat=v;
+                        });
+                      },
+                      pauseLoad: (bool e) {
+                        setState(() {
+                          stopLoad=e;
+                        });
+                      },
                       judulController: judulController,
                       lampiran: lampiran,
                       thumbController: thumbController,
@@ -433,7 +473,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                               ? dt['thumbnail'].split('/').last
                               : '';
                         });
-                        print(dt);
+                        // print(dt);
                       },
 
                       //change value
@@ -457,7 +497,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                         });
                       },
                       changeLampiran: (List<File> v) {
-                        print(v);
+                        // print(v);
                         setState(() {
                           lampiran = v;
                         });
