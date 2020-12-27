@@ -1395,15 +1395,15 @@ class TabPengerjaanCard extends StatelessWidget {
                                                   .containsKey('ulasan') &&
                                               data['pengerjaan']['ulasan']
                                                   .containsKey(
-                                                      'ulasan_klienulasan_klien') &&
+                                                      'ulasan_klien') &&
                                               data['pengerjaan']['ulasan'][
-                                                          'ulasan_klienulasan_klien']
-                                                      ['bintang'] !=
+                                                          'ulasan_klien']
+                                                      ['deskripsi'] !=
                                                   null
                                           ? data['pengerjaan']['ulasan']
-                                                  ['ulasan_klien']['bintang']
+                                                  ['ulasan_klien']['deskripsi']
                                               .toString()
-                                              .toString()
+                                          
                                           : belumReview),
                                   style: TextStyle(
                                     fontSize: 15,

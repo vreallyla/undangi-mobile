@@ -114,6 +114,7 @@ class _cardBidderState extends State<cardBidder> {
                                       width: double.infinity,
                                       child: Text(
                                         value['nama'],
+                                        
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
@@ -137,7 +138,9 @@ class _cardBidderState extends State<cardBidder> {
                                             shadowColor: AppTheme.geyCustom,
                                           ),
                                           Text(
-                                            ' ' + value['bintang'].toString(),
+                                            ' ' 
+                                            + value['bintang'].toString()
+                                            ,
                                             style: TextStyle(
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w100),
@@ -151,14 +154,16 @@ class _cardBidderState extends State<cardBidder> {
                             ],
                           ),
                           Text(
-                            'Penawaran Harga : Rp' +
+                            'Penawaran Harga : Rp' 
+                            +
                                 pointGroup(int.parse(
-                                    value['negoharga'].toString() ?? '0')),
+                                    value['negoharga']!=null?value['negoharga'].toString() : '0')
+                                    ),
                           ),
                           Text(
                             'Waktu Pengerjaan : ' +
                                 pointGroup(int.parse(
-                                    value['negowaktu'].toString() ?? '0')) +
+                                    value['negowaktu']!=null?value['negowaktu'].toString() : '0')) +
                                 ' Hari',
                           )
                         ],
@@ -223,6 +228,7 @@ class _cardBidderState extends State<cardBidder> {
               ],
             ),
           ),
+       
         ),
         !widget.itsMe
             ? Container()

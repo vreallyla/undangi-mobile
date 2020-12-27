@@ -9,8 +9,8 @@ import 'package:undangi/Model/frelencer/proyek_frelencer_model.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_proyek_detail.dart';
 
-class ProyekListFrelenceTab extends StatefulWidget {
-  const ProyekListFrelenceTab({
+class UndanganListFrelenceTab extends StatefulWidget {
+  const UndanganListFrelenceTab({
     Key key,
     this.bottomKey = 0,
     this.reloadFunc,
@@ -27,36 +27,33 @@ class ProyekListFrelenceTab extends StatefulWidget {
 
   final RefreshController refresh;
 
-  final Function() refreshFunc;
   final Function() reloadFunc;
   final Function() nextData;
+  final Function() refreshFunc;
   @override
-  _ProyekListFrelenceTabState createState() => _ProyekListFrelenceTabState();
+  _UndanganListFrelenceTabState createState() =>
+      _UndanganListFrelenceTabState();
 }
 
-class _ProyekListFrelenceTabState extends State<ProyekListFrelenceTab> {
-  TextEditingController inputKategori = new TextEditingController();
-  TextEditingController inputJudul = new TextEditingController();
-
-   _deleteBid(String id) async {
-
-   
-
+class _UndanganListFrelenceTabState extends State<UndanganListFrelenceTab> {
+  _konfirmApi(String id, String konfirm) async {
     GeneralModel.checCk(
         //connect
         () async {
-          onLoading(context);
-    
-      ProyekFrelencerModel.deleteBid(id)
-          .then((v) {
+      onLoading(context);
+
+      Map res = {
+        "id": id,
+        "terima": konfirm,
+      };
+
+      ProyekFrelencerModel.konfirmInvite(res).then((v) {
         Navigator.pop(context);
 
         if (v.error) {
-        
-            errorRespon(context, v.data);
-          
+          errorRespon(context, v.data);
         } else {
-           widget.refreshFunc();
+          widget.refreshFunc();
         }
       });
     },
@@ -68,11 +65,8 @@ class _ProyekListFrelenceTabState extends State<ProyekListFrelenceTab> {
         Navigator.pop(context, false);
       });
     });
-  
   }
 
-
-  String jnsProyek = 'publik';
   @override
   Widget build(BuildContext context) {
     double marginLeftRight = 10;
@@ -141,14 +135,25 @@ class _ProyekListFrelenceTabState extends State<ProyekListFrelenceTab> {
                         // itemExtent: 100.0,
                         itemBuilder: (c, i) {
                           return ProyekCard(
-                            deleteBid: (String id, bool canDelete) {
-                              if (canDelete) {
-                                openAlertBoxTwo(context, 'Yakin Hapus Bid?', 'Data bid yang dipilih akan hilang!', 'TIDAK', 'YA', ()=>Navigator.pop(context), (){Navigator.pop(context);_deleteBid(id);});
+                            makeDealing: (String id, bool canApprove) {
+                              if (canApprove) {
+                                openAlertBoxTwo(
+                                    context,
+                                    'KONFIRMASI UNDANGAN',
+                                    'Apakah anda yakin menerima undangan proyek ini? ketika anda menekan tombol TERIMA maka anda tidak bisa mengembalikannya',
+                                    'TOLAK',
+                                    'TERIMA', () {
+                                  Navigator.pop(context);
+                                  _konfirmApi(id.toString(), '0');
+                                }, () {
+                                  Navigator.pop(context);
+                                  _konfirmApi(id.toString(), '1');
+                                });
                               } else {
                                 openAlertBox(
                                     context,
-                                    'Peringatan!',
-                                    'Proyek yang telah diterima tidak bisa dihapus!',
+                                    'Pemberitahuan!',
+                                    'Undangan yang telah disetujui tidak bisa diubah!',
                                     'OK',
                                     () => Navigator.pop(context));
                               }
@@ -166,14 +171,31 @@ class _ProyekListFrelenceTabState extends State<ProyekListFrelenceTab> {
 class ProyekCard extends StatelessWidget {
   const ProyekCard({
     Key key,
-    this.deleteBid,
+    this.makeDealing,
     this.data,
     this.index,
   }) : super(key: key);
 
-  final Function(String id, bool candelete) deleteBid;
+  final Function(String id, bool canApprove) makeDealing;
   final Map data;
   final int index;
+
+  transColor(i) {
+    int res = 0;
+    if ((i + 1) % 1 == 0) {
+      res = 0;
+    }
+    if ((i + 1) % 2 == 0) {
+      res = 1;
+    }
+    if ((i + 1) % 3 == 0) {
+      res = 2;
+    }
+    if ((i + 1) % 4 == 0) {
+      res = 3;
+    }
+    return res;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,23 +211,6 @@ class ProyekCard extends StatelessWidget {
 
     double widthKonten = widthCard - imgCard - widthBtnShort - 2;
 
-    transColor(i) {
-      int res = 0;
-      if ((i + 1) % 1 == 0) {
-        res = 0;
-      }
-      if ((i + 1) % 2 == 0) {
-        res = 1;
-      }
-      if ((i + 1) % 3 == 0) {
-        res = 2;
-      }
-      if ((i + 1) % 4 == 0) {
-        res = 3;
-      }
-      return res;
-    }
-
     return Container(
       // height: heightCard + 55,
       margin: EdgeInsets.only(
@@ -213,7 +218,7 @@ class ProyekCard extends StatelessWidget {
       ),
       padding: EdgeInsets.all(paddingCard),
       decoration: BoxDecoration(
-        color: AppTheme.renoReno[transColor(index + 1)],
+        color: AppTheme.renoReno[transColor(index)],
         borderRadius: BorderRadius.circular(15),
       ),
       child: Row(
@@ -221,40 +226,37 @@ class ProyekCard extends StatelessWidget {
         children: [
           //row image
           Container(
-            height: imgCard,
-            width: imgCard,
-            margin: EdgeInsets.only(top: 5),
-            decoration: BoxDecoration(
-              boxShadow: [
-                //background color of box
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 4, // soften the shadow
-                  spreadRadius: 1, //extend the shadow
-                  offset: Offset(
-                    .5, // Move to right 10  horizontally
-                    3, // Move to bottom 10 Vertically
+              height: imgCard,
+              width: imgCard,
+              margin: EdgeInsets.only(top: 5),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  //background color of box
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4, // soften the shadow
+                    spreadRadius: 1, //extend the shadow
+                    offset: Offset(
+                      .5, // Move to right 10  horizontally
+                      3, // Move to bottom 10 Vertically
+                    ),
                   ),
-                ),
-              ],
-            ),
-            child: imageLoad(data['thumbnail'], false, imgCard, imgCard),
-          ),
+                ],
+              ),
+              child: imageLoad(data['thumbnail'], false, imgCard, imgCard)),
 
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: widthKonten - 10,
+              Padding(
                 padding: EdgeInsets.only(left: 5),
                 child: Text(
-                  data['judul'] ?? tanpaNama,
+                  data['judul'] ?? unknown,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     fontSize: 18,
                     color: AppTheme.primarymenu,
                   ),
-                  maxLines: 2,
                 ),
               ),
               Row(
@@ -282,7 +284,7 @@ class ProyekCard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "KATEGORI ${data['kategori'] != null ? (data['kategori']['nama'] ?? unknown) : unknown}:",
+                          'KATEGORI ${data['kategori'] != null ? (data['kategori']['nama'] ?? unknown) : unknown}:',
                           style: TextStyle(
                             fontSize: 12,
                           ),
@@ -320,7 +322,6 @@ class ProyekCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             btnTool(
-                                true,
                                 'assets/more_icon/info.png',
                                 BorderRadius.only(
                                   topLeft: Radius.circular(30.0),
@@ -336,15 +337,35 @@ class ProyekCard extends StatelessWidget {
                                 ),
                               );
                             }),
-                            btnTool(
-                                data['deleteable'] == 1 ? true : false,
-                                'assets/more_icon/remove-file.png',
-                                BorderRadius.only(
-                                  topRight: Radius.circular(30.0),
-                                  bottomRight: Radius.circular(30.0),
+                            InkWell(
+                              onTap: () {
+                                makeDealing(data['id'].toString(),
+                                    data['approveable'] == 1);
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 30,
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: data['approveable'] == 1
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.4),
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(30.0),
+                                    bottomRight: Radius.circular(30.0),
+                                  ),
+                                  border: Border.all(
+                                    width: .5,
+                                    color: AppTheme.nearlyBlack,
+                                  ),
                                 ),
-                                () => deleteBid(
-                                    data['id'].toString(), (data['deleteable'] == 1))),
+                                child: FaIcon(
+                                  FontAwesomeIcons.handshake,
+                                  size: 16,
+                                ),
+                              ),
+                            )
                           ],
                         ),
                         Padding(
@@ -354,7 +375,7 @@ class ProyekCard extends StatelessWidget {
                           decoration: BoxDecoration(
                               color: AppTheme.bgChatBlue,
                               borderRadius: BorderRadius.circular(10)),
-                          padding: EdgeInsets.fromLTRB(8, 8, 8, 8),
+                          padding: EdgeInsets.fromLTRB(8, 5, 8, 5),
                           child: Text(
                             data['status'] ?? unknown,
                             style: TextStyle(
@@ -376,7 +397,7 @@ class ProyekCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    moreThan99(data['jumlah_bid'] ?? 0) + ' ORANG  ',
+                    moreThan99(data['jumlah_bid']) + ' ORANG  ',
                     style: TextStyle(
                       fontSize: 11,
                       color: AppTheme.primarymenu,
@@ -413,7 +434,7 @@ class ProyekCard extends StatelessWidget {
   }
 
   Widget btnTool(
-      bool bg, String locationImg, BorderRadius radius, Function linkRedirect) {
+      String locationImg, BorderRadius radius, Function linkRedirect) {
     return InkWell(
       onTap: () {
         linkRedirect();
@@ -423,7 +444,7 @@ class ProyekCard extends StatelessWidget {
         height: 30,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: bg ? Colors.white : Colors.white.withOpacity(.4),
+          color: Colors.white,
           borderRadius: radius,
           border: Border.all(
             width: .5,

@@ -28,6 +28,7 @@ const String titleHapus = 'Yakin Hapus?';
 const String subHapus = 'Data akan hilang....';
 const String tanpaNama = 'Anonymous';
 const String belumReview = '(Belum direview)';
+const String kontenkosong = '(Belum diisi)';
 
 //WAKTU
 const waktuDaerah=' WIB';

@@ -1038,24 +1038,29 @@ class _TabLayananViewState extends State<TabLayananView> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            width: 80,
-                            height: 30,
-                            margin: EdgeInsets.only(bottom: 5),
-                            padding: EdgeInsets.fromLTRB(5, 7, 5, 5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(
-                                  width: .5,
-                                  color: AppTheme.nearlyBlack,
-                                ),
-                                color: (true
-                                    ? Colors.white
-                                    : AppTheme.geySoftCustom.withOpacity(.3))),
-                            child: Image.asset(
-                              'assets/more_icon/info.png',
-                              alignment: Alignment.center,
-                              // scale: 6,
+                          InkWell(
+                            onTap: (){
+                              //TODO:: LINK KE TAMPILAN PUBLIK LAYANAN
+                            },
+                                                      child: Container(
+                              width: 80,
+                              height: 30,
+                              margin: EdgeInsets.only(bottom: 5),
+                              padding: EdgeInsets.fromLTRB(5, 7, 5, 5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                  border: Border.all(
+                                    width: .5,
+                                    color: AppTheme.nearlyBlack,
+                                  ),
+                                  color: (true
+                                      ? Colors.white
+                                      : AppTheme.geySoftCustom.withOpacity(.3))),
+                              child: Image.asset(
+                                'assets/more_icon/info.png',
+                                alignment: Alignment.center,
+                                // scale: 6,
+                              ),
                             ),
                           ),
                           Row(
