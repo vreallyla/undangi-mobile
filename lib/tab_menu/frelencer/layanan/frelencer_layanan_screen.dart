@@ -265,7 +265,7 @@ class _FrelencerLayananScreenState extends State<FrelencerLayananScreen> {
                   // width: sizeu.width - 50 - 40,
                   child: Text(
                     motto ?? '',
-                    maxLines: 2,
+                    maxLines: 1,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppTheme.geyCustom,

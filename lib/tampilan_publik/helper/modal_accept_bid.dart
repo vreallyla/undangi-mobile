@@ -124,7 +124,7 @@ class _ModalAcceptBidState extends State<ModalAcceptBid> {
                             height: 5.0,
                           ),
                           Text(
-                            "Berhasil",
+                            "Berhasil!",
                             style: TextStyle(
                                 fontSize: 20, color: AppTheme.geySolidCustom),
                             textAlign: TextAlign.center,
@@ -141,6 +141,7 @@ class _ModalAcceptBidState extends State<ModalAcceptBid> {
                             child: RaisedButton(
                               color: myColor,
                               onPressed: () {
+                                Navigator.pop(context);
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(

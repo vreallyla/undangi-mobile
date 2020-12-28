@@ -7,6 +7,7 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Model/owner/layanan_owner_model.dart';
 import 'package:undangi/Model/owner/proyek_owner_model.dart';
 
 import 'tab_layanan_pengerjaan_view.dart';
@@ -18,7 +19,7 @@ class OwnerLayananScreen extends StatefulWidget {
 }
 
 class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
-  bool tabChange = false; //false=proyek;true=pengerjaan
+  bool tabChange = true; //false=proyek;true=pengerjaan
 
   //ganti konten tab pengerjaan ke progress ketika ditekan button progress
   bool toProgress = false;
@@ -29,7 +30,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   //var load handle
   bool loadingProyek = false;
   bool loadingPengerjaan = false;
-  int loadingPosisi = 2;
+  int loadingPosisi = 1;
 
   //params get
   int getRowProyek = 20;
@@ -40,10 +41,8 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   int plusRowPengerjaan = 20;
   int plusRowProyek = 20;
 
-  //EDIT ID TRIGGER
-  int editId = 0;
-
   String urlPoto;
+  int idUser;
   String motto;
   List dataProyek = [];
   List dataPengerjaan = [];
@@ -51,48 +50,12 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   int jmlhPengerjaan = 0;
 
   //refesh controller
-  RefreshController _refreshProyekController = RefreshController();
+  // RefreshController _refreshProyekController = RefreshController();
   RefreshController _refreshPengerjaanController = RefreshController();
 
   TextEditingController searchController = TextEditingController();
 
-  TextEditingController judulController = new TextEditingController();
-  List<File> lampiran = <File>[];
-
-  TextEditingController thumbController = new TextEditingController();
-  TextEditingController lampiranController = new TextEditingController();
-
-  TextEditingController waktuController = new TextEditingController();
-  TextEditingController hargaController = new TextEditingController();
-
-  TextEditingController deskripsiController = new TextEditingController();
-
-  Map kategoriSelect = {
-    "id": '',
-    "nama": '',
-  };
-
-  File _image;
-  String jnsProyek = 'publik';
-
-  resetFormProyek() {
-    setState(() {
-      jnsProyek = 'publik';
-      _image = null;
-      kategoriSelect = {
-        "id": '',
-        "nama": '',
-      };
-      judulController = new TextEditingController();
-      thumbController = new TextEditingController();
-      lampiranController = new TextEditingController();
-      waktuController = new TextEditingController();
-      hargaController = new TextEditingController();
-      deskripsiController = new TextEditingController();
-      lampiran = <File>[];
-    });
-  }
-
+ 
   //0=proyek;1=pengerjaan;2=dua2nya
   void setLoading(int order, bool kond) {
     // order = kond ? order : loadingPosisi;
@@ -112,14 +75,17 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   //set data proyek & pengerjaan
   setDataProyek(Map data) {
     setState(() {
-      dataProyek = data.containsKey('proyek') ? data['proyek'] : [];
-      dataPengerjaan = data.containsKey('Pengerjaan') ? data['Pengerjaan'] : [];
+     
+      dataPengerjaan = data.containsKey('pengerjaan') ? data['pengerjaan'] : [];
       jmlhPengerjaan =
-          data.containsKey('Pengerjaan_count') ? data['Pengerjaan_count'] : 0;
-      jmlhProyek = data.containsKey('proyek_count') ? data['proyek_count'] : 0;
-      urlPoto = data.containsKey('bio') ? data['bio']['foto'] : null;
-      motto = data.containsKey('bio') ? data['bio']['status'] : null;
+          data.containsKey('count_pengerjaan') ? data['count_pengerjaan'] : 0;
+      urlPoto = data['bio']!=null ? data['bio']['foto'] : null;
+      motto = data['bio']!=null ? data['bio']['status'] : null;
+      idUser = data['bio']!=null ? data['bio']['id'] : null;
+      
     });
+
+    print(dataPengerjaan);
   }
 
   void chageTab(bool kond) {
@@ -135,17 +101,16 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
     GeneralModel.checCk(
         //connect
         () async {
-      ProyekOwnerModel.get({
-        'limit_proyek': getRowProyek,
-        'search_proyek': searchProyek,
-        'limit_pengerjaan': getRowPengerjaan,
-        'search_pengerjaan': searchPengerjaan,
+      LayananOwnerModel.get({
+        //limit remove
+        // 'limit_proyek': getRowProyek,
+        'q': searchController.text,
       }).then((v) {
-        print('p' + (loadingPosisi == 2 || !tabChange ? 0 : 1).toString());
+     
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
-        print(loadingPosisi);
+        
         if (loadingPosisi == 0) {
-          _refreshProyekController.refreshCompleted();
+          // _refreshProyekController.refreshCompleted();
         } else if (loadingPosisi == 1) {
           _refreshPengerjaanController.refreshCompleted();
         }
@@ -161,7 +126,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
         () {
       setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
       if (loadingPosisi == 0) {
-        _refreshProyekController.refreshCompleted();
+        // _refreshProyekController.refreshCompleted();
       } else if (loadingPosisi == 1) {
         _refreshPengerjaanController.refreshCompleted();
       }
@@ -185,16 +150,17 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
     GeneralModel.checCk(
         //connect
         () async {
-      ProyekOwnerModel.get({
-        'limit_proyek': getRowProyek,
-        'search_proyek': searchProyek,
-        'limit_pengerjaan': getRowPengerjaan,
-        'search_pengerjaan': searchPengerjaan,
+      LayananOwnerModel.get({
+        // 'limit_proyek': getRowProyek,
+        // 'search_proyek': searchProyek,
+        // 'limit_pengerjaan': getRowPengerjaan,
+        // 'search_pengerjaan': searchPengerjaan,
+         'q': searchController.text,
       }).then((v) {
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
         print(loadingPosisi);
         if (loadingPosisi == 0) {
-          _refreshProyekController.loadComplete();
+          // _refreshProyekController.loadComplete();
         } else if (loadingPosisi == 1) {
           _refreshPengerjaanController.loadComplete();
         }
@@ -210,7 +176,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
         () {
       setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
       if (loadingPosisi == 0) {
-        _refreshProyekController.loadComplete();
+        // _refreshProyekController.loadComplete();
       } else if (loadingPosisi == 1) {
         _refreshPengerjaanController.loadComplete();
       }
@@ -223,7 +189,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
 
   @override
   void initState() {
-    setLoading(2, true);
+    setLoading(1, true);
     _loadDataApi();
 
     super.initState();
@@ -266,7 +232,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                   // width: sizeu.width - 50 - 40,
                   child: Text(
                     motto ?? '',
-                    maxLines: 2,
+                    maxLines: 1,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: AppTheme.geyCustom,
@@ -278,7 +244,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
               ),
 
               // tab,
-              tabHead(),
+              // tabHead(),
 
               //tool
               Container(
@@ -298,12 +264,10 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                         child: InkWell(
                           onTap: () {
                             if (!toAdd) {
-                              resetFormProyek();
+                              //TODO REDIRECT TO LAYANAN
+                              Navigator.pushNamed(context, '/layanan_list');
                             }
-                            setState(() {
-                              toAdd = true;
-                              tabChange = false;
-                            });
+                           
                           },
                           child: Container(
                               width: 100,
@@ -394,8 +358,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                   )),
 
               //tab proyek
-              tabChange
-                  ? TabLayananPengerjaanView(
+              TabLayananPengerjaanView(
                       dataReresh: _loadDataApi,
                       dataNext: _nextDataApi,
                       refresh: _refreshPengerjaanController,
@@ -405,93 +368,15 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                       paddingTop: paddingPhone.top,
                       paddingBottom: paddingPhone.bottom,
                       toProgress: toProgress,
+                      loadAgain:(){
+                        setLoading(1, true);
+                        _loadDataApi();
+                      },
                       toProgressFunc: () {
                         setState(() {
                           toProgress = !toProgress;
                         });
                       })
-                  : TabLayananView(
-                      judulController: judulController,
-                      lampiran: lampiran,
-                      thumbController: thumbController,
-                      lampiranController: lampiranController,
-                      waktuController: waktuController,
-                      hargaController: hargaController,
-                      deskripsiController: deskripsiController,
-                      kategoriSelect: kategoriSelect,
-                      image: _image,
-                      jnsProyek: jnsProyek,
-                      valueEdit: (Map dt) {
-                        setState(() {
-                          kategoriSelect = dt['subkategori'];
-                          judulController.text = dt['judul'];
-                          deskripsiController.text = dt['deskripsi'];
-                          hargaController.text = dt['harga'];
-                          waktuController.text = dt['waktu_pengerjaan'];
-                          jnsProyek = dt['jenis'];
-                          thumbController.text = dt['thumbnail'] != null
-                              ? dt['thumbnail'].split('/').last
-                              : '';
-                        });
-                        print(dt);
-                      },
-
-                      //change value
-                      changeKategori: (Map v) {
-                        setState(() {
-                          kategoriSelect = v;
-                        });
-                      },
-                      changeImg: (File v) {
-                        setState(() {
-                          _image = v;
-                        });
-                      },
-                      reloadGetApi: () {
-                        setLoading(0, true);
-                        _loadDataApi();
-                      },
-                      changeThumb: (String v) {
-                        setState(() {
-                          thumbController.text = v;
-                        });
-                      },
-                      changeLampiran: (List<File> v) {
-                        print(v);
-                        setState(() {
-                          lampiran = v;
-                        });
-                      },
-                      changeLampiranText: (String v) {
-                        setState(() {
-                          lampiranController.text = v;
-                        });
-                      },
-                      changeJenis: (String v) {
-                        setState(() {
-                          jnsProyek = v;
-                        });
-                      },
-                      dataReresh: _loadDataApi,
-                      dataNext: _nextDataApi,
-                      refresh: _refreshProyekController,
-                      dataProyek: dataProyek,
-                      loading: loadingProyek,
-                      bottomKey: double.parse(bottom.toString()),
-                      paddingTop: paddingPhone.top,
-                      paddingBottom: paddingPhone.bottom,
-                      toAdd: toAdd,
-                      editId: editId,
-                      editEvent: (int id) {
-                        resetFormProyek();
-                        editId = id;
-                        setState(() {});
-                      },
-                      toAddFunc: () {
-                        setState(() {
-                          toAdd = !toAdd;
-                        });
-                      }),
             ],
           )),
         ),
@@ -568,7 +453,7 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
     ///proyek
     else if (!tabChange && toAdd) {
       toAdd = !toAdd;
-      editId = 0;
+ 
     } else {
       Navigator.pop(context);
     }

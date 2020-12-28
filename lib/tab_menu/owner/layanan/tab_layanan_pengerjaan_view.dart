@@ -8,6 +8,10 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Model/owner/layanan_owner_model.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_layanan_detail.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
 
 class TabLayananPengerjaanView extends StatefulWidget {
   const TabLayananPengerjaanView({
@@ -21,6 +25,7 @@ class TabLayananPengerjaanView extends StatefulWidget {
     this.loading,
     this.bottomKey = 0,
     this.toProgress,
+    this.loadAgain,
     this.toProgressFunc,
   }) : super(key: key);
 
@@ -32,11 +37,13 @@ class TabLayananPengerjaanView extends StatefulWidget {
   final Function toProgressFunc;
   final Function dataReresh;
   final Function dataNext;
+  final Function loadAgain;
 
   final bool toProgress;
   final bool loading;
   @override
-  _TabLayananPengerjaanViewState createState() => _TabLayananPengerjaanViewState();
+  _TabLayananPengerjaanViewState createState() =>
+      _TabLayananPengerjaanViewState();
 }
 
 class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
@@ -47,6 +54,33 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
   double star = 0;
 
   int colorChange = 0;
+
+  _deleteApi(String id) async {
+    onLoading(context);
+
+    GeneralModel.checCk(
+        //connect
+        () async {
+      // setErrorNotif({});
+      LayananOwnerModel.hapusLayanan(id).then((v) {
+        Navigator.pop(context);
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          widget.loadAgain();
+        }
+      });
+    },
+        //disconect
+        () {
+      Navigator.pop(context);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +101,8 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
                       310 -
                       widget.bottomKey -
                       widget.paddingBottom -
-                      widget.paddingTop,
+                      widget.paddingTop +
+                      50,
                   child: ListView(
                     children: [
                       progressScreen(marginLeftRight, marginCard, _width)
@@ -363,7 +398,8 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
           310 -
           widget.bottomKey -
           widget.paddingBottom -
-          widget.paddingTop,
+          widget.paddingTop +
+          50,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
@@ -410,6 +446,9 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
                             changeProgress: () {
                               changeToProgress();
                             },
+                            deleteApi: (id) {
+                              _deleteApi(id);
+                            },
                             star: star,
                             data: widget.dataPengerjaan[i],
                             index: i,
@@ -441,7 +480,9 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
     );
   }
 }
-int colorChange=0;
+
+int colorChange = 0;
+
 class TabPengerjaanCard extends StatelessWidget {
   const TabPengerjaanCard({
     Key key,
@@ -452,6 +493,7 @@ class TabPengerjaanCard extends StatelessWidget {
     this.changeProgress,
     this.star,
     this.starEvent,
+    this.deleteApi,
   }) : super(key: key);
 
   final double marginLeftRight;
@@ -460,6 +502,7 @@ class TabPengerjaanCard extends StatelessWidget {
   final int index;
   final Function() changeProgress;
   final Function(double st) starEvent;
+  final Function(String id) deleteApi;
 
   final double star;
   transColor(i) {
@@ -514,175 +557,254 @@ class TabPengerjaanCard extends StatelessWidget {
     double widthKonten = widthCard - imgCard - widthBtnShort - 2;
 
     return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //row image
-              Container(
-                height: imgCard,
-                width: imgCard,
-                margin: EdgeInsets.only(top: 5),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    //background color of box
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4, // soften the shadow
-                      spreadRadius: 1, //extend the shadow
-                      offset: Offset(
-                        .5, // Move to right 10  horizontally
-                        3, // Move to bottom 10 Vertically
+      child: InkWell(
+        onTap: () {},
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //row image
+                Container(
+                  height: imgCard,
+                  width: imgCard,
+                  margin: EdgeInsets.only(top: 5),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      //background color of box
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 4, // soften the shadow
+                        spreadRadius: 1, //extend the shadow
+                        offset: Offset(
+                          .5, // Move to right 10  horizontally
+                          3, // Move to bottom 10 Vertically
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: imageLoad(
+                      data['layanan'] != null &&
+                              data['layanan']['thumbnail'] != null
+                          ? data['layanan']['thumbnail']
+                          : null,
+                      false,
+                      imgCard,
+                      imgCard),
                 ),
-                child: imageLoad(data['thumbnail'], false, imgCard, imgCard),
-              ),
-              //kontent
-              Container(
-                width: widthKonten,
-                height: heightCard,
-                padding: EdgeInsets.only(
-                  left: 5,
-                  right: 5,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 1),
-                      child: Text(
-                        data['judul'] ?? empty,
+                //kontent
+                Container(
+                  width: widthKonten,
+                  // height: heightCard,
+                  padding: EdgeInsets.only(
+                    left: 5,
+                    right: 5,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 1),
+                        child: Text(
+                          data['layanan'] != null &&
+                                  data['layanan']['judul'] != null
+                              ? data['layanan']['judul']
+                              : empty,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            color: AppTheme.primarymenu,
+                          ),
+                          maxLines: 2,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(bottom: 5),
+                        child: Text(
+                          'Rp' +
+                              decimalPointTwo(data['layanan'] != null &&
+                                      data['layanan']['kategori'] != null
+                                  ? (data['layanan']['harga'] != null
+                                      ? data['layanan']['harga']
+                                      : 0)
+                                  : 0),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 0),
+                        child: Text(
+                          'KATEGORI ' +
+                              (data['layanan'] != null &&
+                                      data['layanan']['kategori'] != null
+                                  ? data['layanan']['kategori']['nama']
+                                  : unknown) +
+                              ":",
+                          style: TextStyle(
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      Text(
+                        data['layanan'] != null &&
+                                data['layanan']['subkategori'] != null
+                            ? data['layanan']['subkategori']['nama']
+                            : unknown,
                         style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
                           color: AppTheme.primarymenu,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 5),
-                      child: Text(
-                        'Rp' + decimalPointTwo(data['harga'].toString()),
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 0),
-                      child: Text(
-                        'KATEGORI ' +
-                            (data.containsKey('kategori')
-                                ? data['kategori']['nama']
-                                : unknown) +
-                            ":",
-                        style: TextStyle(
                           fontSize: 12,
                         ),
                       ),
-                    ),
-                    Text(
-                      data.containsKey('subkategori')
-                          ? data['subkategori']['nama']
-                          : 'sub ' + unknown,
-                      style: TextStyle(
-                        color: AppTheme.primarymenu,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              //btn
-              Container(
-                width: widthBtnShort,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    btnTool('assets/more_icon/progress_bar.png',
-                        BorderRadius.circular(30.0), widthBtnShort - 15, () {
-                      changeProgress();
-                    }),
-                    InkWell(
-                      onTap: () {
-                        openAlertBox(
-                            context,
-                            'APAKAH ANDA YAKIN?',
-                            'Untuk menyelesaikan PEKERJAAN ini',
-                            'KONFIRMASI', () {
-                          Navigator.pop(context);
-                        });
-                      },
-                      child: Container(
-                        margin: EdgeInsets.only(top: 20),
-                        decoration: BoxDecoration(
-                          color: AppTheme.primarymenu,
-                          borderRadius: BorderRadius.circular(40),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Menunggu Konfirmasi',
-                          style: TextStyle(
-                            color: AppTheme.nearlyWhite,
-                            fontSize: 12,
+                //btn
+                Container(
+                  width: widthBtnShort,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          btnTool(
+                            true,
+                              'assets/more_icon/info.png',
+                              BorderRadius.only(
+                                topLeft: Radius.circular(30),
+                                bottomLeft: Radius.circular(30),
+                              ),
+                              (widthBtnShort - 15) / 2, () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        TampilanPublikLayananDetail(
+                                          id: data['layanan']['id'],
+                                        )));
+                          }),
+                          btnTool(
+                            data['deleteable']==1,
+                              'assets/more_icon/remove-file.png',
+                              BorderRadius.only(
+                                topRight: Radius.circular(30),
+                                bottomRight: Radius.circular(30),
+                              ),
+                              (widthBtnShort - 15) / 2, () {
+                            if (data['deleteable'] == 1) {
+                              openAlertBoxTwo(
+                                context,
+                                'KONFIRMASI HAPUS PROYEK',
+                                'Apa anda yakin hapus proyek ini? Proyek akan hilang!',
+                                'TIDAK',
+                                'HAPUS',
+                                () {
+                                  Navigator.pop(context);
+                                },
+                                () {
+                                  Navigator.pop(context);
+
+                                  deleteApi(data['id'].toString());
+                                },
+                              );
+                            } else {
+                              openAlertBox(
+                                  context,
+                                  'Layanan sedang dikerjakan!',
+                                  'Layanan tidak bisa dihapus...',
+                                  'OK', () {
+                                Navigator.pop(context);
+                              });
+                            }
+                          }),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: () {
+                          // openAlertBox(
+                          //     context,
+                          //     'APAKAH ANDA YAKIN?',
+                          //     'Untuk menyelesaikan PEKERJAAN ini',
+                          //     'KONFIRMASI', () {
+                          //   Navigator.pop(context);
+                          // });
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(top: 20),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primarymenu,
+                            borderRadius: BorderRadius.circular(40),
                           ),
-                          textAlign: TextAlign.center,
+                          alignment: Alignment.center,
+                          child: Text(
+                            data['status'] ?? unknown,
+                            style: TextStyle(
+                              color: AppTheme.nearlyWhite,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          //informasi
-          Container(
-            margin: EdgeInsets.only(left: imgCard + 5),
-            child: Row(
-              children: [
-                Text(
-                  'TOTAL BID: ',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                Text(
-                  moreThan99((data['total_bid'] ?? 0)) + ' ORANG  ',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: AppTheme.primarymenu,
-                  ),
-                ),
-                Image.asset(
-                  'assets/more_icon/calender.png',
-                  width: 15,
-                  fit: BoxFit.fitWidth,
-                ),
-                Text(
-                  ' Batas Waktu: ',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                Text(
-                  pointGroup(
-                          int.parse(data['waktu_pengerjaan'].toString()) ?? 0) +
-                      ' Hari',
-                  style: TextStyle(
-                    fontSize: 11,
+                    ],
                   ),
                 ),
               ],
             ),
-          )
-        ],
+            //informasi
+            Container(
+              margin: EdgeInsets.only(left: imgCard + 5),
+              child: Row(
+                children: [
+                  Text(
+                    'TOTAL BID: ',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    moreThan99(data['layanan'] != null &&
+                                data['layanan']['jumlah_klien'] != null
+                            ? data['layanan']['jumlah_klien']
+                            : 0) +
+                        ' ORANG  ',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppTheme.primarymenu,
+                    ),
+                  ),
+                  Image.asset(
+                    'assets/more_icon/calender.png',
+                    width: 15,
+                    fit: BoxFit.fitWidth,
+                  ),
+                  Text(
+                    ' Batas Waktu: ',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Text(
+                    pointGroup(int.parse(data['layanan'] != null &&
+                                data['layanan']['hari_pengerjaan'] != null
+                            ? data['layanan']['hari_pengerjaan'].toString()
+                            : '0')) +
+                        ' Hari',
+                    style: TextStyle(
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -833,108 +955,135 @@ class TabPengerjaanCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               //photo comment
-              Container(
-                alignment: Alignment.center,
-                height: photoWidth,
-                width: photoWidth,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(60),
+              InkWell(
+                onTap: () {
+                  if (data['pekerja'] != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TampianPublikScreen(id: data['pekerja']['id']),
+                        ));
+                  }
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  height: photoWidth,
+                  width: photoWidth,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(60),
+                  ),
+                  child: data['pekerja'] != null &&
+                          data['pekerja']['foto'] != null
+                      ? imageLoad(
+                          data['pekerja']['foto'], true, photoWidth, photoWidth)
+                      : Image.asset(
+                          'assets/general/user.png',
+                          width: photoWidth,
+                          fit: BoxFit.fitWidth,
+                        ),
                 ),
-                child: data['pengerjaan'].containsKey('pekerja')
-                    ? imageLoad(data['pengerjaan']['pekerja']['foto'], true,
-                        photoWidth, photoWidth)
-                    : Image.asset(
-                        'assets/general/user.png',
-                        width: photoWidth,
-                        fit: BoxFit.fitWidth,
-                      ),
               ),
-              Stack(
-                children: [
-                  // nama & bintang
-                  Container(
-                    padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+              InkWell(onTap: (){
+                    if (data['pekerja'] != null) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TampianPublikScreen(id: data['pekerja']['id']),
+                        ));
+                  }
+              },
+                child: Stack(
+                  children: [
+                    // nama & bintang
+                     Container(
+                        padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              'assets/general/user_place.png',
-                              width: 12,
-                              fit: BoxFit.fitWidth,
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  'assets/general/user_place.png',
+                                  width: 12,
+                                  fit: BoxFit.fitWidth,
+                                ),
+                                Text(
+                                  ' ' +
+                                      (data['pekerja'] != null &&
+                                              data['pekerja']['nama'] != null
+                                          ? data['pekerja']['nama']
+                                          : tanpaNama),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                )
+                              ],
                             ),
-                            Text(
-                              ' ' +
-                                  (data['pengerjaan'].containsKey('pekerja')
-                                      ? data['pengerjaan']['pekerja']['nama']
-                                      : tanpaNama),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.yellow,
+                                    size: 16,
+                                  ),
+                                  Text(
+                                    ' ' +
+                                        (data['pekerja'] != null &&
+                                                data['pekerja']['bintang'] != null
+                                            ? data['pekerja']['bintang']
+                                            : '0'),
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    maxLines: 1,
+                                  )
+                                ],
                               ),
-                              maxLines: 1,
-                            )
+                            ),
                           ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow,
-                                size: 16,
-                              ),
-                              Text(
-                                ' ' +
-                                    (data['pengerjaan'].containsKey('pekerja')
-                                        ? data['pengerjaan']['pekerja']
-                                            ['bintang']
-                                        : '0'),
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                maxLines: 1,
-                              )
-                            ],
-                          ),
+                      ),
+                    
+                    //komen frelencer
+                    Container(
+                      width: sizeu.width - photoWidth - 74,
+                      padding: EdgeInsets.only(
+                        left: pembatas,
+                        top: 33,
+                        bottom: 5,
+                      ),
+                      margin: EdgeInsets.only(left: pembatas),
+                      decoration: BoxDecoration(
+                        // color: Colors.green,
+                        border: Border(
+                          left: BorderSide(
+                              width: wightboder, color: AppTheme.geySolidCustom),
                         ),
-                      ],
-                    ),
-                  ),
-                  //komen frelencer
-                  Container(
-                    width: sizeu.width - photoWidth - 74,
-                    padding: EdgeInsets.only(
-                      left: pembatas,
-                      top: 33,
-                      bottom: 5,
-                    ),
-                    margin: EdgeInsets.only(left: pembatas),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                            width: wightboder, color: AppTheme.geySolidCustom),
+                      ),
+                      child: Text(
+                        (data['pekerja'] != null &&
+                                data['pekerja']['summary'] != null
+                            ? data['pekerja']['summary']
+                            : empty),
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                        maxLines: 4,
                       ),
                     ),
-                    child: Text(
-                      (data['pengerjaan'].containsKey('pekerja')
-                          ? data['pengerjaan']['pekerja']['status']
-                          : empty),
-                      // '',
-                      style: TextStyle(
-                        fontSize: 15,
-                      ),
-                      maxLines: 4,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
@@ -964,9 +1113,10 @@ class TabPengerjaanCard extends StatelessWidget {
                         top: 3,
                       ),
                       child: Text(
-                        (data.containsKey('lampiran') &&
-                                data['lampiran'].length > 0
-                            ? data['lampiran'].length.toString() + ' lampiran'
+                        (data.containsKey('file_hasil') &&
+                                data['file_hasil'].length > 0
+                            ? data['file_hasil'].length.toString() +
+                                ' file_hasil'
                             : empty),
                         style: TextStyle(fontSize: 12),
                       ),
@@ -989,9 +1139,8 @@ class TabPengerjaanCard extends StatelessWidget {
                         bottom: 6,
                       ),
                       child: Text(
-                        data['pengerjaan'].containsKey('tautan') &&
-                                data['pengerjaan']['tautan'] != null
-                            ? data['pengerjaan']['tautan'].toString()
+                        data['tautan'] != null
+                            ? data['tautan'].toString()
                             : empty,
                         style: TextStyle(fontSize: 12),
                       ),
@@ -1008,7 +1157,9 @@ class TabPengerjaanCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      btnTool('assets/more_icon/file_alt.png',
+                      btnTool(
+                        true,
+                        'assets/more_icon/file_alt.png',
                           BorderRadius.circular(30.0), 50, () {
                         print('file');
                       }),
@@ -1017,7 +1168,9 @@ class TabPengerjaanCard extends StatelessWidget {
                           top: 5,
                         ),
                       ),
-                      btnTool('assets/more_icon/cc.png',
+                      btnTool(
+                        true,
+                        'assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
                         Navigator.pushNamed(context, '/owner_proyek_payment');
                       }),
@@ -1049,15 +1202,10 @@ class TabPengerjaanCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                         ),
-                        child: data['pengerjaan'].containsKey('ulasan') &&
-                                data['pengerjaan']['ulasan']
-                                    .containsKey('ulasan_pekerja')
-                            ? imageLoad(
-                                data['pengerjaan']['ulasan']['ulasan_pekerja']
-                                    ['foto'],
-                                true,
-                                photoWidth,
-                                photoWidth)
+                        child: data['ulasan'] != null &&
+                                data['ulasan']['foto'] != null
+                            ? imageLoad(data['ulasan']['foto'], true,
+                                photoWidth, photoWidth)
                             : Image.asset(
                                 'assets/general/user.png',
                                 width: photoWidth,
@@ -1091,14 +1239,10 @@ class TabPengerjaanCard extends StatelessWidget {
                                           (pembatas * 2 + wightboder),
                                       child: Text(
                                         ' ' +
-                                            (data['pengerjaan'].containsKey(
-                                                        'ulasan') &&
-                                                    data['pengerjaan']['ulasan']
-                                                        .containsKey(
-                                                            'ulasan_pekerja')
-                                                ? data['pengerjaan']['ulasan']
-                                                            ['ulasan_pekerja']
-                                                        ['nama']
+                                            (data['ulasan'] != null &&
+                                                    data['ulasan']['nama'] !=
+                                                        null
+                                                ? data['ulasan']['nama']
                                                     .toString()
                                                 : tanpaNama),
                                         style: TextStyle(
@@ -1123,20 +1267,10 @@ class TabPengerjaanCard extends StatelessWidget {
                                       ),
                                       Text(
                                         ' ' +
-                                            (data['pengerjaan'].containsKey(
-                                                        'ulasan') &&
-                                                    data['pengerjaan']['ulasan']
-                                                        .containsKey(
-                                                            'ulasan_pekerja') &&
-                                                    data['pengerjaan']['ulasan']
-                                                                [
-                                                                'ulasan_pekerja']
-                                                            ['bintang'] !=
+                                            (data['ulasan'] != null &&
+                                                    data['ulasan']['bintang'] !=
                                                         null
-                                                ? data['pengerjaan']['ulasan']
-                                                            ['ulasan_pekerja']
-                                                        ['bintang']
-                                                    .toString()
+                                                ? data['ulasan']['bintang']
                                                     .toString()
                                                 : '0.0'),
                                         style: TextStyle(
@@ -1169,16 +1303,11 @@ class TabPengerjaanCard extends StatelessWidget {
                             ),
                             child: Text(
                               ' ' +
-                                  (data['pengerjaan'].containsKey('ulasan') &&
-                                          data['pengerjaan']['ulasan']
-                                              .containsKey('ulasan_pekerja') &&
-                                          data['pengerjaan']['ulasan']
-                                                      ['ulasan_pekerja']
-                                                  ['deskripsi'] !=
-                                              null
+                                  (data['ulasan'] != null &&
+                                          data['ulasan']['deskripsi'] != null &&
+                                          data['ulasan']['deskripsi'] != null
                                       ? data['pengerjaan']['ulasan']
                                               ['ulasan_pekerja']['deskripsi']
-                                          .toString()
                                           .toString()
                                       : belumReview),
                               style: TextStyle(
@@ -1189,211 +1318,26 @@ class TabPengerjaanCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      btnTool('assets/more_icon/edit-button.png',
+                      btnTool(
+                        data['ratingable']==1,
+                        'assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0), 50, () {
-                        komenOwner(context);
+                        if(data['ratingable']==1){
+                          komenOwner(context);
+                        }else{
+                          openAlertBox(context, 'Pemberitahuan!', 'Tunggu Lampiran/Tautan terisi untuk mengisi ulasan...', 'OK', ()=>Navigator.pop(context));
+                        }
                       }),
                     ],
                   ),
                 ],
               )),
-          data['pengerjaan'].containsKey('ulasan') &&
-                  data['pengerjaan']['ulasan'].containsKey('ulasan_klien') &&
-                  data['pengerjaan']['ulasan']['ulasan_klien']['bintang'] !=
-                      null
-              ? Container(
-                  margin: EdgeInsets.only(left: marginLeftKomen),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: 8, bottom: 8),
-                        child: Text(
-                          'ULASAN PEKERJA',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          //photo comment
-                          Container(
-                            alignment: Alignment.center,
-                            height: photoWidth,
-                            width: photoWidth,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(60),
-                            ),
-                            child: data['pengerjaan'].containsKey('ulasan') &&
-                                    data['pengerjaan']['ulasan']
-                                        .containsKey('ulasan_klien')
-                                ? imageLoad(
-                                    data['pengerjaan']['ulasan']['ulasan_klien']
-                                        ['foto'],
-                                    true,
-                                    photoWidth,
-                                    photoWidth)
-                                : Image.asset(
-                                    'assets/general/user.png',
-                                    width: photoWidth,
-                                    fit: BoxFit.fitWidth,
-                                  ),
-                          ),
-                          Stack(
-                            children: [
-                              // nama & bintang
-                              Container(
-                                width: widthSub - photoWidth,
-                                padding: EdgeInsets.only(
-                                    left: pembatas * 2 + wightboder),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Image.asset(
-                                          'assets/general/user_place.png',
-                                          width: 12,
-                                          fit: BoxFit.fitWidth,
-                                        ),
-                                        SizedBox(
-                                          width: widthSub -
-                                              12 -
-                                              photoWidth -
-                                              (pembatas * 2 + wightboder),
-                                          child: Text(
-                                            ' ' +
-                                                (data['pengerjaan'].containsKey(
-                                                            'ulasan') &&
-                                                        data['pengerjaan']
-                                                                ['ulasan']
-                                                            .containsKey(
-                                                                'ulasan_klien') &&
-                                                        data['pengerjaan']
-                                                                        [
-                                                                        'ulasan']
-                                                                    [
-                                                                    'ulasan_klien']
-                                                                ['nama'] !=
-                                                            null
-                                                    ? data['pengerjaan']
-                                                                    ['ulasan']
-                                                                ['ulasan_klien']
-                                                            ['nama']
-                                                        .toString()
-                                                    : tanpaNama),
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            maxLines: 1,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Icon(
-                                            Icons.star,
-                                            color: Colors.yellow,
-                                            size: 16,
-                                          ),
-                                          Text(
-                                            ' ' +
-                                                (data['pengerjaan'].containsKey(
-                                                            'ulasan') &&
-                                                        data['pengerjaan']
-                                                                ['ulasan']
-                                                            .containsKey(
-                                                                'ulasan_klien') &&
-                                                        data['pengerjaan']
-                                                                        [
-                                                                        'ulasan']
-                                                                    [
-                                                                    'ulasan_klien']
-                                                                ['bintang'] !=
-                                                            null
-                                                    ? data['pengerjaan']
-                                                                    ['ulasan']
-                                                                ['ulasan_klien']
-                                                            ['bintang']
-                                                        .toString()
-                                                        .toString()
-                                                    : '0.0'),
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                            maxLines: 1,
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              //komen frelencer
-                              Container(
-                                width: widthSub - btnRight,
-                                padding: EdgeInsets.only(
-                                  left: pembatas,
-                                  top: 33,
-                                  bottom: 5,
-                                ),
-                                margin: EdgeInsets.only(left: pembatas),
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    left: BorderSide(
-                                        width: wightboder,
-                                        color: AppTheme.geySolidCustom),
-                                  ),
-                                ),
-                                child: Text(
-                                  ' ' +
-                                      (data['pengerjaan']
-                                                  .containsKey('ulasan') &&
-                                              data['pengerjaan']['ulasan']
-                                                  .containsKey(
-                                                      'ulasan_klienulasan_klien') &&
-                                              data['pengerjaan']['ulasan'][
-                                                          'ulasan_klienulasan_klien']
-                                                      ['bintang'] !=
-                                                  null
-                                          ? data['pengerjaan']['ulasan']
-                                                  ['ulasan_klien']['bintang']
-                                              .toString()
-                                              .toString()
-                                          : belumReview),
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                  ),
-                                  maxLines: 4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ))
-              : Container(),
-
-          
         ],
       ),
     );
   }
 
-  Widget btnTool(String locationImg, BorderRadius radius, double width,
+  Widget btnTool(bool active,String locationImg, BorderRadius radius, double width,
       Function linkRedirect) {
     return InkWell(
       onTap: () {
@@ -1404,10 +1348,11 @@ class TabPengerjaanCard extends StatelessWidget {
         height: 30,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
+          color: active?Colors.white.withOpacity(.5):Colors.transparent,
           borderRadius: radius,
           border: Border.all(
             width: 1,
-            color: AppTheme.nearlyBlack,
+            color: AppTheme.nearlyBlack.withOpacity(active?1:0.4),
           ),
         ),
         child: Image.asset(

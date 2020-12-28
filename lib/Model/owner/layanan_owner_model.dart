@@ -56,7 +56,7 @@ class LayananOwnerModel {
       "Authorization": tokenJWT + tokenFixed
     });
 
-    print('get klien proyek status code : ' + apiResult.statusCode.toString());
+    print('get klien layanan status code : ' + apiResult.statusCode.toString());
     Map jsonObject = json.decode(apiResult.body);
 
     String message = jsonObject.containsKey('message')
@@ -101,9 +101,9 @@ class LayananOwnerModel {
   }
 
   
-  static Future<LayananOwnerModel> hapusProyek(String id) async {
+  static Future<LayananOwnerModel> hapusLayanan(String id) async {
     // final LocalStorage storage = new LocalStorage('auth');
-    String apiURL = globalBaseUrl + "klien/proyek/" + id;
+    String apiURL = globalBaseUrl + "klien/layanan/" + id;
 
     await GeneralModel.token().then((value) {
       tokenFixed = value.res;

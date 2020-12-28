@@ -10,6 +10,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Constant/zoomable_single.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
@@ -46,6 +47,9 @@ class _TampilanPublikLayananDetailState
 
   //DOWNLOADER
 
+  //SLIDDER
+  PanelController _pc = new PanelController();
+
   setDataPublik(Map data) {
     setState(() {
       urlPhoto = data.containsKey('user') ? data['user']['foto'] : null;
@@ -64,6 +68,7 @@ class _TampilanPublikLayananDetailState
       itsMe = data['its_me'] ?? false;
       alredyTake = data['already_take'] ?? false;
     });
+    // print(dataLayanan);
     // print(dataLayanan['bid']);
   }
 
@@ -148,6 +153,7 @@ class _TampilanPublikLayananDetailState
           child: loading
               ? onLoading2()
               : SlidingUpPanel(
+                  controller: _pc,
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(60),
                     topLeft: Radius.circular(60),
@@ -200,6 +206,7 @@ class _TampilanPublikLayananDetailState
                               padding: EdgeInsets.only(bottom: 5),
                               child: InkWell(
                                 onTap: () {
+                                  _pc.open();
                                   setState(() {
                                     tabChange = false;
                                   });
@@ -253,6 +260,7 @@ class _TampilanPublikLayananDetailState
                               padding: EdgeInsets.only(bottom: 5),
                               child: InkWell(
                                 onTap: () {
+                                  _pc.open();
                                   setState(() {
                                     tabChange = true;
                                   });
@@ -596,6 +604,17 @@ class _TampilanPublikLayananDetailState
                                                     onPressed: () {
                                                       if (!alredyTake) {
                                                         //TODO:: event gunakan layanan
+                                                        openAlertBoxTwo(
+                                                            context,
+                                                            'Konfirmasi Pengajuan Layanan',
+                                                            'Apakah Anda yakin akan memesan layanan "${dataLayanan['judul']}"?',
+                                                            'TIDAK',
+                                                            'YA',
+                                                            () => Navigator.pop(
+                                                                context), () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        });
                                                       } else {
                                                         openAlertBox(
                                                             context,
@@ -884,10 +903,17 @@ class _TampilanPublikLayananDetailState
                 ),
                 child: InkWell(
                   onTap: () {
-                    // TODO:: EVENT REDIRECT IMAGE
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => ZoomableSingle(
+                                  child: Image.network(value),
+                                  min: 0.1,
+                                  max: 6.0,
+                                )));
                   },
                   child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Container(
                         width: 60,
@@ -897,12 +923,16 @@ class _TampilanPublikLayananDetailState
                       Container(
                         width: sizeu.width - 141,
                         padding: EdgeInsets.only(left: 10),
+                        alignment: Alignment.centerLeft,
+                        height: 60,
                         decoration: BoxDecoration(
                           border: Border(
                             left:
                                 BorderSide(width: 5, color: AppTheme.geyCustom),
                           ),
                         ),
+                        child: Text(
+                            value != null ? value.split('/').last : unknown),
                       )
                     ],
                   ),

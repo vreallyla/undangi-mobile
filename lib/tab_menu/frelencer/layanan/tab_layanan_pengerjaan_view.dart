@@ -541,7 +541,7 @@ class TabPengerjaanCard extends StatelessWidget {
               //kontent
               Container(
                 width: widthKonten,
-                height: heightCard,
+            
                 padding: EdgeInsets.only(
                   left: 5,
                   right: 5,
@@ -581,6 +581,7 @@ class TabPengerjaanCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                         ),
+                        maxLines: 2,
                       ),
                     ),
                     Text(
@@ -591,6 +592,7 @@ class TabPengerjaanCard extends StatelessWidget {
                         color: AppTheme.primarymenu,
                         fontSize: 12,
                       ),
+                      maxLines: 1,
                     ),
                   ],
                 ),
@@ -624,7 +626,7 @@ class TabPengerjaanCard extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          'Menunggu Konfirmasi',
+                          data['status']??unknown,
                           style: TextStyle(
                             color: AppTheme.nearlyWhite,
                             fontSize: 12,
@@ -1048,7 +1050,7 @@ class TabPengerjaanCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                         ),
-                        child: data['ulasan'].containsKey('foto') &&
+                        child: data['ulasan']!=null &&
                                 data['ulasan']['foto'] != null
                             ? imageLoad(data['ulasan']['foto'], true,
                                 photoWidth, photoWidth)
@@ -1084,14 +1086,16 @@ class TabPengerjaanCard extends StatelessWidget {
                                           photoWidth -
                                           (pembatas * 2 + wightboder),
                                       child: Text(
-                                        ' ' +
+                                        ' ' 
+                                        +
                                             (data['ulasan']
-                                                        .containsKey('nama') &&
+                                                        !=null &&
                                                     data['ulasan']['nama'] !=
                                                         null
                                                 ? data['ulasan']['nama']
                                                     .toString()
-                                                : tanpaNama),
+                                                : tanpaNama)
+                                                ,
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -1113,14 +1117,15 @@ class TabPengerjaanCard extends StatelessWidget {
                                         size: 16,
                                       ),
                                       Text(
-                                        ' ' +
-                                            (data['ulasan'].containsKey(
-                                                        'bintang') &&
+                                        ' ' 
+                                        +
+                                            (data['ulasan']!=null &&
                                                     data['ulasan']['bintang'] !=
                                                         null
                                                 ? data['ulasan']['bintang']
                                                     .toString()
-                                                : '0.0'),
+                                                : '0.0')
+                                                ,
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -1150,15 +1155,15 @@ class TabPengerjaanCard extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              ' '
-                              +
-                                  (data['ulasan'].containsKey('deskripsi') &&
+                              ' '+
+                                  (data['ulasan']!=null &&
                                           data['ulasan']['deskripsi']
                                               !=null 
                                       ? data['ulasan']['deskripsi']
                                          
                                           .toString()
-                                      : belumReview)
+                                      :
+                                       belumReview)
                               ,
                               style: TextStyle(
                                 fontSize: 15,
