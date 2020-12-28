@@ -20,6 +20,7 @@ import 'package:undangi/Model/owner/proyek_owner_model.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_layanan_detail.dart';
 
 class TabLayananView extends StatefulWidget {
   const TabLayananView(
@@ -109,7 +110,6 @@ class _TabLayananViewState extends State<TabLayananView> {
   List dataLampiran = [];
 
   Map error = {};
-
 
   setErrorNotif(Map v) {
     setState(() {
@@ -254,10 +254,8 @@ class _TabLayananViewState extends State<TabLayananView> {
         Navigator.pop(context, false);
       });
     });
-  
   }
 
- 
   _deleteApi(String id) async {
     onLoading(context);
 
@@ -285,12 +283,9 @@ class _TabLayananViewState extends State<TabLayananView> {
     });
   }
 
-
-
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
@@ -449,7 +444,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            width: (sizeu.width - 137+35) / 2,
+                            width: (sizeu.width - 137 + 35) / 2,
                             margin: EdgeInsets.only(right: 8),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -616,7 +611,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                             ),
                           ),
                           Container(
-                            width: (sizeu.width - 137+35) / 2,
+                            width: (sizeu.width - 137 + 35) / 2,
                             margin: EdgeInsets.only(right: 8),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,7 +657,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                         ),
                                       ),
                                     ),
-                                    width: (sizeu.width - 137+35) / 2 - 60,
+                                    width: (sizeu.width - 137 + 35) / 2 - 60,
                                     height: 25,
                                     child: TextField(
                                       controller: widget.hargaController,
@@ -703,7 +698,6 @@ class _TabLayananViewState extends State<TabLayananView> {
                                 noticeText('harga', error),
 
                                 Padding(padding: EdgeInsets.only(top: 3)),
-                                
                               ],
                             ),
                           ),
@@ -964,7 +958,6 @@ class _TabLayananViewState extends State<TabLayananView> {
                               fontSize: 18,
                             ),
                           ),
-                          
                           Padding(
                             padding: const EdgeInsets.only(top: 5),
                             child: Text(
@@ -999,7 +992,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top:8.0),
+                            padding: const EdgeInsets.only(top: 8.0),
                             child: Row(
                               children: [
                                 Image.asset(
@@ -1039,10 +1032,15 @@ class _TabLayananViewState extends State<TabLayananView> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           InkWell(
-                            onTap: (){
-                              //TODO:: LINK KE TAMPILAN PUBLIK LAYANAN
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          TampilanPublikLayananDetail(
+                                              id: data['id'])));
                             },
-                                                      child: Container(
+                            child: Container(
                               width: 80,
                               height: 30,
                               margin: EdgeInsets.only(bottom: 5),
@@ -1055,7 +1053,8 @@ class _TabLayananViewState extends State<TabLayananView> {
                                   ),
                                   color: (true
                                       ? Colors.white
-                                      : AppTheme.geySoftCustom.withOpacity(.3))),
+                                      : AppTheme.geySoftCustom
+                                          .withOpacity(.3))),
                               child: Image.asset(
                                 'assets/more_icon/info.png',
                                 alignment: Alignment.center,
@@ -1130,7 +1129,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                 color: AppTheme.bgChatBlue,
                                 borderRadius: BorderRadius.circular(8)),
                             child: Text(
-                              moreThan99(data['jumlah_klien']??0)+' KLIEN',
+                              moreThan99(data['jumlah_klien'] ?? 0) + ' KLIEN',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12,
@@ -1143,14 +1142,12 @@ class _TabLayananViewState extends State<TabLayananView> {
                     ),
                   ],
                 ),
-             ],
+              ],
             ),
-         
           ],
         ));
   }
 
- 
   Widget btnTool(String locationImg, BorderRadius radius, Function linkRedirect,
       bool active) {
     return InkWell(

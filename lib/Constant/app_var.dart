@@ -33,6 +33,25 @@ const String kontenkosong = '(Belum diisi)';
 //WAKTU
 const waktuDaerah=' WIB';
 
+//SET INDEX COLOR RENORENO
+ colorIndexReno(i) {
+    int res = 0;
+    if ((i + 1) % 1 == 0) {
+      res = 0;
+    }
+    if ((i + 1) % 2 == 0) {
+      res = 1;
+    }
+    if ((i + 1) % 3 == 0) {
+      res = 2;
+    }
+    if ((i + 1) % 4 == 0) {
+      res = 3;
+    }
+    return res;
+  }
+
+
 //other
 const String unknown='tidak diketahui';
 const String empty='(Kosong)';
