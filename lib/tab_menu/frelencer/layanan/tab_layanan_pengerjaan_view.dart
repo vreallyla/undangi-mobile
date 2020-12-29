@@ -8,6 +8,8 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class TabLayananPengerjaanView extends StatefulWidget {
   const TabLayananPengerjaanView({
@@ -604,10 +606,10 @@ class TabPengerjaanCard extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    btnTool('assets/more_icon/progress_bar.png',
-                        BorderRadius.circular(30.0), widthBtnShort - 15, () {
-                      changeProgress();
-                    }),
+                    // btnTool('assets/more_icon/progress_bar.png',
+                    //     BorderRadius.circular(30.0), widthBtnShort - 15, () {
+                    //   changeProgress();
+                    // }),
                     InkWell(
                       onTap: () {
                         openAlertBox(
@@ -988,12 +990,29 @@ class TabPengerjaanCard extends StatelessWidget {
                         top: 3,
                         bottom: 6,
                       ),
-                      child: Text(
-                        data['tautan'] != null
-                            ? data['tautan'].toString()
-                            : empty,
-                        // '',
-                        style: TextStyle(fontSize: 12),
+                      child: InkWell(
+                        onTap: () async{
+                          if (data['tautan'] != null) {
+                             String url = data['tautan'];
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              // throw 'Could not launch $url';
+                              print(url);
+                            }
+                          }
+                        },
+                                              child: Text(
+                          data['tautan'] != null
+                              ? data['tautan'].toString()
+                              : empty,
+                          // '',
+                          style: TextStyle(fontSize: 12,
+                           color:
+                                  data['tautan'] != null?AppTheme.bgChatBlue:Colors.black ,
+                           decoration: 
+                                  data['tautan'] != null?TextDecoration.underline: TextDecoration.none,),
+                        ),
                       ),
                     ),
                   ],

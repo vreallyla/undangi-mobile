@@ -12,6 +12,8 @@ import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/owner/layanan_owner_model.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_layanan_detail.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class TabLayananPengerjaanView extends StatefulWidget {
   const TabLayananPengerjaanView({
@@ -1138,13 +1140,32 @@ class TabPengerjaanCard extends StatelessWidget {
                         top: 3,
                         bottom: 6,
                       ),
-                      child: Text(
-                        data['tautan'] != null
-                            ? data['tautan'].toString()
-                            : empty,
-                        style: TextStyle(fontSize: 12),
+                      child: InkWell(
+                        onTap: () async{
+                          if (data['tautan'] != null) {
+                             String url = data['tautan'];
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              // throw 'Could not launch $url';
+                              print(url);
+                            }
+                          }
+                        },
+                                              child: Text(
+                          data['tautan'] != null
+                              ? data['tautan'].toString()
+                              : empty,
+                          style: TextStyle(fontSize: 12,
+                           color:
+                                  data['tautan'] != null?AppTheme.bgChatBlue:Colors.black ,
+                           decoration: 
+                                  data['tautan'] != null?TextDecoration.underline: TextDecoration.none,),
+                        
+                          ),
+                        ),
                       ),
-                    ),
+                    
                   ],
                 ),
               ),

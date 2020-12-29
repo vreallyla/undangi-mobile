@@ -16,6 +16,7 @@ Widget appBarColloring() {
       ));
 }
 
+
 Widget appPolosBack(paddingPhone, Function event) {
   return PreferredSize(
     preferredSize: Size.fromHeight(70.0),
@@ -41,6 +42,58 @@ Widget appPolosBack(paddingPhone, Function event) {
           onPressed: () {
             event();
           },
+        ),
+      ),
+    ),
+  );
+}
+
+Widget appPolosBackWithAction(
+    context, paddingPhone, Function event, Widget iconRight, Function eventRight) {
+  final sizeu = MediaQuery.of(context).size;
+
+  return PreferredSize(
+    preferredSize: Size.fromHeight(70.0),
+    child: AppBar(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(60),
+        ),
+      ),
+      backgroundColor: AppTheme.primaryBlue,
+
+      automaticallyImplyLeading: false, // hides leading widget
+      flexibleSpace: Container(
+        alignment: Alignment.topLeft,
+        padding: EdgeInsets.only(top: paddingPhone.top, left: 10),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 30,
+                      child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: AppTheme.primaryWhite,
+                  size: AppTheme.sizeIconMenu,
+                ),
+                // color: Colors.white,
+                onPressed: () {
+                  event();
+                },
+              ),
+            ),
+            Container(
+              width: 30,
+              margin: EdgeInsets.only(left:sizeu.width-110),
+                      child: IconButton(
+                icon: iconRight,
+                // color: Colors.white,
+                onPressed: () {
+                  eventRight();
+                },
+              ),
+            ),
+          ],
         ),
       ),
     ),
@@ -362,21 +415,43 @@ Widget loadingCircle() {
 }
 
 Widget imageLoad(String url, bool circle, double height, double width) {
-  return url==null?loadingCircle(): CachedNetworkImage(
-    imageUrl: url,
-    fit: BoxFit.fitHeight,
-    imageBuilder: (context, imageProvider) => Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        border: Border.all(width: 1, color: AppTheme.geySoftCustom),
-        shape: circle ? BoxShape.circle : BoxShape.rectangle,
-        image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
-      ),
-    ),
-    placeholder: (context, url) => loadingCircle(),
-    errorWidget: (context, url, error) => new Icon(Icons.error),
-  );
+  return url == null
+      ? loadingCircle()
+      : CachedNetworkImage(
+          imageUrl: url,
+          fit: BoxFit.fitHeight,
+          imageBuilder: (context, imageProvider) => Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: AppTheme.geySoftCustom),
+              shape: circle ? BoxShape.circle : BoxShape.rectangle,
+              image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+            ),
+          ),
+          placeholder: (context, url) => loadingCircle(),
+          errorWidget: (context, url, error) => new Icon(Icons.error),
+        );
+}
+
+Widget imageLoadByWidth(String url, bool circle, double width) {
+  return url == null
+      ? loadingCircle()
+      : CachedNetworkImage(
+          imageUrl: url,
+          fit: BoxFit.fitWidth,
+          imageBuilder: (context, imageProvider) => Container(
+            width: width,
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: AppTheme.geySoftCustom),
+              shape: circle ? BoxShape.circle : BoxShape.rectangle,
+              image:
+                  DecorationImage(image: imageProvider, fit: BoxFit.fitWidth),
+            ),
+          ),
+          placeholder: (context, url) => loadingCircle(),
+          errorWidget: (context, url, error) => new Icon(Icons.error),
+        );
 }
 
 Widget onLoading2() {
@@ -648,8 +723,7 @@ openAlertSuccessBox(
       });
 }
 
-openAlertSuccessBoxGoon(
-    context, String title, String sub, String textBtn) {
+openAlertSuccessBoxGoon(context, String title, String sub, String textBtn) {
   Color myColor = AppTheme.primarymenu;
 
   return showDialog(
@@ -709,7 +783,7 @@ openAlertSuccessBoxGoon(
                   child: RaisedButton(
                     color: myColor,
                     onPressed: () {
-                     Navigator.pop(context);
+                      Navigator.pop(context);
                     },
                     child: Text(
                       textBtn,
@@ -940,9 +1014,7 @@ passwordCheck(context, Function checkEvent) {
       });
 }
 
-
-
-modalWithLogo(context,Widget child) {
+modalWithLogo(context, Widget child) {
   Color myColor = AppTheme.bgChatBlue;
 
   return showDialog(
@@ -1013,7 +1085,7 @@ modalWithLogo(context,Widget child) {
                       ]),
                 ),
                 child
-            ],
+              ],
             ),
           ),
         );

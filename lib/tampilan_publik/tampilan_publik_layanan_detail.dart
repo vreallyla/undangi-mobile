@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:icon_shadow/icon_shadow.dart';
@@ -907,7 +908,7 @@ class _TampilanPublikLayananDetailState
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) => ZoomableSingle(
-                                  child: Image.network(value),
+                                  child: imageLoadByWidth(value, false, 320),
                                   min: 0.1,
                                   max: 6.0,
                                 )));

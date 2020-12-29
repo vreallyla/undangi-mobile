@@ -314,42 +314,48 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                                   color: AppTheme.geySolidCustom,
                                 ),
                               ),
-                              SizedBox(
-                                height: 25,
-                                width: 140,
-                                child: TextField(
-                                  enabled: !toAdd,
-                                  controller: searchController,
-                                  onSubmitted: (v) {
-                                    setState(() {
+                            Container(
+                            child: Theme(
+                              data: Theme.of(context)
+                                  .copyWith(splashColor: Colors.transparent),
+                              child: TextField(
+                                autofocus: false,
+                                style: TextStyle(fontSize: 15.0),
+                                controller: searchController,
+                                onSubmitted: (v) {
+                                   
+                                       setState(() {
                                       searchProyek = searchPengerjaan = v;
                                     });
+                                    setLoading(1,true);
                                     _loadDataApi();
-                                  },
-                                  style: TextStyle(
-
-                                      //Font color change
-                                      fontSize: 11),
-                                  decoration: InputDecoration(
-                                    border: new OutlineInputBorder(
-                                      borderRadius: const BorderRadius.all(
-                                        const Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    fillColor: Colors.white,
-
-                                    hintText: '',
-                                    suffixStyle: TextStyle(color: Colors.black),
-                                    isDense: true, // Added this
-                                    contentPadding: EdgeInsets.only(
-                                        top: 12,
-                                        left: 9,
-                                        right: 6), // Added this
-
-                                    counterText: "",
+                                },
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.transparent,
+                                  hintText: '',
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 14.0, bottom: 12.0, top: 0.0),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(25.7),
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.transparent),
+                                    borderRadius: BorderRadius.circular(25.7),
                                   ),
                                 ),
                               ),
+                            ),
+                            decoration: new BoxDecoration(
+                              border:Border.all(width:1,color:AppTheme.geyCustom),
+                                borderRadius: new BorderRadius.all(
+                                    new Radius.circular(30.0)),
+                                color: Colors.transparent),
+                            width: 140,
+                            height: 30,
+                          ),
+                        
                             ],
                           ),
                         ),

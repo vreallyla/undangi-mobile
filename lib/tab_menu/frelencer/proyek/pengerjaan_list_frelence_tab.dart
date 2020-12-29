@@ -595,7 +595,7 @@ class ProyekCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(60),
                 ),
-                child: data['pekerja'].containsKey('foto')
+                child: data['pekerja']['foto']!=null
                     ? imageLoad(
                         data['pekerja']['foto'], true, photoWidth, photoWidth)
                     : Image.asset(
@@ -761,18 +761,9 @@ class ProyekCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      btnTool('assets/more_icon/file_alt.png',
+                       btnTool('assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0), 50, () {
-                        print('file');
-                      }),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          top: 5,
-                        ),
-                      ),
-                      btnTool('assets/more_icon/cc.png',
-                          BorderRadius.circular(30.0), 50, () {
-                        //TODO:: REDIRECT OTHER
+                        //TODO:: REDIRECT MODAL file jadi
                         // waktuLoadRepeat(560);
                         // pauseLoad(true);
                         // Navigator.push(
@@ -785,6 +776,17 @@ class ProyekCard extends StatelessWidget {
                         //   ),
                         // );
                       }),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 5,
+                        ),
+                      ),
+                      
+                      btnTool('assets/more_icon/file_alt.png',
+                          BorderRadius.circular(30.0), 50, () {
+                        print('file');
+                      }),
+                     
                     ]),
               ),
             ],
@@ -814,7 +816,7 @@ class ProyekCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                         ),
-                        child: data['ulasan'].containsKey('ulasan_pekerja')
+                        child: data['ulasan']['ulasan_pekerja']!=null
                             ? imageLoad(
                                 data['ulasan']['ulasan_pekerja']['foto'],
                                 true,
@@ -853,8 +855,7 @@ class ProyekCard extends StatelessWidget {
                                           (pembatas * 2 + wightboder),
                                       child: Text(
                                         ' ' +
-                                            (data['ulasan'].containsKey(
-                                                    'ulasan_pekerja')
+                                            (data['ulasan']['ulasan_pekerja']!=null
                                                 ? data['ulasan']
                                                             ['ulasan_pekerja']
                                                         ['nama']
@@ -882,8 +883,8 @@ class ProyekCard extends StatelessWidget {
                                       ),
                                       Text(
                                         ' ' +
-                                            (data['ulasan'].containsKey(
-                                                        'ulasan_pekerja') &&
+                                            (data['ulasan'][
+                                                        'ulasan_pekerja']!=null &&
                                                     data['ulasan'][
                                                                 'ulasan_pekerja']
                                                             ['bintang'] !=
@@ -924,15 +925,14 @@ class ProyekCard extends StatelessWidget {
                             ),
                             child: Text(
                               ' ' +
-                                  (data['ulasan']
-                                              .containsKey('ulasan_pekerja') &&
+                                  (data['ulasan']['ulasan_pekerja']!=null &&
                                           data['ulasan']['ulasan_pekerja']
                                                   ['deskripsi'] !=
                                               null
                                       ? data['ulasan']['ulasan_pekerja']
                                               ['deskripsi']
                                           .toString()
-                                          .toString()
+                                          
                                       : belumReview),
                               style: TextStyle(
                                 fontSize: 15,
@@ -971,7 +971,7 @@ class ProyekCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                         ),
-                        child: data['ulasan'].containsKey('ulasan_klien')
+                        child: data['ulasan']['ulasan_klien']!=null
                             ? imageLoad(data['ulasan']['ulasan_klien']['foto'],
                                 true, photoWidth, photoWidth)
                             : Image.asset(
@@ -1007,8 +1007,7 @@ class ProyekCard extends StatelessWidget {
                                           (pembatas * 2 + wightboder),
                                       child: Text(
                                         ' ' +
-                                            (data['ulasan'].containsKey(
-                                                        'ulasan_klien') &&
+                                            (data['ulasan']['ulasan_klien']!=null&&
                                                     data['ulasan']
                                                                 ['ulasan_klien']
                                                             ['nama'] !=
@@ -1039,8 +1038,7 @@ class ProyekCard extends StatelessWidget {
                                       ),
                                       Text(
                                         ' ' +
-                                            (data['ulasan'].containsKey(
-                                                        'ulasan_klien') &&
+                                            (data['ulasan']['ulasan_klien']!=null &&
                                                     data['ulasan']
                                                                 ['ulasan_klien']
                                                             ['bintang'] !=
@@ -1080,7 +1078,7 @@ class ProyekCard extends StatelessWidget {
                             ),
                             child: Text(
                               ' ' +
-                                  (data['ulasan'].containsKey('ulasan_klien') &&
+                                  (data['ulasan']['ulasan_klien']!=null &&
                                           data['ulasan']['ulasan_klien']
                                                   ['deskripsi'] !=
                                               null

@@ -46,6 +46,7 @@ dependencies:
   file_picker: ^2.1.4
   webview_flutter: ^1.0.7
   flutter_masked_text: ^0.8.0
+  url_launcher: ^5.7.5
 
 dev_dependencies:
   flutter_test:

@@ -371,46 +371,51 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                                 ),
                               ),
                               Container(
-                            child: Theme(
-                              data: Theme.of(context)
-                                  .copyWith(splashColor: Colors.transparent),
-                              child: TextField(
-                                autofocus: false,
-                                style: TextStyle(fontSize: 15.0),
-                                controller: searchController,
-                                onSubmitted: (v) {
-                                     setState(() {
-                                      searchProyek = searchPengerjaan = v;
-                                    });
-                                    _loadDataApi();
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.transparent,
-                                  hintText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 14.0, bottom: 12.0, top: 0.0),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(25.7),
-                                  ),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(25.7),
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                      splashColor: Colors.transparent),
+                                  child: TextField(
+                                    enabled: !toAdd,
+                                    autofocus: false,
+                                    style: TextStyle(fontSize: 15.0),
+                                    controller: searchController,
+                                    onSubmitted: (v) {
+                                      setState(() {
+                                        searchProyek = searchPengerjaan = v;
+                                      });
+                                      _loadDataApi();
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.transparent,
+                                      hintText: '',
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 14.0, bottom: 12.0, top: 0.0),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.transparent),
+                                        borderRadius:
+                                            BorderRadius.circular(25.7),
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.transparent),
+                                        borderRadius:
+                                            BorderRadius.circular(25.7),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                                decoration: new BoxDecoration(
+                                    border: Border.all(
+                                        width: 1, color: AppTheme.geyCustom),
+                                    borderRadius: new BorderRadius.all(
+                                        new Radius.circular(30.0)),
+                                    color: Colors.transparent),
+                                width: 140,
+                                height: 30,
                               ),
-                            ),
-                            decoration: new BoxDecoration(
-                              border:Border.all(width:1,color:AppTheme.geyCustom),
-                                borderRadius: new BorderRadius.all(
-                                    new Radius.circular(30.0)),
-                                color: Colors.transparent),
-                            width: 140,
-                            height: 30,
-                          ),
-                        
-                          ],
+                            ],
                           ),
                         ),
                       )
@@ -420,14 +425,14 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
               //tab proyek
               tabChange
                   ? TabPengerjaanView(
-                    waktuLoadRepeat: (int v) {
+                      waktuLoadRepeat: (int v) {
                         setState(() {
-                          timerRepeat=v;
+                          timerRepeat = v;
                         });
                       },
                       pauseLoad: (bool e) {
                         setState(() {
-                          stopLoad=e;
+                          stopLoad = e;
                         });
                       },
                       dataReresh: _loadDataApi,
@@ -447,12 +452,12 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                   : TabProyekView(
                       waktuLoadRepeat: (int v) {
                         setState(() {
-                          timerRepeat=v;
+                          timerRepeat = v;
                         });
                       },
                       pauseLoad: (bool e) {
                         setState(() {
-                          stopLoad=e;
+                          stopLoad = e;
                         });
                       },
                       judulController: judulController,

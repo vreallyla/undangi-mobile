@@ -9,6 +9,7 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/tab_menu/owner/proyek/sub/payment_proyek_screen.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TabPengerjaanView extends StatefulWidget {
   const TabPengerjaanView({
@@ -1006,12 +1007,30 @@ class TabPengerjaanCard extends StatelessWidget {
                         top: 3,
                         bottom: 6,
                       ),
-                      child: Text(
-                        data['pengerjaan'].containsKey('tautan') &&
-                                data['pengerjaan']['tautan'] != null
-                            ? data['pengerjaan']['tautan'].toString()
-                            : empty,
-                        style: TextStyle(fontSize: 12),
+                      child: InkWell(
+                        onTap: () async {
+                          if (data['pengerjaan']!=null&&
+                              data['pengerjaan']['tautan'] != null) {
+                             String url = data['pengerjaan']['tautan'];
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              // throw 'Could not launch $url';
+                              print(url);
+                            }
+                          }
+                        },
+                        child: Text(
+                          data['pengerjaan']!=null &&
+                                  data['pengerjaan']['tautan'] != null
+                              ? data['pengerjaan']['tautan'].toString()
+                              : empty,
+                          style: TextStyle(fontSize: 12,
+                          color:data['pengerjaan']!=null &&
+                                  data['pengerjaan']['tautan'] != null?AppTheme.bgChatBlue:Colors.black ,
+                           decoration: data['pengerjaan']!=null &&
+                                  data['pengerjaan']['tautan'] != null?TextDecoration.underline: TextDecoration.none,),
+                        ),
                       ),
                     ),
                   ],
@@ -1037,7 +1056,6 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       btnTool('assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
-                           
                         waktuLoadRepeat(560);
                         pauseLoad(true);
                         Navigator.push(
@@ -1396,14 +1414,13 @@ class TabPengerjaanCard extends StatelessWidget {
                                               data['pengerjaan']['ulasan']
                                                   .containsKey(
                                                       'ulasan_klien') &&
-                                              data['pengerjaan']['ulasan'][
-                                                          'ulasan_klien']
+                                              data['pengerjaan']['ulasan']
+                                                          ['ulasan_klien']
                                                       ['deskripsi'] !=
                                                   null
                                           ? data['pengerjaan']['ulasan']
                                                   ['ulasan_klien']['deskripsi']
                                               .toString()
-                                          
                                           : belumReview),
                                   style: TextStyle(
                                     fontSize: 15,
