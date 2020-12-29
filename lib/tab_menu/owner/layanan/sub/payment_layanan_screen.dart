@@ -7,22 +7,22 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
-import 'package:undangi/Model/owner/payment_owner_model.dart';
+import 'package:undangi/Model/owner/payment_owner_layanan_model.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 
-class PaymentProyekScreen extends StatefulWidget {
+class PaymentLayananScreen extends StatefulWidget {
   @override
-  _PaymentProyekScreenState createState() => _PaymentProyekScreenState();
+  _PaymentLayananScreenState createState() => _PaymentLayananScreenState();
 
-  const PaymentProyekScreen({
+  const PaymentLayananScreen({
     Key key,
-    this.proyekId = 0,
+    this.layananId = 0,
   }) : super(key: key);
 
-  final int proyekId;
+  final int layananId;
 }
 
-class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
+class _PaymentLayananScreenState extends State<PaymentLayananScreen> {
   String _pilihPembayaran = 'lunas';
 
   TextEditingController hargaTotal = new TextEditingController();
@@ -63,18 +63,21 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
         () async {
       // setLoading(true);
       onLoading(context);
+      setState(() {
+        stopLoad = true;
+      });
 
       Map res = {
-        'proyek_id': widget.proyekId.toString(),
+        'pengerjaan_id': widget.layananId.toString(),
         'bayar': hargaAmbil.numberValue.toString(),
       };
-      PaymentOwnerModel.viaDompet(res).then((v) async {
+      PaymentOwnerLayananModel.viaDompet(res).then((v) async {
         Navigator.pop(context);
+        setState(() {
+          stopLoad = false;
+        });
         // print(v.data);
         if (v.error) {
-          setState(() {
-            stopLoad = true;
-          });
           errorRespon(context, v.data);
         } else {
           Navigator.pop(context);
@@ -90,6 +93,9 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
     },
         //disconect
         () {
+      setState(() {
+        stopLoad = false;
+      });
       Navigator.pop(context);
 
       openAlertBox(context, noticeTitle, notice, konfirm1, () {
@@ -126,11 +132,11 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
         if (fotoUrl == null) {
           setLoading(true);
         }
-        PaymentOwnerModel.get(widget.proyekId.toString()).then((v) {
+        PaymentOwnerLayananModel.get(widget.layananId.toString()).then((v) {
           setLoading(false);
           if (v.error) {
             setState(() {
-              stopLoad=true;
+              stopLoad = true;
             });
             errorRespon(context, v.data);
           } else {
@@ -169,14 +175,14 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
     // TODO: implement initState
     super.initState();
     ambilFocus.addListener(_onFocusChange);
-    loadMore =
-        Timer.periodic(Duration(seconds: 5), (Timer t) => _loadDataApi());
+    loadMore = Timer.periodic(
+        Duration(seconds: 5), (Timer t) => _loadDataApi());
   }
 
   void _onFocusChange() {
     // debugPrint("Focus: "+ambilFocus.hasFocus.toString());
-     setState(() {
-      stopLoad=ambilFocus.hasFocus;
+    setState(() {
+      stopLoad = ambilFocus.hasFocus;
     });
     setState(() {
       if (!ambilFocus.hasFocus && hargaAmbil.numberValue > tagihan) {
@@ -513,8 +519,17 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                                           child: RaisedButton(
                                             color: AppTheme.bgChatBlue,
                                             onPressed: () {
+                                              setState(() {
+                                                stopLoad = true;
+                                              });
                                               Navigator.pushNamed(
-                                                  context, '/udagi_pay');
+                                                      context, '/udagi_pay')
+                                                  .then((value) {
+                                                setState(() {
+                                                  stopLoad = false;
+                                                });
+                                                  _loadDataApi();
+                                              });
                                             },
                                             child: Row(
                                               mainAxisAlignment:
@@ -717,10 +732,12 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                             left: _width - 165),
                         child: RaisedButton(
                           onPressed: () {
-                            if (metode == 'dompet') {
-                              viaDompet();
-                            } else {
-                              //TODO::via midtrans
+                            if (!stopLoad) {
+                              if (metode == 'dompet') {
+                                viaDompet();
+                              } else {
+                                //TODO::via midtrans
+                              }
                             }
                           },
                           color: metode == null

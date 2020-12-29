@@ -5,15 +5,18 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rating_bar/rating_bar.dart';
 import 'package:undangi/Constant/app_theme.dart';
+import 'package:undangi/Constant/zoomable_multi_with_download.dart';
 import 'package:undangi/Constant/app_var.dart';
+import 'package:undangi/Constant/rating_modal.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/owner/layanan_owner_model.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_layanan_detail.dart';
 import 'package:undangi/tampilan_publik/tampilan_publik_screen.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:undangi/tab_menu/owner/layanan/sub/payment_layanan_screen.dart';
 
+import 'package:url_launcher/url_launcher.dart';
 
 class TabLayananPengerjaanView extends StatefulWidget {
   const TabLayananPengerjaanView({
@@ -29,6 +32,7 @@ class TabLayananPengerjaanView extends StatefulWidget {
     this.toProgress,
     this.loadAgain,
     this.toProgressFunc,
+    this.setStopRepeat,
   }) : super(key: key);
 
   final double bottomKey;
@@ -40,6 +44,7 @@ class TabLayananPengerjaanView extends StatefulWidget {
   final Function dataReresh;
   final Function dataNext;
   final Function loadAgain;
+  final Function(bool kond) setStopRepeat;
 
   final bool toProgress;
   final bool loading;
@@ -53,18 +58,51 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
     widget.toProgressFunc();
   }
 
-  double star = 0;
-
   int colorChange = 0;
 
   _deleteApi(String id) async {
     onLoading(context);
+    widget.setStopRepeat(true);
 
     GeneralModel.checCk(
         //connect
         () async {
       // setErrorNotif({});
       LayananOwnerModel.hapusLayanan(id).then((v) {
+        widget.setStopRepeat(false);
+
+        Navigator.pop(context);
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          widget.loadAgain();
+        }
+      });
+    },
+        //disconect
+        () {
+      widget.setStopRepeat(false);
+
+      Navigator.pop(context);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
+  _ratingApi(String id, Map res) async {
+    onLoading(context);
+    widget.setStopRepeat(true);
+
+    GeneralModel.checCk(
+        //connect
+        () async {
+      // setErrorNotif({});
+      LayananOwnerModel.ratingLayanan(id, res).then((v) {
+        widget.setStopRepeat(false);
+
         Navigator.pop(context);
 
         if (v.error) {
@@ -77,11 +115,26 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
         //disconect
         () {
       Navigator.pop(context);
+      widget.setStopRepeat(false);
 
       openAlertBox(context, noticeTitle, notice, konfirm1, () {
         Navigator.pop(context, false);
       });
     });
+  }
+
+  komenOwner(context, Map data) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return RatingModal(
+            nama: data['layanan']['judul'],
+            isLunas: data['isPaidOff'] == 1,
+            eventRes: (Map res) {
+              _ratingApi(data['id'].toString(), res);
+            },
+          );
+        });
   }
 
   @override
@@ -443,42 +496,25 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
                       // itemExtent: 100.0,
                       itemBuilder: (c, i) {
                         return TabPengerjaanCard(
-                            marginLeftRight: marginLeftRight,
-                            marginCard: marginCard,
-                            changeProgress: () {
-                              changeToProgress();
-                            },
-                            deleteApi: (id) {
-                              _deleteApi(id);
-                            },
-                            star: star,
-                            data: widget.dataPengerjaan[i],
-                            index: i,
-                            starEvent: (double st) {
-                              star = st;
-                              setState(() {});
-                            });
+                          setStopRepeat: (kond) => widget.setStopRepeat(kond),
+                          marginLeftRight: marginLeftRight,
+                          marginCard: marginCard,
+                          changeProgress: () {
+                            changeToProgress();
+                          },
+                          deleteApi: (id) {
+                            _deleteApi(id);
+                          },
+                          formRating: (Map res) {
+                            komenOwner(context, res);
+                          },
+                          data: widget.dataPengerjaan[i],
+                          index: i,
+                        );
                       }),
                   onRefresh: widget.dataReresh,
                   onLoading: widget.dataNext,
                 )),
-
-      // Text('Belum ada data Proyek...'),
-      //     ListView(
-      //   children: [
-      //     TabPengerjaanCard(
-      //         marginLeftRight: marginLeftRight,
-      //         marginCard: marginCard,
-      //         changeProgress: () {
-      //           changeToProgress();
-      //         },
-      //         star: star,
-      //         starEvent: (double st) {
-      //           star = st;
-      //           setState(() {});
-      //         }),
-      //   ],
-      // ),
     );
   }
 }
@@ -493,9 +529,9 @@ class TabPengerjaanCard extends StatelessWidget {
     this.marginLeftRight: 0,
     this.marginCard: 0,
     this.changeProgress,
-    this.star,
-    this.starEvent,
+    this.formRating,
     this.deleteApi,
+    this.setStopRepeat,
   }) : super(key: key);
 
   final double marginLeftRight;
@@ -503,10 +539,11 @@ class TabPengerjaanCard extends StatelessWidget {
   final Map data;
   final int index;
   final Function() changeProgress;
-  final Function(double st) starEvent;
-  final Function(String id) deleteApi;
+  final Function(bool kond) setStopRepeat;
 
-  final double star;
+  final Function(String id) deleteApi;
+  final Function(Map res) formRating;
+
   transColor(i) {
     int res = 0;
     if ((i + 1) % 1 == 0) {
@@ -674,23 +711,25 @@ class TabPengerjaanCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           btnTool(
-                            true,
+                              true,
                               'assets/more_icon/info.png',
                               BorderRadius.only(
                                 topLeft: Radius.circular(30),
                                 bottomLeft: Radius.circular(30),
                               ),
                               (widthBtnShort - 15) / 2, () {
+                            setStopRepeat(true);
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        TampilanPublikLayananDetail(
-                                          id: data['layanan']['id'],
-                                        )));
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            TampilanPublikLayananDetail(
+                                              id: data['layanan']['id'],
+                                            )))
+                                .then((value) => setStopRepeat(false));
                           }),
                           btnTool(
-                            data['deleteable']==1,
+                              data['deleteable'] == 1,
                               'assets/more_icon/remove-file.png',
                               BorderRadius.only(
                                 topRight: Radius.circular(30),
@@ -811,122 +850,6 @@ class TabPengerjaanCard extends StatelessWidget {
     );
   }
 
-  komenOwner(context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Color(0xfff7f7f7),
-            // shape: RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.all(Radius.circular(32.0))),
-            contentPadding: EdgeInsets.only(top: 10.0),
-            content: Container(
-              margin: EdgeInsets.only(bottom: 10),
-              width: 400.0,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 15, right: 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      'ULASAN ANDA',
-                      style: TextStyle(
-                        color: AppTheme.textBlue,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 1, color: AppTheme.geyCustom),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            alignment: Alignment.topRight,
-                            // padding: EdgeInsets.only(right: 5),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: FaIcon(
-                                FontAwesomeIcons.times,
-                                color: AppTheme.geyCustom,
-                                size: 16,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Ratings',
-                            style: TextStyle(
-                              color: AppTheme.geyCustom,
-                              fontSize: 18,
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.topLeft,
-                            width: double.infinity,
-                            child: RatingBar(
-                              maxRating: 5,
-                              onRatingChanged: (rating) => starEvent(rating),
-                              filledIcon: Icons.star,
-                              emptyIcon: Icons.star_border,
-                              halfFilledIcon: Icons.star_half,
-                              isHalfAllowed: true,
-                              filledColor: Colors.amber,
-                              size: 36,
-                            ),
-                          ),
-                          Text(
-                            'Ulasan Anda',
-                            style: TextStyle(
-                              color: AppTheme.geyCustom,
-                              fontSize: 18,
-                            ),
-                          ),
-                          TextField(
-                            style: TextStyle(fontSize: 12),
-                            maxLines: 3,
-                            decoration: new InputDecoration(
-                                border: new OutlineInputBorder(
-                                  borderRadius: const BorderRadius.all(
-                                    const Radius.circular(10.0),
-                                  ),
-                                ),
-                                filled: true,
-                                hintStyle:
-                                    new TextStyle(color: Colors.grey[800]),
-                                hintText: "Ulasan",
-                                fillColor: Colors.white70),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 80),
-                            alignment: Alignment.topRight,
-                            child: RaisedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              color: AppTheme.bgChatBlue,
-                              child: Text(
-                                'Simpan',
-                                style: TextStyle(color: AppTheme.nearlyWhite),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
   Widget komenCard(context, double paddingCard, double widthCard, Map data) {
     final sizeu = MediaQuery.of(context).size;
 
@@ -960,12 +883,14 @@ class TabPengerjaanCard extends StatelessWidget {
               InkWell(
                 onTap: () {
                   if (data['pekerja'] != null) {
+                    setStopRepeat(true);
+
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
                               TampianPublikScreen(id: data['pekerja']['id']),
-                        ));
+                        )).then((value) => setStopRepeat(false));
                   }
                 },
                 child: Container(
@@ -986,8 +911,9 @@ class TabPengerjaanCard extends StatelessWidget {
                         ),
                 ),
               ),
-              InkWell(onTap: (){
-                    if (data['pekerja'] != null) {
+              InkWell(
+                onTap: () {
+                  if (data['pekerja'] != null) {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -995,30 +921,55 @@ class TabPengerjaanCard extends StatelessWidget {
                               TampianPublikScreen(id: data['pekerja']['id']),
                         ));
                   }
-              },
+                },
                 child: Stack(
                   children: [
                     // nama & bintang
-                     Container(
-                        padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                    Container(
+                      padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/general/user_place.png',
+                                width: 12,
+                                fit: BoxFit.fitWidth,
+                              ),
+                              Text(
+                                ' ' +
+                                    (data['pekerja'] != null &&
+                                            data['pekerja']['nama'] != null
+                                        ? data['pekerja']['nama']
+                                        : tanpaNama),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                              )
+                            ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset(
-                                  'assets/general/user_place.png',
-                                  width: 12,
-                                  fit: BoxFit.fitWidth,
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.yellow,
+                                  size: 16,
                                 ),
                                 Text(
                                   ' ' +
                                       (data['pekerja'] != null &&
-                                              data['pekerja']['nama'] != null
-                                          ? data['pekerja']['nama']
-                                          : tanpaNama),
+                                              data['pekerja']['bintang'] != null
+                                          ? data['pekerja']['bintang']
+                                          : '0'),
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
@@ -1027,36 +978,11 @@ class TabPengerjaanCard extends StatelessWidget {
                                 )
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color: Colors.yellow,
-                                    size: 16,
-                                  ),
-                                  Text(
-                                    ' ' +
-                                        (data['pekerja'] != null &&
-                                                data['pekerja']['bintang'] != null
-                                            ? data['pekerja']['bintang']
-                                            : '0'),
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    maxLines: 1,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    
+                    ),
+
                     //komen frelencer
                     Container(
                       width: sizeu.width - photoWidth - 74,
@@ -1070,7 +996,8 @@ class TabPengerjaanCard extends StatelessWidget {
                         // color: Colors.green,
                         border: Border(
                           left: BorderSide(
-                              width: wightboder, color: AppTheme.geySolidCustom),
+                              width: wightboder,
+                              color: AppTheme.geySolidCustom),
                         ),
                       ),
                       child: Text(
@@ -1118,7 +1045,7 @@ class TabPengerjaanCard extends StatelessWidget {
                         (data.containsKey('file_hasil') &&
                                 data['file_hasil'].length > 0
                             ? data['file_hasil'].length.toString() +
-                                ' file_hasil'
+                                ' Preview'
                             : empty),
                         style: TextStyle(fontSize: 12),
                       ),
@@ -1141,9 +1068,9 @@ class TabPengerjaanCard extends StatelessWidget {
                         bottom: 6,
                       ),
                       child: InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           if (data['tautan'] != null) {
-                             String url = data['tautan'];
+                            String url = data['tautan'];
                             if (await canLaunch(url)) {
                               await launch(url);
                             } else {
@@ -1152,20 +1079,22 @@ class TabPengerjaanCard extends StatelessWidget {
                             }
                           }
                         },
-                                              child: Text(
+                        child: Text(
                           data['tautan'] != null
                               ? data['tautan'].toString()
                               : empty,
-                          style: TextStyle(fontSize: 12,
-                           color:
-                                  data['tautan'] != null?AppTheme.bgChatBlue:Colors.black ,
-                           decoration: 
-                                  data['tautan'] != null?TextDecoration.underline: TextDecoration.none,),
-                        
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: data['tautan'] != null
+                                ? AppTheme.bgChatBlue
+                                : Colors.black,
+                            decoration: data['tautan'] != null
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
                           ),
                         ),
                       ),
-                    
+                    ),
                   ],
                 ),
               ),
@@ -1179,21 +1108,61 @@ class TabPengerjaanCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       btnTool(
-                        true,
-                        'assets/more_icon/file_alt.png',
-                          BorderRadius.circular(30.0), 50, () {
-                        print('file');
+                          data['file_hasil'].length > 0,
+                          'assets/more_icon/file_alt.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        if (data['file_hasil'].length > 0) {
+                          setStopRepeat(true);
+
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      ZoomAbleMultiWithDownload(
+                                        index: 0,
+                                        imgList: data['file_hasil'],
+                                        max: 6,
+                                        min: 0.1,
+                                      ))).then((value) => setStopRepeat(false));
+                        } else {
+                          openAlertBox(
+                              context,
+                              'hasil Kerja Masih Kosong',
+                              'Hasil Pengerjaan masih kosong, silakan buka lagi jika sudah tersedia!',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                       }),
                       Padding(
                         padding: EdgeInsets.only(
                           top: 5,
                         ),
                       ),
-                      btnTool(
-                        true,
-                        'assets/more_icon/cc.png',
+                      btnTool(data['isPaidOff'] == 0, 'assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
-                        Navigator.pushNamed(context, '/owner_proyek_payment');
+                        print(data['isPaidOff']);
+                        if (data['isPaidOff'] == 0) {
+                          setStopRepeat(true);
+
+                          //TODO::link to pembayran
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  PaymentLayananScreen(
+                                layananId: data['id'],
+                              ),
+                            ),
+                          ).then((value) => setStopRepeat(false));
+                        } else {
+                          openAlertBox(
+                              context,
+                              'Pembayaran Sudah Lunas',
+                              'Pembayaran sudah lunas, anda tidak perlu melakukan pembayaran lagi!',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                       }),
                     ]),
               ),
@@ -1325,11 +1294,8 @@ class TabPengerjaanCard extends StatelessWidget {
                             child: Text(
                               ' ' +
                                   (data['ulasan'] != null &&
-                                          data['ulasan']['deskripsi'] != null &&
                                           data['ulasan']['deskripsi'] != null
-                                      ? data['pengerjaan']['ulasan']
-                                              ['ulasan_pekerja']['deskripsi']
-                                          .toString()
+                                      ? data['ulasan']['deskripsi'].toString()
                                       : belumReview),
                               style: TextStyle(
                                 fontSize: 15,
@@ -1340,13 +1306,26 @@ class TabPengerjaanCard extends StatelessWidget {
                         ],
                       ),
                       btnTool(
-                        data['ratingable']==1,
-                        'assets/more_icon/edit-button.png',
-                          BorderRadius.circular(30.0), 50, () {
-                        if(data['ratingable']==1){
-                          komenOwner(context);
-                        }else{
-                          openAlertBox(context, 'Pemberitahuan!', 'Tunggu Lampiran/Tautan terisi untuk mengisi ulasan...', 'OK', ()=>Navigator.pop(context));
+                          data['ratingable'] == 1,
+                          'assets/more_icon/edit-button.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        if (data['ratingable'] == 1) {
+                          print(data['id']);
+                          formRating(data);
+                        } else {
+                          openAlertBox(
+                              context,
+                              data['ulasan'] != null &&
+                                      data['ulasan']['deskripsi'] != null
+                                  ? 'Layanan Sudah Selesai'
+                                  : 'Ulasan Belum Bisa di Buka',
+                              data['ulasan'] != null &&
+                                      data['ulasan']['deskripsi'] != null
+                                  ? 'Anda sudah tidak bisa memberi ulasan lagi...'
+                                  : 'Tunggu Lampiran/Tautan terisi untuk mengisi ulasan...',
+                              'OK',
+                              () => Navigator.pop(context));
                         }
                       }),
                     ],
@@ -1358,8 +1337,8 @@ class TabPengerjaanCard extends StatelessWidget {
     );
   }
 
-  Widget btnTool(bool active,String locationImg, BorderRadius radius, double width,
-      Function linkRedirect) {
+  Widget btnTool(bool active, String locationImg, BorderRadius radius,
+      double width, Function linkRedirect) {
     return InkWell(
       onTap: () {
         linkRedirect();
@@ -1369,11 +1348,11 @@ class TabPengerjaanCard extends StatelessWidget {
         height: 30,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: active?Colors.white.withOpacity(.5):Colors.transparent,
+          color: active ? Colors.white.withOpacity(.5) : Colors.transparent,
           borderRadius: radius,
           border: Border.all(
             width: 1,
-            color: AppTheme.nearlyBlack.withOpacity(active?1:0.4),
+            color: AppTheme.nearlyBlack.withOpacity(active ? 1 : 0.4),
           ),
         ),
         child: Image.asset(

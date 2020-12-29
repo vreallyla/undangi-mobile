@@ -8,6 +8,7 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/Constant/zoomable_multi_with_download.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -967,7 +968,7 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       child: Text(
                         (data['file_hasil'].length > 0
-                            ? data['file_hasil'].length.toString() + ' lampiran'
+                            ? data['file_hasil'].length.toString() + ' Preview'
                             : empty),
                         // '',
                         style: TextStyle(fontSize: 12),
@@ -1027,8 +1028,18 @@ class TabPengerjaanCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      btnTool('assets/more_icon/edit-button.png',
+                      btnTool(
+                        data['progressable']==1,
+                        'assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0), 50, () {
+
+                            //TODO:: UPLOAD PENGERJAAN
+                            if(data['progressable']==1){
+
+                            }else{
+                              openAlertBox(
+    context, 'Form Hasil Belum Bisa Dibuka', 'Form akan tersedia jika klien sudah melakukan pembayaran...', 'OK', ()=>Navigator.pop(context));
+                            }
                         // Navigator.pushNamed(context, '/owner_proyek_payment');
                       }),
                       Padding(
@@ -1036,9 +1047,23 @@ class TabPengerjaanCard extends StatelessWidget {
                           top: 5,
                         ),
                       ),
-                      btnTool('assets/more_icon/file_alt.png',
+                      btnTool(data['file_hasil'].length>0,'assets/more_icon/file_alt.png',
                           BorderRadius.circular(30.0), 50, () {
-                        print('file');
+                          if(data['file_hasil'].length>0){
+                               Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      ZoomAbleMultiWithDownload(
+                                        index: 0,
+                                        imgList: data['file_hasil'],
+                                        max: 6,
+                                        min: 0.1,
+                                      )));
+                          }else{
+                             openAlertBox(
+    context, 'File Hasil Pengerjaan Masih Kosong', 'Harap melakukan Upload di Form Pengerjaan...', 'OK', ()=>Navigator.pop(context));
+                          }
                       }),
                     ]),
               ),
@@ -1395,7 +1420,7 @@ class TabPengerjaanCard extends StatelessWidget {
     );
   }
 
-  Widget btnTool(String locationImg, BorderRadius radius, double width,
+  Widget btnTool(bool active,String locationImg, BorderRadius radius, double width,
       Function linkRedirect) {
     return InkWell(
       onTap: () {
@@ -1406,10 +1431,11 @@ class TabPengerjaanCard extends StatelessWidget {
         height: 30,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
+          color: active ? Colors.white.withOpacity(.5) : Colors.transparent,
           borderRadius: radius,
           border: Border.all(
             width: 1,
-            color: AppTheme.nearlyBlack,
+            color: AppTheme.nearlyBlack.withOpacity(active ? 1 : 0.4),
           ),
         ),
         child: Image.asset(

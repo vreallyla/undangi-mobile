@@ -1078,8 +1078,8 @@ class _TabLayananViewState extends State<TabLayananView> {
                                 } else {
                                   openAlertBox(
                                       context,
-                                      'Proyek telah dikerjakan!',
-                                      'Proyek tidak bisa diubah...',
+                                      'Layanan Tidak Bisa Diubah',
+                                      'Masih ada layanan yang masih dikerjakan',
                                       'OK', () {
                                     Navigator.pop(context);
                                   });
@@ -1110,8 +1110,8 @@ class _TabLayananViewState extends State<TabLayananView> {
                                 } else {
                                   openAlertBox(
                                       context,
-                                      'Proyek telah dikerjakan!',
-                                      'Proyek tidak bisa dihapus...',
+                                      'Layanan Tidak Bisa Dihapus',
+                                      'Masih ada layanan yang masih dikerjakan',
                                       'OK', () {
                                     Navigator.pop(context);
                                   });

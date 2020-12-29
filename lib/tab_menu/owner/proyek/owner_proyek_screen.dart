@@ -78,7 +78,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
 
   bool stopLoad = false;
   Timer loadMore;
-  int timerRepeat = 6;
+  int timerRepeat = 10;
 
   resetFormProyek() {
     setState(() {

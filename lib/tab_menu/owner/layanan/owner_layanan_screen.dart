@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -8,10 +8,10 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/owner/layanan_owner_model.dart';
-import 'package:undangi/Model/owner/proyek_owner_model.dart';
+
 
 import 'tab_layanan_pengerjaan_view.dart';
-import 'tab_layanan_view.dart';
+
 
 class OwnerLayananScreen extends StatefulWidget {
   @override
@@ -49,13 +49,17 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   int jmlhProyek = 0;
   int jmlhPengerjaan = 0;
 
+  //repeat api
+  Timer loadMore;
+  bool stopLoad = false;
+  bool loadNow = false;
+
   //refesh controller
   // RefreshController _refreshProyekController = RefreshController();
   RefreshController _refreshPengerjaanController = RefreshController();
 
   TextEditingController searchController = TextEditingController();
 
- 
   //0=proyek;1=pengerjaan;2=dua2nya
   void setLoading(int order, bool kond) {
     // order = kond ? order : loadingPosisi;
@@ -75,17 +79,15 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   //set data proyek & pengerjaan
   setDataProyek(Map data) {
     setState(() {
-     
       dataPengerjaan = data.containsKey('pengerjaan') ? data['pengerjaan'] : [];
       jmlhPengerjaan =
           data.containsKey('count_pengerjaan') ? data['count_pengerjaan'] : 0;
-      urlPoto = data['bio']!=null ? data['bio']['foto'] : null;
-      motto = data['bio']!=null ? data['bio']['status'] : null;
-      idUser = data['bio']!=null ? data['bio']['id'] : null;
-      
+      urlPoto = data['bio'] != null ? data['bio']['foto'] : null;
+      motto = data['bio'] != null ? data['bio']['status'] : null;
+      idUser = data['bio'] != null ? data['bio']['id'] : null;
     });
 
-    print(dataPengerjaan);
+    // print(dataPengerjaan);
   }
 
   void chageTab(bool kond) {
@@ -98,47 +100,55 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
 
   // refresh user
   void _loadDataApi() async {
-    GeneralModel.checCk(
-        //connect
-        () async {
-      LayananOwnerModel.get({
-        //limit remove
-        // 'limit_proyek': getRowProyek,
-        'q': searchController.text,
-      }).then((v) {
-     
+    if (!stopLoad) {
+      setStopRepeat(true);
+
+      GeneralModel.checCk(
+          //connect
+          () async {
+        LayananOwnerModel.get({
+          //limit remove
+          // 'limit_proyek': getRowProyek,
+          'q': searchController.text,
+        }).then((v) {
+          setStopRepeat(false);
+
+          setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
+
+          if (loadingPosisi == 0) {
+            // _refreshProyekController.refreshCompleted();
+          } else if (loadingPosisi == 1) {
+            _refreshPengerjaanController.refreshCompleted();
+          }
+
+          if (v.error) {
+            errorRespon(context, v.data);
+          } else {
+            setDataProyek(v.data);
+            //disconect
+          }
+        });
+      }, () {
+        setStopRepeat(false);
+
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
-        
         if (loadingPosisi == 0) {
           // _refreshProyekController.refreshCompleted();
         } else if (loadingPosisi == 1) {
           _refreshPengerjaanController.refreshCompleted();
         }
 
-        if (v.error) {
-          errorRespon(context, v.data);
-        } else {
-          setDataProyek(v.data);
-        //disconect
-        }
+        openAlertBox(context, noticeTitle, notice, konfirm1, () {
+          Navigator.pop(context, false);
+        });
       });
-    },
-        () {
-      setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
-      if (loadingPosisi == 0) {
-        // _refreshProyekController.refreshCompleted();
-      } else if (loadingPosisi == 1) {
-        _refreshPengerjaanController.refreshCompleted();
-      }
-
-      openAlertBox(context, noticeTitle, notice, konfirm1, () {
-        Navigator.pop(context, false);
-      });
-    });
+    }
   }
 
   // refresh user
   void _nextDataApi() async {
+    setStopRepeat(true);
+
     setState(() {
       if (loadingPosisi == 0) {
         getRowProyek = getRowProyek + plusRowProyek;
@@ -155,10 +165,12 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
         // 'search_proyek': searchProyek,
         // 'limit_pengerjaan': getRowPengerjaan,
         // 'search_pengerjaan': searchPengerjaan,
-         'q': searchController.text,
+        'q': searchController.text,
       }).then((v) {
+        setStopRepeat(false);
+
         setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
-        print(loadingPosisi);
+        // print(loadingPosisi);
         if (loadingPosisi == 0) {
           // _refreshProyekController.loadComplete();
         } else if (loadingPosisi == 1) {
@@ -174,6 +186,8 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
     },
         //disconect
         () {
+      setStopRepeat(false);
+
       setLoading(loadingPosisi == 2 || !tabChange ? 0 : 1, false);
       if (loadingPosisi == 0) {
         // _refreshProyekController.loadComplete();
@@ -188,11 +202,36 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
   }
 
   @override
+  void dispose() {
+    loadMore?.cancel();
+
+    super.dispose();
+  }
+
+  @override
   void initState() {
     setLoading(1, true);
     _loadDataApi();
 
     super.initState();
+    loadMore =
+        Timer.periodic(Duration(seconds: 10), (Timer t) => _loadDataApi());
+  }
+
+  void setStopRepeat(bool kond) {
+    setState(() {
+      stopLoad = kond;
+    });
+    if (loadNow) {
+      setLoadNow(false);
+      _loadDataApi();
+    }
+  }
+
+  void setLoadNow(bool kond) {
+    setState(() {
+      loadNow = kond;
+    });
   }
 
   @override
@@ -264,10 +303,18 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                         child: InkWell(
                           onTap: () {
                             if (!toAdd) {
+                              setStopRepeat(true);
+
                               //TODO REDIRECT TO LAYANAN
-                              Navigator.pushNamed(context, '/layanan_list');
+                              Navigator.pushNamed(context, '/layanan_list')
+                                  .then((value) {
+                                {
+                                  setLoadNow(true);
+
+                                  setStopRepeat(false);
+                                }
+                              });
                             }
-                           
                           },
                           child: Container(
                               width: 100,
@@ -314,48 +361,51 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
                                   color: AppTheme.geySolidCustom,
                                 ),
                               ),
-                            Container(
-                            child: Theme(
-                              data: Theme.of(context)
-                                  .copyWith(splashColor: Colors.transparent),
-                              child: TextField(
-                                autofocus: false,
-                                style: TextStyle(fontSize: 15.0),
-                                controller: searchController,
-                                onSubmitted: (v) {
-                                   
-                                       setState(() {
-                                      searchProyek = searchPengerjaan = v;
-                                    });
-                                    setLoading(1,true);
-                                    _loadDataApi();
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.transparent,
-                                  hintText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 14.0, bottom: 12.0, top: 0.0),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(25.7),
-                                  ),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(25.7),
+                              Container(
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                      splashColor: Colors.transparent),
+                                  child: TextField(
+                                    autofocus: false,
+                                    style: TextStyle(fontSize: 15.0),
+                                    controller: searchController,
+                                    onSubmitted: (v) {
+                                      setState(() {
+                                        searchProyek = searchPengerjaan = v;
+                                      });
+                                      setLoading(1, true);
+                                      _loadDataApi();
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.transparent,
+                                      hintText: '',
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 14.0, bottom: 12.0, top: 0.0),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.transparent),
+                                        borderRadius:
+                                            BorderRadius.circular(25.7),
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.transparent),
+                                        borderRadius:
+                                            BorderRadius.circular(25.7),
+                                      ),
+                                    ),
                                   ),
                                 ),
+                                decoration: new BoxDecoration(
+                                    border: Border.all(
+                                        width: 1, color: AppTheme.geyCustom),
+                                    borderRadius: new BorderRadius.all(
+                                        new Radius.circular(30.0)),
+                                    color: Colors.transparent),
+                                width: 140,
+                                height: 30,
                               ),
-                            ),
-                            decoration: new BoxDecoration(
-                              border:Border.all(width:1,color:AppTheme.geyCustom),
-                                borderRadius: new BorderRadius.all(
-                                    new Radius.circular(30.0)),
-                                color: Colors.transparent),
-                            width: 140,
-                            height: 30,
-                          ),
-                        
                             ],
                           ),
                         ),
@@ -365,24 +415,30 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
 
               //tab proyek
               TabLayananPengerjaanView(
-                      dataReresh: _loadDataApi,
-                      dataNext: _nextDataApi,
-                      refresh: _refreshPengerjaanController,
-                      bottomKey: double.parse(bottom.toString()),
-                      loading: loadingPengerjaan,
-                      dataPengerjaan: dataPengerjaan,
-                      paddingTop: paddingPhone.top,
-                      paddingBottom: paddingPhone.bottom,
-                      toProgress: toProgress,
-                      loadAgain:(){
-                        setLoading(1, true);
-                        _loadDataApi();
-                      },
-                      toProgressFunc: () {
-                        setState(() {
-                          toProgress = !toProgress;
-                        });
-                      })
+                  dataReresh: _loadDataApi,
+                  dataNext: _nextDataApi,
+                  refresh: _refreshPengerjaanController,
+                  bottomKey: double.parse(bottom.toString()),
+                  loading: loadingPengerjaan,
+                  dataPengerjaan: dataPengerjaan,
+                  paddingTop: paddingPhone.top,
+                  paddingBottom: paddingPhone.bottom,
+                  toProgress: toProgress,
+                  setStopRepeat: (bool kond) {
+                    if(!kond){
+                      setLoadNow(true);
+                    }
+                    setStopRepeat(kond);
+                  },
+                  loadAgain: () {
+                    setLoading(1, true);
+                    _loadDataApi();
+                  },
+                  toProgressFunc: () {
+                    setState(() {
+                      toProgress = !toProgress;
+                    });
+                  })
             ],
           )),
         ),
@@ -413,7 +469,13 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
         ),
         onSelected: (newValue) {
           if (newValue == 0) {
-            Navigator.pushNamed(context, '/publik');
+            setStopRepeat(true);
+
+            Navigator.pushNamed(context, '/publik').then((value) {
+              setLoadNow(true);
+
+              setStopRepeat(false);
+            });
           }
         },
         itemBuilder: (context) => [
@@ -459,7 +521,6 @@ class _OwnerLayananScreenState extends State<OwnerLayananScreen> {
     ///proyek
     else if (!tabChange && toAdd) {
       toAdd = !toAdd;
- 
     } else {
       Navigator.pop(context);
     }

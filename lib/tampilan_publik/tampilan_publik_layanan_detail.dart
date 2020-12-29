@@ -97,6 +97,32 @@ class _TampilanPublikLayananDetailState
     });
   }
 
+  void _orderLayanan(String id) async {
+    GeneralModel.checCk(
+        //connect
+        () async {
+      onLoading(context);
+      PublikModel.orderLayanan(id).then((v) {
+        Navigator.pop(context);
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          openAlertSuccessBox(context, 'Berhasil!', v.data['message'], 'OK',
+              () => Navigator.pop(context));
+          _loadDataApi();
+        }
+      });
+    },
+        //disconect
+        () {
+      Navigator.pop(context);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
   setLoading(bool kond) {
     setState(() {
       loading = kond;
@@ -615,6 +641,9 @@ class _TampilanPublikLayananDetailState
                                                                 context), () {
                                                           Navigator.pop(
                                                               context);
+                                                          _orderLayanan(
+                                                              dataLayanan['id']
+                                                                  .toString());
                                                         });
                                                       } else {
                                                         openAlertBox(
