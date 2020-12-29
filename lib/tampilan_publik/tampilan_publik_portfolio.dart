@@ -8,6 +8,8 @@ import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
 import 'package:undangi/tampilan_publik/helper/btn_option.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 class TampilanPublikPortfolio extends StatefulWidget {
   @override
@@ -351,11 +353,32 @@ class _TampilanPublikPortfolioState extends State<TampilanPublikPortfolio> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 6.0),
-                        child: Text(value['tautan'],
-                            maxLines: 2,
-                            style: TextStyle(
-                                color: AppTheme.geySolidCustom, fontSize: 12)),
-                      ),
+                        child: InkWell(
+                          onTap: () async{
+                            if(value['tautan']!=null){
+                             
+                             String url = value['tautan'];
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              // throw 'Could not launch $url';
+                              print(url);
+                            }
+                            }
+
+                            
+
+                          },
+                                                  child: Text(value['tautan']??'(tidak ada tautan)',
+                              maxLines: 2,
+                              style: TextStyle(
+                                   fontSize: 12,
+                                   color:value['tautan']!=null?AppTheme.bgChatBlue:AppTheme.geySolidCustom ,
+                           decoration: value['tautan']!=null ?TextDecoration.underline: TextDecoration.none,),
+                        
+                                  )),
+                      )
+                      ,
                       Text(value['deskripsi'],
                           textAlign: TextAlign.justify,
                           maxLines: 4,
