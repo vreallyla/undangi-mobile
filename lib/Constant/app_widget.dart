@@ -263,7 +263,7 @@ Widget appDashboardLinkPhoto(context, String photo, Widget btnMenu,
   );
 }
 
-Widget appBackWithPhoto(context, String photo) {
+Widget appBackWithPhoto(context, String photo,eventPhoto) {
   final sizeu = MediaQuery.of(context).size;
 
   return Stack(
@@ -302,17 +302,21 @@ Widget appBackWithPhoto(context, String photo) {
             )),
       ),
       //photo
-      Container(
-        alignment: Alignment.center,
-        height: 120,
-        width: 120,
-        margin: EdgeInsets.only(top: 20, left: sizeu.width / 2 - 60),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: (AssetImage(photo)),
-            fit: BoxFit.fitWidth,
+       ShimmerLoading(
+        loading: photo == null,
+        child: Container(
+          alignment: Alignment.center,
+          height: 120,
+          width: 120,
+          margin: EdgeInsets.only(top: 20, left: sizeu.width / 2 - 60),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(60),
+            color: Colors.grey[200],
           ),
-          borderRadius: BorderRadius.circular(60),
+          child: InkWell(
+              onTap: () => eventPhoto(),
+              child:
+                  photo != null ? imageLoad(photo, true, 120, 120) : Text('')),
         ),
       ),
     ],
@@ -780,15 +784,20 @@ openAlertSuccessBoxGoon(context, String title, String sub, String textBtn) {
                 Container(
                   alignment: Alignment.center,
                   padding: EdgeInsets.only(top: 15, bottom: 5),
-                  child: RaisedButton(
-                    color: myColor,
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      textBtn,
-                      style: TextStyle(
-                        color: AppTheme.nearlyWhite,
+                  child: InkWell(
+                    onTap: ()=>Navigator.pop(context),
+                                      child: IgnorePointer(
+                                        child: RaisedButton(
+                        color: myColor,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text(
+                          textBtn,
+                          style: TextStyle(
+                            color: AppTheme.nearlyWhite,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -991,6 +1000,119 @@ passwordCheck(context, Function checkEvent) {
                           filled: true,
                           hintStyle: new TextStyle(color: Colors.grey[800]),
                           hintText: "Masukkan Password",
+                          fillColor: Colors.white70),
+                    )),
+                InkWell(
+                  onTap: () => checkEvent(),
+                  child: Container(
+                    padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                    decoration: BoxDecoration(
+                      color: myColor,
+                    ),
+                    child: Text(
+                      "CHECK",
+                      style: TextStyle(color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      });
+}
+pinCheck(context, Function checkEvent) {
+  Color myColor = AppTheme.bgChatBlue;
+
+  return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          // shape: RoundedRectangleBorder(
+          //     borderRadius: BorderRadius.all(Radius.circular(32.0))),
+          contentPadding: EdgeInsets.only(top: 10.0),
+          content: Container(
+            width: 300.0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(left: 8, right: 8),
+                  child: Row(
+                    // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Expanded(
+                          flex: 2,
+                          child: SizedBox(
+                            width: 80,
+                            child: Image.asset(
+                              'assets/general/logo.png',
+                              width: 80,
+                              fit: BoxFit.fitWidth,
+                            ),
+                          )),
+                      Expanded(
+                          flex: 3,
+                          child: Container(
+                            padding: EdgeInsets.only(right: 8),
+                            alignment: Alignment.centerRight,
+                            child: InkWell(
+                                onTap: () => Navigator.pop(context),
+                                child: FaIcon(
+                                  FontAwesomeIcons.times,
+                                  size: 14,
+                                )),
+                          )),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 5.0,
+                  decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(
+                              color: Colors.grey.withOpacity(.1), width: .5))),
+                ),
+                Container(
+                  height: 2,
+                  decoration: BoxDecoration(
+                      // color: Colors.white,
+                      // border: Border(
+                      // bottom: BorderSide(width: .5,color: Colors.grey.withOpacity(.5))
+                      // ),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey.withOpacity(.5),
+                            blurRadius: 3.0,
+                            offset: Offset(0.0, 0.75))
+                      ]),
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10, 20, 10, 5),
+                  child: Text('PIN'),
+                ),
+                Padding(
+                    padding:
+                        EdgeInsets.only(left: 10.0, right: 10.0, bottom: 15),
+                    child: TextField(
+                      obscureText: true,
+                      maxLength: 6,
+                      
+                      style: TextStyle(fontSize: 12, height: 1),
+                      decoration: new InputDecoration(
+                          border: new OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(10.0),
+                            ),
+                          ),
+                          filled: true,
+                          hintStyle: new TextStyle(color: Colors.grey[800]),
+                          hintText: "Masukkan PIN",
                           fillColor: Colors.white70),
                     )),
                 InkWell(

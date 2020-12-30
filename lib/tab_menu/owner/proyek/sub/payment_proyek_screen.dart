@@ -28,7 +28,7 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
   TextEditingController hargaTotal = new TextEditingController();
   TextEditingController hargaTagihan = new TextEditingController();
   MoneyMaskedTextController hargaAmbil =
-      MoneyMaskedTextController(decimalSeparator: ',', thousandSeparator: '.');
+      MoneyMaskedTextController(decimalSeparator: ',', thousandSeparator: '.',);
   FocusNode ambilFocus = new FocusNode();
   FocusNode otherFocus = new FocusNode();
 
