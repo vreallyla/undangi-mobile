@@ -729,14 +729,14 @@ class TabPengerjaanCard extends StatelessWidget {
                                 .then((value) => setStopRepeat(false));
                           }),
                           btnTool(
-                              data['deleteable'] == 1,
+                              data['deleteable'] == '1',
                               'assets/more_icon/remove-file.png',
                               BorderRadius.only(
                                 topRight: Radius.circular(30),
                                 bottomRight: Radius.circular(30),
                               ),
                               (widthBtnShort - 15) / 2, () {
-                            if (data['deleteable'] == 1) {
+                            if (data['deleteable'] == '1') {
                               openAlertBoxTwo(
                                 context,
                                 'KONFIRMASI HAPUS PROYEK',
@@ -811,7 +811,7 @@ class TabPengerjaanCard extends StatelessWidget {
                   Text(
                     moreThan99(data['layanan'] != null &&
                                 data['layanan']['jumlah_klien'] != null
-                            ? data['layanan']['jumlah_klien']
+                            ? parseInt(data['layanan']['jumlah_klien'])
                             : 0) +
                         ' ORANG  ',
                     style: TextStyle(
@@ -1139,10 +1139,10 @@ class TabPengerjaanCard extends StatelessWidget {
                           top: 5,
                         ),
                       ),
-                      btnTool(data['isPaidOff'] == 0, 'assets/more_icon/cc.png',
+                      btnTool(data['isPaidOff'] == '0', 'assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
                         print(data['isPaidOff']);
-                        if (data['isPaidOff'] == 0) {
+                        if (data['isPaidOff'] == '0') {
                           setStopRepeat(true);
 
                           //TODO::link to pembayran
@@ -1306,11 +1306,11 @@ class TabPengerjaanCard extends StatelessWidget {
                         ],
                       ),
                       btnTool(
-                          data['ratingable'] == 1,
+                          data['ratingable'] == '1',
                           'assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0),
                           50, () {
-                        if (data['ratingable'] == 1) {
+                        if (data['ratingable'] == '1') {
                           print(data['id']);
                           formRating(data);
                         } else {

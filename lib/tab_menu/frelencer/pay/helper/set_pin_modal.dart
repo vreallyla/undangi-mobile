@@ -192,7 +192,7 @@ class _SetPinModalState extends State<SetPinModal> {
                             controller: konfirmasiController,
                             obscureText: true,
                             maxLength: 6,
-                            style: TextStyle(fontSize: 12, height: 1),
+                            style: TextStyle(fontSize: 14, height: 1),
                             decoration: new InputDecoration(
                                 counter: Offstage(),
                                 border: new OutlineInputBorder(
@@ -224,7 +224,7 @@ class _SetPinModalState extends State<SetPinModal> {
                             keyboardType: TextInputType.number,
                             obscureText: true,
                             maxLength: 6,
-                            style: TextStyle(fontSize: 12, height: 1),
+                            style: TextStyle(fontSize: 14, height: 1),
                             decoration: new InputDecoration(
                                 counter: Offstage(),
                                 border: new OutlineInputBorder(
@@ -255,7 +255,7 @@ class _SetPinModalState extends State<SetPinModal> {
                             keyboardType: TextInputType.number,
                             obscureText: true,
                             maxLength: 6,
-                            style: TextStyle(fontSize: 12, height: 1),
+                            style: TextStyle(fontSize: 14, height: 1),
                             decoration: new InputDecoration(
                                 counter: Offstage(),
                                 border: new OutlineInputBorder(

@@ -314,7 +314,7 @@ class _WithdrawModalState extends State<WithdrawModal> {
                 keyboardType: TextInputType.number,
                 obscureText: true,
                 maxLength: 6,
-                style: TextStyle(fontSize: 12, height: 1),
+                style: TextStyle(fontSize: 14, height: 1),
                 decoration: new InputDecoration(
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(
@@ -352,7 +352,7 @@ class _WithdrawModalState extends State<WithdrawModal> {
                 focusNode: ambilFocus,
                 controller: nominalController,
                 keyboardType: TextInputType.number,
-                style: TextStyle(fontSize: 12, height: 1),
+                style: TextStyle(fontSize: 14, height: 1),
                 decoration: new InputDecoration(
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(
@@ -376,7 +376,7 @@ class _WithdrawModalState extends State<WithdrawModal> {
                 controller: bankController,
                 // keyboardType: TextInputType.number,
                 enabled: false,
-                style: TextStyle(fontSize: 12, height: 1),
+                style: TextStyle(fontSize: 14, height: 1),
                 decoration: new InputDecoration(
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(
@@ -400,7 +400,7 @@ class _WithdrawModalState extends State<WithdrawModal> {
                 controller: noRekController,
                 enabled: false,
                 // keyboardType: TextInputType.number,
-                style: TextStyle(fontSize: 12, height: 1),
+                style: TextStyle(fontSize: 14, height: 1),
                 decoration: new InputDecoration(
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(
@@ -422,9 +422,9 @@ class _WithdrawModalState extends State<WithdrawModal> {
               padding: EdgeInsets.only(left: 10.0, right: 10.0, bottom: 15),
               child: TextField(
                 enabled: false,
-                controller: noRekController,
+                controller: anController,
                 // keyboardType: TextInputType.number,
-                style: TextStyle(fontSize: 12, height: 1),
+                style: TextStyle(fontSize: 14, height: 1),
                 decoration: new InputDecoration(
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(

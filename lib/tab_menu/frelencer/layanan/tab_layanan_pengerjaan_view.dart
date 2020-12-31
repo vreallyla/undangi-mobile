@@ -656,7 +656,7 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  moreThan99((inLayanan(data, 'jumlah_klien') ?? 0)) +
+                  moreThan99((parseInt(inLayanan(data, 'jumlah_klien')) ?? 0)) +
                       ' ORANG  ',
                   style: TextStyle(
                     fontSize: 11,

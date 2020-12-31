@@ -75,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   checkData() {
     setState(() {
-      check = dataProfil.containsKey('bio');
+      check = dataProfil['bio']!=null;
     });
     return check;
   }
@@ -178,7 +178,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(
                         width: sizeu.width - 50 - 40,
                         child: Text(
-                          checkData() ? dataProfil['bio']['status'] : '-',
+                          checkData() &&dataProfil['bio']['status']!=null ? dataProfil['bio']['status'] : 'Atasi Masalah Tanpa Solusi!',
                           maxLines: 2,
                           textAlign: TextAlign.center,
                           style: TextStyle(

@@ -560,7 +560,7 @@ class TabPengerjaanCard extends StatelessWidget {
               //kontent
               Container(
                 width: widthKonten,
-                height: heightCard,
+                // height: heightCard,
                 padding: EdgeInsets.only(
                   left: 5,
                   right: 5,

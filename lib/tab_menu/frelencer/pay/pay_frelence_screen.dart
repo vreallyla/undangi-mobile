@@ -213,12 +213,35 @@ class _PayFrelenceScreenState extends State<PayFrelenceScreen> {
                         height: 20,
                         child: RaisedButton(
                           color: AppTheme.nearlyWhite,
-                          onPressed: () {
-                            return showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return TopupMidtransModal();
-                                });
+                          onPressed: () async {
+                            onLoading(context);
+                            await GeneralModel.token().then((v) {
+                              Navigator.pop(context);
+
+                              return showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return TopupModal(
+                                      pinIsExist: pinIsExist,
+                                      reload: (String nominal) {
+                                        Navigator.pop(context);
+                                        return showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return TopupMidtransModal(
+                                                other: {
+                                                  'jumlah': nominal,
+                                                  'token': v.res,
+                                                },
+                                                loadAgain: () {
+                                                  _loadDataApi();
+                                                },
+                                              );
+                                            });
+                                      },
+                                    );
+                                  });
+                            });
                           },
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(5.0),

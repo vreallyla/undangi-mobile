@@ -362,7 +362,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                               builder: (context) => ChooseSelect(
                                   op: widget.kategoriSelect,
                                   grup: true,
-                                  judul: 'Kategori Proyek',
+                                  judul: 'Kategori Layanan',
                                   url: 'grup_kategori' +
                                       (widget.kategoriSelect['id'] == null
                                           ? ''
@@ -378,7 +378,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                               inputHug(
                                 widget.kategoriSelect['nama'] != ''
                                     ? widget.kategoriSelect['nama'].toString()
-                                    : 'Kategori proyek anda',
+                                    : 'Kategori Layanan anda',
                                 FaIcon(
                                   FontAwesomeIcons.tag,
                                   size: 16,
@@ -402,7 +402,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                       Padding(padding: EdgeInsets.only(top: gangInput)),
                       judulLabel('Judul'),
                       inputHug(
-                        'Judul Proyek',
+                        'Judul Layanan',
                         FaIcon(
                           FontAwesomeIcons.pen,
                           size: 16,
@@ -434,7 +434,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                               borderSide:
                                   BorderSide(color: Colors.black38, width: 1),
                             ),
-                            hintText: 'Deskripsi terkait proyek anda',
+                            hintText: 'Deskripsi terkait Layanan anda',
                           ),
                         ),
                       ),
@@ -450,7 +450,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Batas Waktu Proyek',
+                                  'Batas Waktu Layanan',
                                   style: TextStyle(
                                       fontSize: 11,
                                       color: AppTheme.geySolidCustom,
@@ -1071,7 +1071,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                     topLeft: Radius.circular(30.0),
                                     bottomLeft: Radius.circular(30.0),
                                   ), () {
-                                if (data['can_delete'] == 1) {
+                                if (data['can_delete'] == '1') {
                                   widget.editEvent(data['id']);
                                   widget.toAddFunc();
                                   widget.valueEdit(data);
@@ -1084,18 +1084,18 @@ class _TabLayananViewState extends State<TabLayananView> {
                                     Navigator.pop(context);
                                   });
                                 }
-                              }, data['can_delete'] == 1 ? true : false),
+                              }, data['can_delete'] == '1' ? true : false),
                               btnTool(
                                   'assets/more_icon/remove-file.png',
                                   BorderRadius.only(
                                     topRight: Radius.circular(30.0),
                                     bottomRight: Radius.circular(30.0),
                                   ), () {
-                                if (data['can_delete'] == 1) {
+                                if (data['can_delete'] == '1') {
                                   openAlertBoxTwo(
                                     context,
-                                    'KONFIRMASI HAPUS PROYEK',
-                                    'Apa anda yakin hapus proyek ini? Proyek akan hilang!',
+                                    'Konfirmasi Hapus Layanan',
+                                    'Apa anda yakin hapus Layanan ini? Layanan akan hilang!',
                                     'TIDAK',
                                     'HAPUS',
                                     () {
@@ -1116,7 +1116,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                     Navigator.pop(context);
                                   });
                                 }
-                              }, data['can_delete'] == 1 ? true : false),
+                              }, data['can_delete'] == '1' ? true : false),
                             ],
                           ),
                           Container(
@@ -1129,7 +1129,7 @@ class _TabLayananViewState extends State<TabLayananView> {
                                 color: AppTheme.bgChatBlue,
                                 borderRadius: BorderRadius.circular(8)),
                             child: Text(
-                              moreThan99(data['jumlah_klien'] ?? 0) + ' KLIEN',
+                              moreThan99(parseInt(data['jumlah_klien']) ?? 0) + ' KLIEN',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 12,

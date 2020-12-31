@@ -95,9 +95,11 @@ class ProfileView extends StatelessWidget {
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ProfilSummaryScreen(
-                                    summary: checkData
+                                    summary: 
+                                    checkData && dataProfile['bio']['summary']!=null
                                         ? dataProfile['bio']['summary']
-                                        : ''),
+                                        : 
+                                        ''),
                               )).then((value) {
                             if (value) {
                               getApi();
@@ -123,9 +125,10 @@ class ProfileView extends StatelessWidget {
                     height: 80,
                     alignment: Alignment.center,
                     child: Text(
-                      checkData
+                      checkData &&dataProfile['bio']['summary']!=null
                           ? dataProfile['bio']['summary']
-                          : 'Anda belum menambah summary',
+                          : 
+                          'Anda belum menambah summary',
                       style: TextStyle(
                         color: AppTheme.textBlue,
                         fontSize: 13,
