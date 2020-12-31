@@ -276,7 +276,7 @@ class _ProyekListScreenState extends State<ProyekListScreen> {
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
                                   TampilanPublikProyekDetail(
-                                    id: data[i]['id'],
+                                    id: data[i]['id']!=null?int.parse(data[i]['id'].toString()):0,
                               
                                   )));
               },
@@ -335,7 +335,7 @@ class _ProyekListScreenState extends State<ProyekListScreen> {
                                   ),
                                 ),
                                 Text(
-                                  moreThan99(data[i]['jumlah_bid']) + ' ORANG',
+                                  moreThan99(data[i]['jumlah_bid']!=null?int.parse(data[i]['jumlah_bid'].toString()):0) + ' ORANG',
                                   style: TextStyle(
                                     color: AppTheme.primaryBlue,
                                     fontSize: textSubKonten + 3,

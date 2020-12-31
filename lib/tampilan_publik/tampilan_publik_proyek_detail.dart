@@ -470,9 +470,10 @@ class _TampilanPublikProyekDetailState
                                     color: Colors.black,
                                     borderRadius: BorderRadius.circular(20)),
                                 child: Text(
-                                  moreThan99(
-                                    dataProyek['total_bid'] ?? 0,
-                                  ),
+                                  moreThan99(dataProyek['total_bid'] != null
+                                      ? int.parse(
+                                          dataProyek['total_bid'].toString())
+                                      : 0),
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w500,
@@ -737,13 +738,13 @@ class _TampilanPublikProyekDetailState
                                                           children: [
                                                             Text(
                                                               'Rp' +
-                                                                  pointGroup(
-                                                                    int.parse(dataProyek['harga'] !=
-                                                                            null
-                                                                        ? dataProyek['harga']
-                                                                            .toString()
-                                                                        : '0'),
-                                                                  ),
+                                                                  pointGroup(dataProyek[
+                                                                              'harga'] !=
+                                                                          null
+                                                                      ? int.parse(
+                                                                          dataProyek['harga']
+                                                                              .toString())
+                                                                      : 0),
                                                               style: TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -908,8 +909,12 @@ class _TampilanPublikProyekDetailState
                                                     ),
                                                     Text(
                                                       moreThan99(dataProyek[
-                                                                  'total_bid'] ??
-                                                              0) +
+                                                                      'total_bid'] !=
+                                                                  null
+                                                              ? int.parse(dataProyek[
+                                                                      'total_bid']
+                                                                  .toString())
+                                                              : 0) +
                                                           ' ORANG',
                                                       // 'helo',
                                                       style: TextStyle(
@@ -957,7 +962,7 @@ class _TampilanPublikProyekDetailState
                                                           ),
                                                         ),
                                                         Text(
-                                                          '  ${pointGroup(int.parse((dataProyek['waktu_pengerjaan'] != null ? dataProyek['waktu_pengerjaan'].toString() : '0')))} HARI',
+                                                          '  ${dataProyek['waktu_pengerjaan'] != null ? dataProyek['waktu_pengerjaan'].toString() : '0'} HARI',
                                                           // 'asd',
                                                           style: TextStyle(
                                                             color: AppTheme

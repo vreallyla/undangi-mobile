@@ -104,7 +104,7 @@ class _ChooseSelectState extends State<ChooseSelect> {
         }
         element['sub'].forEach((el) async {
           await setWidget(selectOrNot(el));
-          if (addSub & el.containsKey('selected') && el['selected'] > 0) {
+          if (addSub && el['selected']!=null && int.parse(el['selected'].toString())> 0) {
             setState(() {
               addSub = false;
             });
@@ -118,8 +118,8 @@ class _ChooseSelectState extends State<ChooseSelect> {
         });
       } else {
         dataWidget.add(selectOrNot(element));
-        if (addSub & element.containsKey('selected') &&
-            element['selected'] > 0) {
+        if (addSub && element['selected']!=null &&
+            int.parse(element['selected'].toString()) > 0) {
           setState(() {
             addSub = false;
           });
@@ -144,9 +144,12 @@ class _ChooseSelectState extends State<ChooseSelect> {
   }
 
   Widget selectOrNot(Map v) {
-    return v.containsKey('selected') && v['selected'] > 0
+    return 
+    // Text(v.toString());
+    v['selected']!=null &&int.parse( v['selected'].toString() )> 0
         ? dataSelected(v)
-        : dataNotSelected(v);
+        : 
+        dataNotSelected(v);
   }
 
   @override

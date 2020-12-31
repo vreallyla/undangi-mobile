@@ -272,7 +272,7 @@ class _LayananListScreenState extends State<LayananListScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => TampilanPublikLayananDetail(id: data[i]['id']),
+              builder: (context) => TampilanPublikLayananDetail(id: parseInt(data[i]['id'])),
             ),
           );
         },
@@ -327,7 +327,7 @@ class _LayananListScreenState extends State<LayananListScreen> {
                                   ),
                                 ),
                                 Text(
-                                  moreThan99(data[i]['jumlah_klien']) +
+                                  moreThan99(parseInt(data[i]['jumlah_klien'])) +
                                       ' ORANG',
                                   style: TextStyle(
                                     color: AppTheme.primaryBlue,

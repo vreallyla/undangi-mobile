@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 const String generalAssets = 'assets/general/';
 
 //url
-const String domainUrl = '10.0.2.2';
-const String globalBaseUrl = 'http://$domainUrl:8000/api/';
+const String domainUrl = 'undagi.my.id';
+const String globalBaseUrl = 'https://$domainUrl/api/';
 const String globalPathAuth = 'auth/';
 
 //key
@@ -17,6 +17,11 @@ const String notice = 'Silakan coba lagi...';
 const String baseNotice = 'Pemberitahuan';
 const String noticeForm = 'Silakan cek lagi form yang tersedia...';
 const String noticeTitle = 'Terjadi kesalahan!';
+
+//CONVERT INT
+parseInt(val){
+  return val!=null?int.parse(val.toString()):0;
+}
 
 
 //CONFIRM

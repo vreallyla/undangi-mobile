@@ -1561,7 +1561,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                       ),
                     ),
                     Text(
-                      moreThan99((data['total_bid'] ?? 0)) + ' ORANG  ',
+                      moreThan99(data['total_bid']!=null?(int.parse(data['total_bid'].toString()) ):0) + ' ORANG  ',
                       style: TextStyle(
                         fontSize: 11,
                         color: AppTheme.primarymenu,
@@ -1582,7 +1582,7 @@ class _TabProyekViewState extends State<TabProyekView> {
                     Text(
                       pointGroup(
                               int.parse(data['waktu_pengerjaan'].toString()) ??
-                                  0) +
+                                  '0') +
                           ' Hari',
                       style: TextStyle(
                         fontSize: 11,

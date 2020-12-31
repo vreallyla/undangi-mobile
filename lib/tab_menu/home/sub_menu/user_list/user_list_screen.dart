@@ -216,7 +216,7 @@ class _UserListScreenState extends State<UserListScreen> {
               context,
               MaterialPageRoute(
                   builder: (BuildContext context) => TampianPublikScreen(
-                        id: data[k]['id'],
+                      id: parseInt(data[k]['id']),
                       ))),
           child: UserCardView(
             data: data[k],
@@ -230,13 +230,16 @@ class _UserListScreenState extends State<UserListScreen> {
           dataChild.add(Padding(padding: EdgeInsets.only(left: 10)));
         }
         dataChild.add(InkWell(
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => TampianPublikScreen(
-                        id: v['id'],
-                      ))),
-                  child: UserCardView(
+          onTap: () {
+           
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => TampianPublikScreen(
+                          id: v['id']!=null?int.parse(v['id'].toString()):0,
+                        )));
+          },
+          child: UserCardView(
             data: v,
           ),
         ));

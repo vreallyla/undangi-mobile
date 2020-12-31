@@ -387,7 +387,7 @@ class _TampilanPublikProyekState extends State<TampilanPublikProyek> {
                                   ),
                                 ),
                                 Text(
-                                  moreThan99(data[i]['total_bid']) + ' ORANG',
+                                  moreThan99(parseInt(data[i]['total_bid'])) + ' ORANG',
                                   style: TextStyle(
                                     color: AppTheme.primaryBlue,
                                     fontSize: textSubKonten + 3,

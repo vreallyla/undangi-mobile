@@ -452,14 +452,16 @@ class _TampilanPublikLayananDetailState
                                                                   .start,
                                                           children: [
                                                             Text(
-                                                              'Rp' +
+                                                              'Rp' 
+                                                              +
                                                                   pointGroup(
                                                                     int.parse(dataLayanan['harga'] !=
                                                                             null
                                                                         ? dataLayanan['harga']
                                                                             .toString()
                                                                         : '0'),
-                                                                  ),
+                                                                  )
+                                                                  ,
                                                               style: TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -540,9 +542,8 @@ class _TampilanPublikLayananDetailState
                                                       ),
                                                     ),
                                                     Text(
-                                                      moreThan99(dataLayanan[
-                                                                  'jumlah_klien'] ??
-                                                              0) +
+                                                      moreThan99(parseInt(dataLayanan[
+                                                                  'jumlah_klien'])) +
                                                           ' ORANG',
                                                       // 'helo',
                                                       style: TextStyle(

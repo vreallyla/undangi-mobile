@@ -7,6 +7,7 @@ import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/publik_mode.dart';
 import 'package:undangi/tampilan_publik/helper/btn_option.dart';
+import 'package:undangi/tampilan_publik/tampilan_publik_layanan_detail.dart';
 
 
 class TampilanPublikLayanan extends StatefulWidget {
@@ -323,183 +324,193 @@ class _TampilanPublikLayananState extends State<TampilanPublikLayanan> {
         ],
         color: AppTheme.renoReno[z],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //gambar
-              Container(
-                height: imgWidth,
-                width: imgWidth,
-                margin: EdgeInsets.only(right: marginPemisah),
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black54,
-                      spreadRadius: .5,
-                      blurRadius: 2,
-                      offset: Offset(0, 2), // changes position of shadow
+      child: InkWell(
+        onTap: (){
+           Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => TampilanPublikLayananDetail(id: parseInt(data[i]['id'])),
+            ),
+          );
+        },
+              child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //gambar
+                Container(
+                  height: imgWidth,
+                  width: imgWidth,
+                  margin: EdgeInsets.only(right: marginPemisah),
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black54,
+                        spreadRadius: .5,
+                        blurRadius: 2,
+                        offset: Offset(0, 2), // changes position of shadow
+                      ),
+                    ],
+                    image: DecorationImage(
+                      image:
+                          (AssetImage('assets/general/ilustration_desain.jpg')),
+                      fit: BoxFit.fitWidth,
                     ),
-                  ],
-                  image: DecorationImage(
-                    image:
-                        (AssetImage('assets/general/ilustration_desain.jpg')),
-                    fit: BoxFit.fitWidth,
+                    color: Colors.white,
                   ),
-                  color: Colors.white,
                 ),
-              ),
-              //konten
-              Container(
-                width: widthKonten,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        //total bid
-                        SizedBox(
-                          width: widthKonten / 2.3,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Total Klien:',
-                                style: TextStyle(
-                                  color: AppTheme.geySolidCustom,
-                                  fontSize: textSubKonten + 1.5,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                moreThan99(data[i]['jumlah_klien']) + ' ORANG',
-                                style: TextStyle(
-                                  color: AppTheme.primaryBlue,
-                                  fontSize: textSubKonten + 3,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        //durasi
-                        SizedBox(
-                          width: widthKonten - (widthKonten / 2.3),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: textSubKonten + 8,
-                                height: textSubKonten + 8,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: (AssetImage(
-                                        'assets/more_icon/calender.png')),
-                                    fit: BoxFit.fitWidth,
+                //konten
+                Container(
+                  width: widthKonten,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          //total bid
+                          SizedBox(
+                            width: widthKonten / 2.3,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Total Klien:',
+                                  style: TextStyle(
+                                    color: AppTheme.geySolidCustom,
+                                    fontSize: textSubKonten + 1.5,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '  Batas Waktu: ',
-                                    style: TextStyle(
-                                      color: AppTheme.geySolidCustom,
-                                      fontSize: textSubKonten + 1.5,
-                                      fontWeight: FontWeight.w500,
+                                Text(
+                                  moreThan99(parseInt(data[i]['jumlah_klien'])) + ' ORANG',
+                                  style: TextStyle(
+                                    color: AppTheme.primaryBlue,
+                                    fontSize: textSubKonten + 3,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          //durasi
+                          SizedBox(
+                            width: widthKonten - (widthKonten / 2.3),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: textSubKonten + 8,
+                                  height: textSubKonten + 8,
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      image: (AssetImage(
+                                          'assets/more_icon/calender.png')),
+                                      fit: BoxFit.fitWidth,
                                     ),
                                   ),
-                                  Text(
-                                    '  ${pointGroup(int.parse(data[i]['hari_pengerjaan'].toString()))} HARI',
-                                    style: TextStyle(
-                                      color: AppTheme.primaryBlue,
-                                      fontSize: textSubKonten + 3,
-                                      fontWeight: FontWeight.w600,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '  Batas Waktu: ',
+                                      style: TextStyle(
+                                        color: AppTheme.geySolidCustom,
+                                        fontSize: textSubKonten + 1.5,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
-                                  )
-                                ],
-                              ),
-                            ],
+                                    Text(
+                                      '  ${pointGroup(int.parse(data[i]['hari_pengerjaan'].toString()))} HARI',
+                                      style: TextStyle(
+                                        color: AppTheme.primaryBlue,
+                                        fontSize: textSubKonten + 3,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      //harga
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
+                        child: Text(
+                          'Rp' + decimalPointTwo(data[i]['harga']),
+                          style: TextStyle(
+                            color: AppTheme.geySolidCustom,
+                            fontSize: textHargaKonten,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ],
-                    ),
-                    //harga
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 3, 0, 3),
-                      child: Text(
-                        'Rp' + decimalPointTwo(data[i]['harga']),
+                      ),
+                      // sub kategori
+                      Text(
+                        'Kategori ${(data[i]['kategori'] != null ? data[i]['kategori']['nama'] : '-')}:',
                         style: TextStyle(
                           color: AppTheme.geySolidCustom,
-                          fontSize: textHargaKonten,
+                          fontSize: textSubKonten + 2,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                    ),
-                    // sub kategori
-                    Text(
-                      'Kategori ${(data[i]['kategori'] != null ? data[i]['kategori']['nama'] : '-')}:',
-                      style: TextStyle(
-                        color: AppTheme.geySolidCustom,
-                        fontSize: textSubKonten + 2,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    // sub kategori detail
+                      // sub kategori detail
 
-                    Text(
-                      (data[i]['subkategori'] != null
-                          ? data[i]['subkategori']['nama']
-                          : '-'),
-                      style: TextStyle(
-                        color: AppTheme.primaryBlue,
-                        fontSize: textSubKonten + 2.5,
-                        fontWeight: FontWeight.w600,
+                      Text(
+                        (data[i]['subkategori'] != null
+                            ? data[i]['subkategori']['nama']
+                            : '-'),
+                        style: TextStyle(
+                          color: AppTheme.primaryBlue,
+                          fontSize: textSubKonten + 2.5,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-
-              //kategori
-              Container(
-                width: widthKategori,
-                padding: EdgeInsets.only(top: imgWidth / 5),
-                // height: 40,
-                child: Text(
-                  data[i]['judul'].toUpperCase(),
-                  style: TextStyle(
-                    fontSize: textKategori,
-                    color: AppTheme.primaryBlue,
-                    fontWeight: FontWeight.w600,
+                    ],
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 4,
                 ),
-              ),
-            ],
-          ),
-          //keterangan
-          Container(
-            margin: EdgeInsets.only(left: imgWidth + marginPemisah),
-            // padding: const EdgeInsets.only(top: 15),
-            height: textKeteranganKonten * 3,
-            alignment: Alignment.bottomLeft,
 
-            width: double.infinity,
-            child: Text(
-              data[i]['deskripsi'],
-              style: TextStyle(
-                color: AppTheme.geySolidCustom,
-                fontSize: textKeteranganKonten,
-                fontWeight: FontWeight.w500,
-              ),
-              maxLines: 2,
+                //kategori
+                Container(
+                  width: widthKategori,
+                  padding: EdgeInsets.only(top: imgWidth / 5),
+                  // height: 40,
+                  child: Text(
+                    data[i]['judul'].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: textKategori,
+                      color: AppTheme.primaryBlue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 4,
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            //keterangan
+            Container(
+              margin: EdgeInsets.only(left: imgWidth + marginPemisah),
+              // padding: const EdgeInsets.only(top: 15),
+              height: textKeteranganKonten * 3,
+              alignment: Alignment.bottomLeft,
+
+              width: double.infinity,
+              child: Text(
+                data[i]['deskripsi'],
+                style: TextStyle(
+                  color: AppTheme.geySolidCustom,
+                  fontSize: textKeteranganKonten,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 2,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
