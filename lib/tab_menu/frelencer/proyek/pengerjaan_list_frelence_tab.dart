@@ -6,21 +6,31 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/Constant/zoomable_single_with_download.dart';
+import 'package:undangi/Model/frelencer/proyek_frelencer_model.dart';
+import 'package:undangi/Model/general_model.dart';
 
 class PengerjaanListFrelenceTab extends StatefulWidget {
   const PengerjaanListFrelenceTab({
     Key key,
     this.bottomKey = 0,
     this.reloadFunc,
+    this.toProgressFunc,
     this.nextData,
     this.dataBid,
     this.loading,
     this.refresh,
+    this.toProgress,
+    this.pauseLoad,
   }) : super(key: key);
 
   final double bottomKey;
   final bool loading;
   final List dataBid;
+
+  final bool toProgress;
+  final Function(bool kond) pauseLoad;
+  final Function(String id) toProgressFunc;
 
   final RefreshController refresh;
 
@@ -32,19 +42,292 @@ class PengerjaanListFrelenceTab extends StatefulWidget {
 }
 
 class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
-  TextEditingController inputKategori = new TextEditingController();
-  TextEditingController inputJudul = new TextEditingController();
+  bool loadingProgress = false;
+  List dataProgress = [];
+  String proyekId = '';
+  Map dataProyek = {};
+
+   // refresh user
+  void _loadDataApi() async {
+    setLoadingProgress(true);
+    GeneralModel.checCk(
+        //connect
+        () async {
+      ProyekFrelencerModel.getProgress(proyekId, {'q': ''}).then((v) {
+        setLoadingProgress(false);
+        // widget.pauseLoad(false);
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          setState(() {
+            dataProgress = v.data['proses'];
+          });
+          // print(dataProgress);
+        }
+      });
+    },
+        //disconect
+        () {
+      setLoadingProgress(false);
+      // widget.pauseLoad(false);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
+
+  setLoadingProgress(bool kond) {
+    setState(() {
+      loadingProgress = kond;
+    });
+  }
+
+  changeToProgress() {
+    if (!widget.toProgress) {
+      widget.pauseLoad(true);
+      _loadDataApi();
+    }
+    widget.toProgressFunc(proyekId);
+  }
+
+  
 
   String jnsProyek = 'publik';
   @override
   Widget build(BuildContext context) {
+    final paddingPhone = MediaQuery.of(context).padding;
+
     double marginLeftRight = 10;
     double marginCard = 5;
     final sizeu = MediaQuery.of(context).size;
     double gangInput = 5;
 
-    return proyekList((id) {});
+    return widget.toProgress?
+    (loadingProgress
+                  ? onLoading2()
+                  : (dataProgress.length == 0
+                      ? dataKosong()
+                      : Container(
+                          height: sizeu.height -
+                              340 -
+                              widget.bottomKey -
+                              paddingPhone.bottom -
+                              paddingPhone.top,
+                          margin: EdgeInsets.only(
+                              left: marginLeftRight, right: marginLeftRight),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              width: .5,
+                              color: Colors.black,
+                            ),
+                          ),
+                          child: ListView.builder(
+                              itemCount: dataProgress.length,
+                              // itemExtent: 100.0,
+                              itemBuilder: (c, i) {
+                                Map data = dataProgress[i];
+                                return progressScreen(
+                                    marginLeftRight, marginCard, sizeu.width, data);
+                              }),
+                        )))
+             
+    :proyekList((id) {});
   }
+
+  
+  Widget progressScreen(marginLeftRight, marginCard, _width, data) {
+    return Container(
+      padding: EdgeInsets.all(marginCard),
+      child: Container(
+        padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
+        decoration: BoxDecoration(
+          color: AppTheme.bgBlue2Soft,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 50,
+                  width: 50,
+                  margin: EdgeInsets.only(right: 10),
+                  child: imageLoad(dataProyek['proyek']['thumbnail'], false, 50, 50),
+                ),
+                Container(
+                  width: _width - 201,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      //judul
+                      RichText(
+                        text: TextSpan(
+                          text: dataProyek['proyek']['judul'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 16,
+                            color: AppTheme.primarymenu,
+                          ),
+                          children: <TextSpan>[
+                            TextSpan(
+                              text:
+                                  ' (${dataProyek['proyek']['waktu_pengerjaan'].toString()} HARI)',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: AppTheme.nearlyBlack,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      //harga
+                      RichText(
+                          text: TextSpan(
+                        text:
+                            'Rp' + decimalPointTwo(dataProyek['proyek']['harga'] ?? '0'),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                          color: AppTheme.nearlyBlack,
+                        ),
+                      )),
+
+                      //status
+                      InkWell(
+                        child: Container(
+                          margin: EdgeInsets.only(top: 3),
+                          width: 150,
+                          decoration: BoxDecoration(
+                            color: AppTheme.primarymenu,
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            dataProyek['status'] != null
+                                ? dataProyek['status']
+                                : unknown,
+                            style: TextStyle(
+                              color: AppTheme.nearlyWhite,
+                              fontSize: 12,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+
+                      // progress
+                      // progressBar(_width - 121 - 50, 30),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: () {
+                     Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                ZoomAbleSingleWithDownload(
+                              imgUrl:data['bukti_gambar'].toString(),
+                              min:0.1,
+                              max:6,
+                            ),
+                          ),
+                        );
+                  },
+                  child: Container(
+                      width: 80,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      alignment: Alignment.center,
+                      child: Stack(
+                        children: [
+                          Text('LAMPIRAN',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              )),
+                          Padding(
+                            padding: EdgeInsets.only(left: 60),
+                            child: FaIcon(
+                              FontAwesomeIcons.download,
+                              size: 12,
+                            ),
+                          )
+                        ],
+                      )),
+                )
+              
+              ],
+            ),
+            Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(top: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Progress Pekerjaan #'+data['urutan'].toString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      data['deskripsi']??kontenkosong,
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                       data['created_at'].toString() ,
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        'Progress Pekerjaan #'+data['urutan'].toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              decoration: BoxDecoration(
+                border: Border(
+                    top: BorderSide(
+                  width: 1,
+                  color: AppTheme.primarymenu,
+                )),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   Widget inputHug(String hint, FaIcon icon, TextEditingController controller) {
     final sizeu = MediaQuery.of(context).size;
@@ -166,6 +449,14 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                         // itemExtent: 100.0,
                         itemBuilder: (c, i) {
                           return ProyekCard(
+                            changeProgress: (res) {
+                              setState(() {
+                                dataProyek = res;
+                                proyekId=res['proyek_id'];
+                              });
+                              print(dataProyek);
+                              changeToProgress();
+                            },
                             marginLeftRight: marginLeftRight,
                             marginCard: marginCard,
                             deleteBid: (String id) {
@@ -189,6 +480,7 @@ class ProyekCard extends StatelessWidget {
     this.deleteBid,
     this.data,
     this.index,
+    this.changeProgress,
   }) : super(key: key);
 
   final Function(String id) deleteBid;
@@ -196,6 +488,7 @@ class ProyekCard extends StatelessWidget {
   final int index;
   final double marginLeftRight;
   final double marginCard;
+  final Function(Map res) changeProgress;
 
   transColor(i) {
     int res = 0;
@@ -351,18 +644,18 @@ class ProyekCard extends StatelessWidget {
                   children: [
                     btnTool('assets/more_icon/progress_bar.png',
                         BorderRadius.circular(30.0), widthBtnShort - 15, () {
-                      //TODO::REDIRECT PENGERJAAN
-                      // changeProgress();
+                      // TODO::REDIRECT PENGERJAAN
+                      changeProgress(data);
                     }),
                     InkWell(
                       onTap: () {
-                        openAlertBox(
-                            context,
-                            'APAKAH ANDA YAKIN?',
-                            'Untuk menyelesaikan PEKERJAAN ini',
-                            'KONFIRMASI', () {
-                          Navigator.pop(context);
-                        });
+                        // openAlertBox(
+                        //     context,
+                        //     'APAKAH ANDA YAKIN?',
+                        //     'Untuk menyelesaikan PEKERJAAN ini',
+                        //     'KONFIRMASI', () {
+                        //   Navigator.pop(context);
+                        // });
                       },
                       child: Container(
                         margin: EdgeInsets.only(top: 20),
@@ -401,7 +694,7 @@ class ProyekCard extends StatelessWidget {
                 ),
                 Text(
                   moreThan99(data['proyek'] != null
-                          ? (data['proyek']['jumlah_bid'] ?? 0)
+                          ? parseInt(data['proyek']['jumlah_bid'])
                           : 0) +
                       ' ORANG  ',
                   style: TextStyle(
@@ -595,7 +888,7 @@ class ProyekCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(60),
                 ),
-                child: data['pekerja']['foto']!=null
+                child: data['pekerja']['foto'] != null
                     ? imageLoad(
                         data['pekerja']['foto'], true, photoWidth, photoWidth)
                     : Image.asset(
@@ -761,7 +1054,7 @@ class ProyekCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                       btnTool('assets/more_icon/edit-button.png',
+                      btnTool('assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0), 50, () {
                         //TODO:: REDIRECT MODAL file jadi
                         // waktuLoadRepeat(560);
@@ -781,12 +1074,10 @@ class ProyekCard extends StatelessWidget {
                           top: 5,
                         ),
                       ),
-                      
                       btnTool('assets/more_icon/file_alt.png',
                           BorderRadius.circular(30.0), 50, () {
                         print('file');
                       }),
-                     
                     ]),
               ),
             ],
@@ -816,7 +1107,7 @@ class ProyekCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                         ),
-                        child: data['ulasan']['ulasan_pekerja']!=null
+                        child: data['ulasan']['ulasan_pekerja'] != null
                             ? imageLoad(
                                 data['ulasan']['ulasan_pekerja']['foto'],
                                 true,
@@ -855,7 +1146,8 @@ class ProyekCard extends StatelessWidget {
                                           (pembatas * 2 + wightboder),
                                       child: Text(
                                         ' ' +
-                                            (data['ulasan']['ulasan_pekerja']!=null
+                                            (data['ulasan']['ulasan_pekerja'] !=
+                                                    null
                                                 ? data['ulasan']
                                                             ['ulasan_pekerja']
                                                         ['nama']
@@ -883,8 +1175,8 @@ class ProyekCard extends StatelessWidget {
                                       ),
                                       Text(
                                         ' ' +
-                                            (data['ulasan'][
-                                                        'ulasan_pekerja']!=null &&
+                                            (data['ulasan']['ulasan_pekerja'] !=
+                                                        null &&
                                                     data['ulasan'][
                                                                 'ulasan_pekerja']
                                                             ['bintang'] !=
@@ -925,14 +1217,13 @@ class ProyekCard extends StatelessWidget {
                             ),
                             child: Text(
                               ' ' +
-                                  (data['ulasan']['ulasan_pekerja']!=null &&
+                                  (data['ulasan']['ulasan_pekerja'] != null &&
                                           data['ulasan']['ulasan_pekerja']
                                                   ['deskripsi'] !=
                                               null
                                       ? data['ulasan']['ulasan_pekerja']
                                               ['deskripsi']
                                           .toString()
-                                          
                                       : belumReview),
                               style: TextStyle(
                                 fontSize: 15,
@@ -942,7 +1233,6 @@ class ProyekCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                 
                     ],
                   ),
                 ],
@@ -971,7 +1261,7 @@ class ProyekCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                         ),
-                        child: data['ulasan']['ulasan_klien']!=null
+                        child: data['ulasan']['ulasan_klien'] != null
                             ? imageLoad(data['ulasan']['ulasan_klien']['foto'],
                                 true, photoWidth, photoWidth)
                             : Image.asset(
@@ -1007,7 +1297,8 @@ class ProyekCard extends StatelessWidget {
                                           (pembatas * 2 + wightboder),
                                       child: Text(
                                         ' ' +
-                                            (data['ulasan']['ulasan_klien']!=null&&
+                                            (data['ulasan']['ulasan_klien'] !=
+                                                        null &&
                                                     data['ulasan']
                                                                 ['ulasan_klien']
                                                             ['nama'] !=
@@ -1038,7 +1329,8 @@ class ProyekCard extends StatelessWidget {
                                       ),
                                       Text(
                                         ' ' +
-                                            (data['ulasan']['ulasan_klien']!=null &&
+                                            (data['ulasan']['ulasan_klien'] !=
+                                                        null &&
                                                     data['ulasan']
                                                                 ['ulasan_klien']
                                                             ['bintang'] !=
@@ -1078,7 +1370,7 @@ class ProyekCard extends StatelessWidget {
                             ),
                             child: Text(
                               ' ' +
-                                  (data['ulasan']['ulasan_klien']!=null &&
+                                  (data['ulasan']['ulasan_klien'] != null &&
                                           data['ulasan']['ulasan_klien']
                                                   ['deskripsi'] !=
                                               null

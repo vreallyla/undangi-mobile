@@ -613,13 +613,13 @@ class TabPengerjaanCard extends StatelessWidget {
                     // }),
                     InkWell(
                       onTap: () {
-                        openAlertBox(
-                            context,
-                            'APAKAH ANDA YAKIN?',
-                            'Untuk menyelesaikan PEKERJAAN ini',
-                            'KONFIRMASI', () {
-                          Navigator.pop(context);
-                        });
+                        // openAlertBox(
+                        //     context,
+                        //     'APAKAH ANDA YAKIN?',
+                        //     'Untuk menyelesaikan PEKERJAAN ini',
+                        //     'KONFIRMASI', () {
+                        //   Navigator.pop(context);
+                        // });
                       },
                       child: Container(
                         margin: EdgeInsets.only(top: 20),

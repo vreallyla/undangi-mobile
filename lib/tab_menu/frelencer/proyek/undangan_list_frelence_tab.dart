@@ -397,7 +397,7 @@ class ProyekCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    moreThan99(data['jumlah_bid']) + ' ORANG  ',
+                    moreThan99(parseInt(data['jumlah_bid'])) + ' ORANG  ',
                     style: TextStyle(
                       fontSize: 11,
                       color: AppTheme.primarymenu,

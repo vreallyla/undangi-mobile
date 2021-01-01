@@ -1841,7 +1841,8 @@ class _TabProyekViewState extends State<TabProyekView> {
             ),
             color: (active
                 ? Colors.white
-                : AppTheme.geySoftCustom.withOpacity(.3))),
+                : AppTheme.geySoftCustom.withOpacity(.3))
+                ),
         child: Image.asset(
           locationImg,
           alignment: Alignment.center,

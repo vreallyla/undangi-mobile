@@ -9,6 +9,7 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/frelencer/proyek_frelencer_model.dart';
 import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/tab_menu/frelencer/proyek/helper/progress_modal.dart';
 import 'package:undangi/tab_menu/frelencer/proyek/pengerjaan_list_frelence_tab.dart';
 import 'package:undangi/tab_menu/frelencer/proyek/proyek_list_frelence_tab.dart';
 import 'package:undangi/tab_menu/frelencer/proyek/undangan_list_frelence_tab.dart';
@@ -20,6 +21,10 @@ class ProyekFrenlenceScreen extends StatefulWidget {
 
 class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
   int tabChange = 0; //0=bid;1=undangan;2=pengerjaan
+
+  bool toProgress = false;
+
+  String proyekId;
 
   //params
   int row = 12;
@@ -55,6 +60,7 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
       row = defaultAddRow;
       tabChange = kond;
       loadingPosisi = tabChange;
+      toProgress = false;
     });
     _loadDataApi();
   }
@@ -220,6 +226,18 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
     super.initState();
   }
 
+  backHomeOrbackStay() {
+    //pengerjaan
+    if (tabChange == 2 && toProgress) {
+      toProgress = !toProgress;
+      stopLoad = false;
+    } else {
+      Navigator.pop(context);
+    }
+    setState(() {});
+    _loadDataApi();
+  }
+
   @override
   Widget build(BuildContext context) {
     final sizeu = MediaQuery.of(context).size;
@@ -229,154 +247,182 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
     final paddingPhone = MediaQuery.of(context).padding;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
 
-    return new GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(new FocusNode());
-      },
-      child: Scaffold(
-        appBar: appBarColloring(),
-        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          // menu & photo
-          appDashboard(
-            context,
-            fotoUrl,
-            menuPublik(),
-            menuLeft(),
-          ),
-          //motto
-          Container(
-            padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
-            width: _width,
-            child: Text(
-              status ?? 'memuat...',
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppTheme.geyCustom,
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
+    return new WillPopScope(
+        onWillPop: () => backHomeOrbackStay(),
+        child: new GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          },
+          child: Scaffold(
+            appBar: appBarColloring(),
+            body:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              // menu & photo
+              appDashboard(
+                context,
+                fotoUrl,
+                menuPublik(),
+                menuLeft(),
               ),
-            ),
-          ),
-
-          // tab,
-          tabHead(),
-
-          //tool
-          Container(
-              margin:
-                  EdgeInsets.fromLTRB(marginLeftRight, 5, marginLeftRight, 0),
-              padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: AppTheme.bgBlueSoft,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/proyek_list');
-                      },
-                      child: Container(
-                          width: 100,
-                          height: 30,
-                          margin: EdgeInsets.only(left: 5),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            border: Border.all(
-                              width: .5,
-                              color: AppTheme.nearlyBlack,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              FaIcon(
-                                FontAwesomeIcons.plusCircle,
-                                size: 16,
-                                color: AppTheme.geySolidCustom,
-                              ),
-                              Text('' + 'TAMBAH',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: AppTheme.geySolidCustom,
-                                  )),
-                            ],
-                          )),
-                    ),
+              //motto
+              Container(
+                padding: EdgeInsets.fromLTRB(15, 15, 15, 15),
+                width: _width,
+                child: Text(
+                  status ?? 'memuat...',
+                  maxLines: 2,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTheme.geyCustom,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w500,
                   ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      margin: EdgeInsets.only(right: 5),
-                      width: sizeu.width,
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Cari : ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: AppTheme.geySolidCustom,
-                            ),
-                          ),
-                          Container(
-                            child: Theme(
-                              data: Theme.of(context)
-                                  .copyWith(splashColor: Colors.transparent),
-                              child: TextField(
-                                autofocus: false,
-                                style: TextStyle(fontSize: 15.0),
-                                controller: searchController,
-                                onSubmitted: (v) {
-                                  setLoading(tabChange, true);
-                                  _loadDataApi();
-                                },
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.transparent,
-                                  hintText: '',
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 14.0, bottom: 12.0, top: 0.0),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(25.7),
-                                  ),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.transparent),
-                                    borderRadius: BorderRadius.circular(25.7),
-                                  ),
+                ),
+              ),
+
+              // tab,
+              tabHead(),
+
+              //tool
+              Container(
+                  margin: EdgeInsets.fromLTRB(
+                      marginLeftRight, 5, marginLeftRight, 0),
+                  padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: AppTheme.bgBlueSoft,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: InkWell(
+                          onTap: () {
+                            if (toProgress) {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return ProgressModal(
+                                      proyekId: proyekId,
+                                      reload: (String msg) {
+                                         setState(() {
+                                            toProgress = false;
+                                          });
+                                        
+                                        openAlertSuccessBoxGoon(
+                                            context, 'Berhasil', msg, 'OK');
+
+                                        //TODO::CHECK PIN
+
+                                        // _loadDataApi();
+                                      },
+                                    );
+                                  });
+                            } else {
+                              Navigator.pushNamed(context, '/proyek_list');
+                            }
+                          },
+                          child: Container(
+                              width: 100,
+                              height: 30,
+                              margin: EdgeInsets.only(left: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30.0),
+                                border: Border.all(
+                                  width: .5,
+                                  color: AppTheme.nearlyBlack,
                                 ),
                               ),
-                            ),
-                            decoration: new BoxDecoration(
-                                border: Border.all(
-                                    width: 1, color: AppTheme.geyCustom),
-                                borderRadius: new BorderRadius.all(
-                                    new Radius.circular(30.0)),
-                                color: Colors.transparent),
-                            width: 140,
-                            height: 30,
-                          ),
-                        ],
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  FaIcon(
+                                    FontAwesomeIcons.plusCircle,
+                                    size: 16,
+                                    color: AppTheme.geySolidCustom,
+                                  ),
+                                  Text('' + 'TAMBAH',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: AppTheme.geySolidCustom,
+                                      )),
+                                ],
+                              )),
+                        ),
                       ),
-                    ),
-                  )
-                ],
-              )),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          margin: EdgeInsets.only(right: 5),
+                          width: sizeu.width,
+                          alignment: Alignment.centerRight,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Cari : ',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: AppTheme.geySolidCustom,
+                                ),
+                              ),
+                              Container(
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                      splashColor: Colors.transparent),
+                                  child: TextField(
+                                    enabled: !(tabChange == 2 && toProgress),
+                                    autofocus: false,
+                                    style: TextStyle(fontSize: 15.0),
+                                    controller: searchController,
+                                    onSubmitted: (v) {
+                                      setLoading(tabChange, true);
+                                      _loadDataApi();
+                                    },
+                                    decoration: InputDecoration(
+                                      filled: true,
+                                      fillColor: Colors.transparent,
+                                      hintText: '',
+                                      contentPadding: const EdgeInsets.only(
+                                          left: 14.0, bottom: 12.0, top: 0.0),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.transparent),
+                                        borderRadius:
+                                            BorderRadius.circular(25.7),
+                                      ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(
+                                            color: Colors.transparent),
+                                        borderRadius:
+                                            BorderRadius.circular(25.7),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                decoration: new BoxDecoration(
+                                    border: Border.all(
+                                        width: 1, color: AppTheme.geyCustom),
+                                    borderRadius: new BorderRadius.all(
+                                        new Radius.circular(30.0)),
+                                    color: Colors.transparent),
+                                width: 140,
+                                height: 30,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    ],
+                  )),
 
-          tabLoad(bottom)
-        ]),
-      ),
-    );
+              tabLoad(bottom)
+            ]),
+          ),
+        ));
   }
 
   Widget tabLoad(bottom) {
@@ -417,6 +463,18 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
       case 2:
         {
           return PengerjaanListFrelenceTab(
+              toProgress: toProgress,
+              toProgressFunc: (String id) {
+                setState(() {
+                  toProgress = !toProgress;
+                  proyekId = id;
+                });
+              },
+              pauseLoad: (bool kond) {
+                setState(() {
+                  stopLoad = kond;
+                });
+              },
               bottomKey: double.parse(bottom.toString()),
               dataBid: dataPengerjaan,
               reloadFunc: _loadDataApi,
@@ -437,43 +495,51 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
   Widget menuPublik() {
     final sizeu = MediaQuery.of(context).size;
 
-    return Container(
-      margin: EdgeInsets.only(
-        left: sizeu.width - 15 - 45 - 80,
-      ),
-      child: PopupMenuButton(
-        child: Container(
-          width: 45,
-          height: 45,
-          margin: EdgeInsets.fromLTRB(80, 15, 15, 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: AppTheme.primarymenu,
-          ),
-          child: Icon(
-            Icons.arrow_forward,
-            color: Colors.white,
-          ),
-        ),
-        onSelected: (newValue) {
-          if (newValue == 0) {
-            // Navigator.pushNamed(context, '/ganti_password');
-          }
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            child: Text("Tampilan Publik"),
-            value: 0,
-          ),
-        ],
-      ),
-    );
+    return tabChange == 2 && toProgress
+        ? Container()
+        : Container(
+            margin: EdgeInsets.only(
+              left: sizeu.width - 15 - 45 - 80,
+            ),
+            child: PopupMenuButton(
+              child: Container(
+                width: 45,
+                height: 45,
+                margin: EdgeInsets.fromLTRB(80, 15, 15, 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: AppTheme.primarymenu,
+                ),
+                child: Icon(
+                  Icons.arrow_forward,
+                  color: Colors.white,
+                ),
+              ),
+              onSelected: (newValue) {
+                if (newValue == 0) {
+                  // Navigator.pushNamed(context, '/ganti_password');
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  child: Text("Tampilan Publik"),
+                  value: 0,
+                ),
+              ],
+            ),
+          );
   }
 
   Widget menuLeft() {
     return InkWell(
       onTap: () {
-        Navigator.pop(context);
+        if (tabChange == 2 && toProgress) {
+          setState(() {
+            toProgress = false;
+          });
+        } else {
+          Navigator.pop(context);
+        }
       },
       child: Container(
           margin: EdgeInsets.only(
@@ -483,7 +549,13 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
           child: Container(
             height: 40,
             width: 40,
-            child: Image.asset('assets/tab_icons/tab_1s.png'),
+            child: tabChange == 2 && toProgress
+                ? Icon(
+                    Icons.arrow_back_ios,
+                    color: AppTheme.nearlyWhite,
+                    size: AppTheme.sizeIconMenu,
+                  )
+                : Image.asset('assets/tab_icons/tab_1s.png'),
           )),
     );
   }

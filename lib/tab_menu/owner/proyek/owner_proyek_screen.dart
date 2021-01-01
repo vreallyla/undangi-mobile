@@ -375,7 +375,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                                   data: Theme.of(context).copyWith(
                                       splashColor: Colors.transparent),
                                   child: TextField(
-                                    enabled: !toAdd,
+                                    enabled: !tabChange?!toAdd:!toProgress,
                                     autofocus: false,
                                     style: TextStyle(fontSize: 15.0),
                                     controller: searchController,
@@ -425,6 +425,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
               //tab proyek
               tabChange
                   ? TabPengerjaanView(
+                      searchText:searchController.text,
                       waktuLoadRepeat: (int v) {
                         setState(() {
                           timerRepeat = v;
@@ -612,6 +613,9 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     //pengerjaan
     if (tabChange && toProgress) {
       toProgress = !toProgress;
+      stopLoad=false;
+      _loadDataApi();
+
     }
 
     ///proyek

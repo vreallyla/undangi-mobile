@@ -8,6 +8,9 @@ import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
+import 'package:undangi/Constant/zoomable_single_with_download.dart';
+import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/Model/owner/proyek_owner_model.dart';
 import 'package:undangi/tab_menu/owner/proyek/sub/payment_proyek_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -23,6 +26,7 @@ class TabPengerjaanView extends StatefulWidget {
     this.dataPengerjaan,
     this.paddingBottom,
     this.loading,
+    this.searchText,
     this.bottomKey = 0,
     this.toProgress,
     this.toProgressFunc,
@@ -37,6 +41,8 @@ class TabPengerjaanView extends StatefulWidget {
   final Function dataReresh;
   final Function dataNext;
 
+  final String searchText;
+
   final Function(int waktu) waktuLoadRepeat;
   final Function(bool pauseLoad) pauseLoad;
 
@@ -47,8 +53,55 @@ class TabPengerjaanView extends StatefulWidget {
 }
 
 class _TabPengerjaanViewState extends State<TabPengerjaanView> {
+  bool loadingProgress = false;
+  List dataProgress = [];
+  String proyekId = '';
+  Map dataProyek = {};
+
+  setLoadingProgress(bool kond) {
+    setState(() {
+      loadingProgress = kond;
+    });
+  }
+
   changeToProgress() {
+    print(widget.toProgress);
+    if (!widget.toProgress) {
+      widget.pauseLoad(true);
+      _loadDataApi();
+    }
     widget.toProgressFunc();
+  }
+
+  // refresh user
+  void _loadDataApi() async {
+    setLoadingProgress(true);
+    GeneralModel.checCk(
+        //connect
+        () async {
+      ProyekOwnerModel.getProgress(proyekId, {'q': ''}).then((v) {
+        setLoadingProgress(false);
+        // widget.pauseLoad(false);
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          setState(() {
+            dataProgress = v.data['proses'];
+          });
+          print(dataProgress);
+        }
+      });
+    },
+        //disconect
+        () {
+      setLoadingProgress(false);
+      // widget.pauseLoad(false);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
   }
 
   double star = 0;
@@ -69,36 +122,44 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
           //content proyek
 //
           (widget.toProgress
-              ? Container(
-                  height: sizeu.height -
-                      310 -
-                      widget.bottomKey -
-                      widget.paddingBottom -
-                      widget.paddingTop,
-                  child: ListView(
-                    children: [
-                      progressScreen(marginLeftRight, marginCard, _width)
-                    ],
-                  ),
-                )
+              ? (loadingProgress
+                  ? onLoading2()
+                  : (dataProgress.length == 0
+                      ? dataKosong
+                      : Container(
+                          height: sizeu.height -
+                              310 -
+                              widget.bottomKey -
+                              widget.paddingBottom -
+                              widget.paddingTop,
+                          margin: EdgeInsets.only(
+                              left: marginLeftRight, right: marginLeftRight),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                              width: .5,
+                              color: Colors.black,
+                            ),
+                          ),
+                          child: ListView.builder(
+                              itemCount: dataProgress.length,
+                              // itemExtent: 100.0,
+                              itemBuilder: (c, i) {
+                                Map data = dataProgress[i];
+                                return progressScreen(
+                                    marginLeftRight, marginCard, _width, data);
+                              }),
+                        )))
               : pengejaanList(sizeu, marginLeftRight, marginCard)),
         ],
       ),
     );
   }
 
-  Widget progressScreen(marginLeftRight, marginCard, _width) {
+  Widget progressScreen(marginLeftRight, marginCard, _width, data) {
     return Container(
-      margin: EdgeInsets.only(left: marginLeftRight, right: marginLeftRight),
       padding: EdgeInsets.all(marginCard),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(
-          width: .5,
-          color: Colors.black,
-        ),
-      ),
       child: Container(
         padding: EdgeInsets.fromLTRB(15, 10, 15, 10),
         decoration: BoxDecoration(
@@ -114,28 +175,28 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                   height: 50,
                   width: 50,
                   margin: EdgeInsets.only(right: 10),
-                  child: Image.asset('assets/general/ilustration_desain.jpg'),
+                  child: imageLoad(dataProyek['thumbnail'], false, 50, 50),
                 ),
                 Container(
-                  width: _width - 121,
+                  width: _width - 201,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       //judul
-
                       RichText(
                         text: TextSpan(
-                          text: 'UI UX DESIGN ',
+                          text: dataProyek['judul'],
                           style: TextStyle(
                             fontWeight: FontWeight.w400,
-                            fontSize: 14,
+                            fontSize: 16,
                             color: AppTheme.primarymenu,
                           ),
                           children: <TextSpan>[
                             TextSpan(
-                              text: '7 DAY',
+                              text:
+                                  '(${dataProyek['waktu_pengerjaan'].toString()} HARI)',
                               style: TextStyle(
-                                fontSize: 14,
+                                fontSize: 16,
                                 color: AppTheme.nearlyBlack,
                               ),
                             ),
@@ -146,10 +207,11 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                       //harga
                       RichText(
                           text: TextSpan(
-                        text: 'Rp5.000.000',
+                        text:
+                            'Rp' + decimalPointTwo(dataProyek['harga'] ?? '0'),
                         style: TextStyle(
-                          fontWeight: FontWeight.w300,
-                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
                           color: AppTheme.nearlyBlack,
                         ),
                       )),
@@ -165,7 +227,10 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                           ),
                           alignment: Alignment.center,
                           child: Text(
-                            'Menunggu Konfirmasi',
+                            dataProyek['pengerjaan'] != null &&
+                                    dataProyek['pengerjaan']['status'] != null
+                                ? dataProyek['pengerjaan']['status']
+                                : unknown,
                             style: TextStyle(
                               color: AppTheme.nearlyWhite,
                               fontSize: 12,
@@ -176,14 +241,96 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                       ),
 
                       // progress
-                      progressBar(_width - 121 - 50, 30),
+                      // progressBar(_width - 121 - 50, 30),
                     ],
                   ),
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            ZoomAbleSingleWithDownload(
+                          imgUrl: data['bukti_gambar'].toString(),
+                          min: 0.1,
+                          max: 6,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                      width: 80,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                      ),
+                      alignment: Alignment.center,
+                      child: Stack(
+                        children: [
+                          Text('LAMPIRAN',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              )),
+                          Padding(
+                            padding: EdgeInsets.only(left: 60),
+                            child: FaIcon(
+                              FontAwesomeIcons.download,
+                              size: 12,
+                            ),
+                          )
+                        ],
+                      )),
                 )
               ],
             ),
             Container(
-              margin: EdgeInsets.only(top: 40),
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.only(top: 5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Progress Pekerjaan #' + data['urutan'].toString(),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      data['deskripsi'] ?? kontenkosong,
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        data['created_at'].toString(),
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        'Progress Pekerjaan #' + data['urutan'].toString(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  ],
+                )),
+            Container(
+              margin: EdgeInsets.only(top: 10),
               decoration: BoxDecoration(
                 border: Border(
                     top: BorderSide(
@@ -416,7 +563,15 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                             pauseLoad: (c) => widget.pauseLoad(c),
                             marginLeftRight: marginLeftRight,
                             marginCard: marginCard,
-                            changeProgress: () {
+                            changeProgress: (Map data) {
+                              setState(() {
+                                proyekId =
+                                    data['pengerjaan']['proyek_id'].toString();
+                                dataProyek = data;
+                              });
+
+                              print(dataProyek);
+
                               changeToProgress();
                             },
                             star: star,
@@ -471,7 +626,7 @@ class TabPengerjaanCard extends StatelessWidget {
   final double marginCard;
   final Map data;
   final int index;
-  final Function() changeProgress;
+  final Function(Map res) changeProgress;
   final Function(double st) starEvent;
 
   final Function(int v) waktuLoadRepeat;
@@ -620,9 +775,9 @@ class TabPengerjaanCard extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    btnTool('assets/more_icon/progress_bar.png',
+                    btnTool(true, 'assets/more_icon/progress_bar.png',
                         BorderRadius.circular(30.0), widthBtnShort - 15, () {
-                      changeProgress();
+                      changeProgress(data);
                     }),
                     InkWell(
                       onTap: () {
@@ -672,7 +827,10 @@ class TabPengerjaanCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  moreThan99(data['total_bid']!=null?(int.parse(data['total_bid'].toString()) ):0)+ ' ORANG  ',
+                  moreThan99(data['total_bid'] != null
+                          ? (int.parse(data['total_bid'].toString()))
+                          : 0) +
+                      ' ORANG  ',
                   style: TextStyle(
                     fontSize: 11,
                     color: AppTheme.primarymenu,
@@ -983,9 +1141,9 @@ class TabPengerjaanCard extends StatelessWidget {
                         top: 3,
                       ),
                       child: Text(
-                        (data.containsKey('lampiran') &&
-                                data['lampiran'].length > 0
-                            ? data['lampiran'].length.toString() + ' lampiran'
+                        (data.containsKey('file_hasil') &&
+                                data['pengerjaan']['file_hasil'].length > 0
+                            ? data['pengerjaan']['file_hasil'].length.toString() + ' lampiran'
                             : empty),
                         style: TextStyle(fontSize: 12),
                       ),
@@ -1009,9 +1167,9 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       child: InkWell(
                         onTap: () async {
-                          if (data['pengerjaan']!=null&&
+                          if (data['pengerjaan'] != null &&
                               data['pengerjaan']['tautan'] != null) {
-                             String url = data['pengerjaan']['tautan'];
+                            String url = data['pengerjaan']['tautan'];
                             if (await canLaunch(url)) {
                               await launch(url);
                             } else {
@@ -1021,15 +1179,21 @@ class TabPengerjaanCard extends StatelessWidget {
                           }
                         },
                         child: Text(
-                          data['pengerjaan']!=null &&
+                          data['pengerjaan'] != null &&
                                   data['pengerjaan']['tautan'] != null
                               ? data['pengerjaan']['tautan'].toString()
                               : empty,
-                          style: TextStyle(fontSize: 12,
-                          color:data['pengerjaan']!=null &&
-                                  data['pengerjaan']['tautan'] != null?AppTheme.bgChatBlue:Colors.black ,
-                           decoration: data['pengerjaan']!=null &&
-                                  data['pengerjaan']['tautan'] != null?TextDecoration.underline: TextDecoration.none,),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: data['pengerjaan'] != null &&
+                                    data['pengerjaan']['tautan'] != null
+                                ? AppTheme.bgChatBlue
+                                : Colors.black,
+                            decoration: data['pengerjaan'] != null &&
+                                    data['pengerjaan']['tautan'] != null
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
                         ),
                       ),
                     ),
@@ -1045,18 +1209,22 @@ class TabPengerjaanCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      btnTool('assets/more_icon/file_alt.png',
-                          BorderRadius.circular(30.0), 50, () {
-                        print('file');
+                      btnTool(
+                          data['pengerjaan']['file_hasil'].length > 0,
+                          'assets/more_icon/file_alt.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        //TODO:: FILE SHOW
                       }),
                       Padding(
                         padding: EdgeInsets.only(
                           top: 5,
                         ),
                       ),
-                      btnTool('assets/more_icon/cc.png',
+                      btnTool(data['isLunas'] == 0, 'assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
-                        waktuLoadRepeat(560);
+                       if(data['isLunas']){
+                          waktuLoadRepeat(560);
                         pauseLoad(true);
                         Navigator.push(
                           context,
@@ -1070,6 +1238,9 @@ class TabPengerjaanCard extends StatelessWidget {
                           waktuLoadRepeat(3);
                           pauseLoad(false);
                         });
+                       }else{
+                         openAlertBox(context,'Pembayaran Sudah Lunas!','Anda tidak perlu melakukan pembayaran lagi','OK',()=>Navigator.pop(context));
+                       }
                       }),
                     ]),
               ),
@@ -1239,9 +1410,17 @@ class TabPengerjaanCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      btnTool('assets/more_icon/edit-button.png',
-                          BorderRadius.circular(30.0), 50, () {
+                      btnTool(
+                          data['ratingable'] == 1,
+                          'assets/more_icon/edit-button.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                            if(data['ratingable'] == 1){
                         komenOwner(context);
+                            }else{
+                         openAlertBox(context,'Harap Tunggu Lampiran Hasil!','Setelah Lampiran pekerjaan selesai silakan berikan ulasan anda...','OK',()=>Navigator.pop(context));
+                              
+                            }
                       }),
                     ],
                   ),
@@ -1440,8 +1619,8 @@ class TabPengerjaanCard extends StatelessWidget {
     );
   }
 
-  Widget btnTool(String locationImg, BorderRadius radius, double width,
-      Function linkRedirect) {
+  Widget btnTool(bool active, String locationImg, BorderRadius radius,
+      double width, Function linkRedirect) {
     return InkWell(
       onTap: () {
         linkRedirect();
@@ -1451,6 +1630,8 @@ class TabPengerjaanCard extends StatelessWidget {
         height: 30,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
+          color:
+              (active ? Colors.white : AppTheme.geySoftCustom.withOpacity(.3)),
           borderRadius: radius,
           border: Border.all(
             width: 1,

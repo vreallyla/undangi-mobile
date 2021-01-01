@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 const String generalAssets = 'assets/general/';
 
 //url
+// const String domainUrl = 'undagi.my.id';
 const String domainUrl = 'undagi.my.id';
 const String globalBaseUrl = 'https://$domainUrl/api/';
 const String globalPathAuth = 'auth/';

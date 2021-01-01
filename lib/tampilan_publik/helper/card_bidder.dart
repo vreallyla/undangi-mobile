@@ -239,7 +239,7 @@ class _cardBidderState extends State<cardBidder> {
                 padding: EdgeInsets.only(top: 5, bottom: 5),
                 decoration: BoxDecoration(
                     color: value['tolak'] != null
-                        ? (value['tolak'] == 0
+                        ? (value['tolak'] == '0'
                             ? AppTheme.bgChatBlue
                             : Colors.red)
                         : Colors.grey[600],
@@ -247,7 +247,7 @@ class _cardBidderState extends State<cardBidder> {
                 child: Text(
                   value['tolak'] == null
                       ? 'Menunggu Konfirmasi'
-                      : (value['tolak'] == 0 ? 'Diterima' : 'Ditolak'),
+                      : (value['tolak'] == '0' ? 'Diterima' : 'Ditolak'),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       color: AppTheme.nearlyWhite,
