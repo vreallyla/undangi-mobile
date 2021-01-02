@@ -722,17 +722,17 @@ class _ChatScreenState extends State<ChatScreen> {
     return InkWell(
       onTap: () {
         setState(() {
-          chatTo = data['id'];
+          chatTo = parseInt(data['id']);
           namaChat = data['name'];
           msgLen = 20;
         });
-        print(chatTo);
+        // print(chatTo);
         _changetMsg();
       },
       child: Stack(
         children: [
           Container(
-            color: chatTo == data['id']
+            color: chatTo == parseInt(data['id'])
                 ? AppTheme.bgBlue2Soft
                 : Colors.transparent,
             margin: EdgeInsets.only(bottom: 10),
@@ -780,7 +780,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
           ),
-          data.containsKey('jumlah_unread') && data['jumlah_unread'] > 0
+          data['jumlah_unread']!=null && parseInt(data['jumlah_unread']) > 0
               ? Container(
                   height: 50,
                   width: double.infinity,
@@ -794,7 +794,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       borderRadius: BorderRadius.circular(40),
                     ),
                     child: Text(
-                      data['jumlah_unread'] > 99
+                      parseInt(data['jumlah_unread']) > 99
                           ? '99+'
                           : data['jumlah_unread'].toString(),
                       style: TextStyle(
@@ -1014,7 +1014,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget opChat(data) {
     final sizeu = MediaQuery.of(context).size;
 
-    return data['is_me'] == 1 ? chatMe(data) : chatEnemy(data);
+    return data['is_me'].toString() == '1' ? chatMe(data) : chatEnemy(data);
   }
 
   Widget chatMe(Map data) {

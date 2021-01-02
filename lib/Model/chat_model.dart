@@ -46,7 +46,7 @@ class ChatModel {
     String apiURL =
         globalBaseUrl + "message" + params.substring(0, params.length - 1);
 
-    // print(apiURL);
+    print(apiURL);
 
     var apiResult = await http.get(apiURL, headers: {
       "Accept": "application/json",
@@ -55,7 +55,7 @@ class ChatModel {
 
     // print('chat load status code : ' + apiResult.statusCode.toString());
     Map jsonObject = json.decode(apiResult.body);
-    print(jsonObject);
+    // print(jsonObject);
     String message = jsonObject.containsKey('message')
         ? jsonObject['message'].toString()
         : notice;
