@@ -214,13 +214,16 @@ class _TampilanPublikPortfolioState extends State<TampilanPublikPortfolio> {
                                       color: AppTheme.geySolidCustom,
                                       size: 18,
                                     ),
-                                    Text(
+                                     SizedBox(
+                                      width: sizeu.width-74,
+                                      child: Text(
                                       ' Portfolio ' +
                                           (nameUser != null ? nameUser : ''),
                                       style: TextStyle(
                                           color: AppTheme.geySolidCustom,
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500),
+                                    ),
                                     ),
                                   ],
                                 ),

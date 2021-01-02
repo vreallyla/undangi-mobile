@@ -9,8 +9,8 @@ import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/Constant/zoomable_multi_with_download.dart';
+import 'package:undangi/tab_menu/frelencer/layanan/helper/file_hasil_layanan_modal.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 
 class TabLayananPengerjaanView extends StatefulWidget {
   const TabLayananPengerjaanView({
@@ -411,6 +411,10 @@ class _TabLayananPengerjaanViewState extends State<TabLayananPengerjaanView> {
                       // itemExtent: 100.0,
                       itemBuilder: (c, i) {
                         return TabPengerjaanCard(
+                            reload:  (){
+                              
+                              widget.dataReresh();
+                            },
                             marginLeftRight: marginLeftRight,
                             marginCard: marginCard,
                             bio: widget.bio,
@@ -440,6 +444,7 @@ class TabPengerjaanCard extends StatelessWidget {
     Key key,
     this.data,
     this.index,
+    this.reload,
     this.marginLeftRight: 0,
     this.marginCard: 0,
     this.changeProgress,
@@ -451,6 +456,7 @@ class TabPengerjaanCard extends StatelessWidget {
   final double marginLeftRight;
   final double marginCard;
   final Map data;
+  final Function() reload;
   final Map bio;
   final int index;
   final Function() changeProgress;
@@ -544,7 +550,6 @@ class TabPengerjaanCard extends StatelessWidget {
               //kontent
               Container(
                 width: widthKonten,
-            
                 padding: EdgeInsets.only(
                   left: 5,
                   right: 5,
@@ -629,7 +634,7 @@ class TabPengerjaanCard extends StatelessWidget {
                         ),
                         alignment: Alignment.center,
                         child: Text(
-                          data['status']??unknown,
+                          data['status'] ?? unknown,
                           style: TextStyle(
                             color: AppTheme.nearlyWhite,
                             fontSize: 12,
@@ -992,9 +997,9 @@ class TabPengerjaanCard extends StatelessWidget {
                         bottom: 6,
                       ),
                       child: InkWell(
-                        onTap: () async{
+                        onTap: () async {
                           if (data['tautan'] != null) {
-                             String url = data['tautan'];
+                            String url = data['tautan'];
                             if (await canLaunch(url)) {
                               await launch(url);
                             } else {
@@ -1003,16 +1008,20 @@ class TabPengerjaanCard extends StatelessWidget {
                             }
                           }
                         },
-                                              child: Text(
+                        child: Text(
                           data['tautan'] != null
                               ? data['tautan'].toString()
                               : empty,
                           // '',
-                          style: TextStyle(fontSize: 12,
-                           color:
-                                  data['tautan'] != null?AppTheme.bgChatBlue:Colors.black ,
-                           decoration: 
-                                  data['tautan'] != null?TextDecoration.underline: TextDecoration.none,),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: data['tautan'] != null
+                                ? AppTheme.bgChatBlue
+                                : Colors.black,
+                            decoration: data['tautan'] != null
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
                         ),
                       ),
                     ),
@@ -1029,17 +1038,33 @@ class TabPengerjaanCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       btnTool(
-                        data['progressable']==1,
-                        'assets/more_icon/edit-button.png',
-                          BorderRadius.circular(30.0), 50, () {
-
-                            //TODO:: UPLOAD PENGERJAAN
-                            if(data['progressable']==1){
-
-                            }else{
-                              openAlertBox(
-    context, 'Form Hasil Belum Bisa Dibuka', 'Form akan tersedia jika klien sudah melakukan pembayaran...', 'OK', ()=>Navigator.pop(context));
-                            }
+                          data['progressable'] == 1,
+                          'assets/more_icon/edit-button.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        //TODO:: UPLOAD PENGERJAAN
+                        if (data['progressable'] == 1) {
+                          return showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return FileHasilLayananModal(
+                                  reload: (msg) {
+                                    
+                                    openAlertSuccessBoxGoon(
+                                        context, 'Berhasil', msg, 'OK');
+                                    reload();
+                                  },
+                                  proyekId: data['id'].toString(),
+                                );
+                              });
+                        } else {
+                          openAlertBox(
+                              context,
+                              'Form Hasil Belum Bisa Dibuka',
+                              'Form akan tersedia jika klien sudah melakukan pembayaran...',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                         // Navigator.pushNamed(context, '/owner_proyek_payment');
                       }),
                       Padding(
@@ -1047,10 +1072,13 @@ class TabPengerjaanCard extends StatelessWidget {
                           top: 5,
                         ),
                       ),
-                      btnTool(data['file_hasil'].length>0,'assets/more_icon/file_alt.png',
-                          BorderRadius.circular(30.0), 50, () {
-                          if(data['file_hasil'].length>0){
-                               Navigator.push(
+                      btnTool(
+                          data['file_hasil'].length > 0,
+                          'assets/more_icon/file_alt.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        if (data['file_hasil'].length > 0) {
+                          Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) =>
@@ -1060,10 +1088,14 @@ class TabPengerjaanCard extends StatelessWidget {
                                         max: 6,
                                         min: 0.1,
                                       )));
-                          }else{
-                             openAlertBox(
-    context, 'File Hasil Pengerjaan Masih Kosong', 'Harap melakukan Upload di Form Pengerjaan...', 'OK', ()=>Navigator.pop(context));
-                          }
+                        } else {
+                          openAlertBox(
+                              context,
+                              'File Hasil Pengerjaan Masih Kosong',
+                              'Harap melakukan Upload di Form Pengerjaan...',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                       }),
                     ]),
               ),
@@ -1094,7 +1126,7 @@ class TabPengerjaanCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(60),
                         ),
-                        child: data['ulasan']!=null &&
+                        child: data['ulasan'] != null &&
                                 data['ulasan']['foto'] != null
                             ? imageLoad(data['ulasan']['foto'], true,
                                 photoWidth, photoWidth)
@@ -1130,16 +1162,13 @@ class TabPengerjaanCard extends StatelessWidget {
                                           photoWidth -
                                           (pembatas * 2 + wightboder),
                                       child: Text(
-                                        ' ' 
-                                        +
-                                            (data['ulasan']
-                                                        !=null &&
+                                        ' ' +
+                                            (data['ulasan'] != null &&
                                                     data['ulasan']['nama'] !=
                                                         null
                                                 ? data['ulasan']['nama']
                                                     .toString()
-                                                : tanpaNama)
-                                                ,
+                                                : tanpaNama),
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -1161,15 +1190,13 @@ class TabPengerjaanCard extends StatelessWidget {
                                         size: 16,
                                       ),
                                       Text(
-                                        ' ' 
-                                        +
-                                            (data['ulasan']!=null &&
+                                        ' ' +
+                                            (data['ulasan'] != null &&
                                                     data['ulasan']['bintang'] !=
                                                         null
                                                 ? data['ulasan']['bintang']
                                                     .toString()
-                                                : '0.0')
-                                                ,
+                                                : '0.0'),
                                         style: TextStyle(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
@@ -1199,16 +1226,11 @@ class TabPengerjaanCard extends StatelessWidget {
                               ),
                             ),
                             child: Text(
-                              ' '+
-                                  (data['ulasan']!=null &&
-                                          data['ulasan']['deskripsi']
-                                              !=null 
-                                      ? data['ulasan']['deskripsi']
-                                         
-                                          .toString()
-                                      :
-                                       belumReview)
-                              ,
+                              ' ' +
+                                  (data['ulasan'] != null &&
+                                          data['ulasan']['deskripsi'] != null
+                                      ? data['ulasan']['deskripsi'].toString()
+                                      : belumReview),
                               style: TextStyle(
                                 fontSize: 15,
                               ),
@@ -1420,8 +1442,8 @@ class TabPengerjaanCard extends StatelessWidget {
     );
   }
 
-  Widget btnTool(bool active,String locationImg, BorderRadius radius, double width,
-      Function linkRedirect) {
+  Widget btnTool(bool active, String locationImg, BorderRadius radius,
+      double width, Function linkRedirect) {
     return InkWell(
       onTap: () {
         linkRedirect();

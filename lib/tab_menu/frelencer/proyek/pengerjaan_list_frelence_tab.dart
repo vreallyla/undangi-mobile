@@ -11,10 +11,14 @@ import 'package:rating_bar/rating_bar.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Constant/rating_modal.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/Constant/zoomable_single_with_download.dart';
 import 'package:undangi/Model/frelencer/proyek_frelencer_model.dart';
 import 'package:undangi/Model/general_model.dart';
+import 'package:undangi/tab_menu/frelencer/proyek/helper/file_hasil_modal.dart';
+import 'package:undangi/tab_menu/frelencer/proyek/helper/progress_modal.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PengerjaanListFrelenceTab extends StatefulWidget {
   const PengerjaanListFrelenceTab({
@@ -53,8 +57,7 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
   String proyekId = '';
   Map dataProyek = {};
 
-  
-    //DOWNLOADER
+  //DOWNLOADER
   ReceivePort _receivePort = ReceivePort();
   bool loadDownloadLampiran = false;
   int progress = 0;
@@ -80,7 +83,9 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
       final id = await FlutterDownloader.enqueue(
         url: fileUrl,
         savedDir: externalDir.path,
-        fileName: fileUrl.split('/').last.indexOf('.')>=0? fileUrl.split('/').last:'Surat Kontrak',
+        fileName: fileUrl.split('/').last.indexOf('.') >= 0
+            ? fileUrl.split('/').last
+            : 'Surat Kontrak',
         showNotification: true,
         openFileFromNotification: true,
       );
@@ -95,10 +100,8 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
     super.dispose();
   }
 
-  
   @override
   void initState() {
- 
     super.initState();
 
     ///register a send port for the other isolates
@@ -132,14 +135,56 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
           _unbindBackgroundIsolate();
         }
       }
-
-
     });
 
     FlutterDownloader.registerCallback(downloadingCallback);
   }
 
+  komenOwner(context, Map data) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return RatingModal(
+            nama: data['proyek']['judul'],
+            isLunas: false,
+            hiddenInputPuas: true,
+            eventRes: (Map res) {
+              _ratingApi(data['proyek_id'].toString(), res);
+            },
+          );
+        });
+  }
 
+  _ratingApi(String id, Map res) async {
+    onLoading(context);
+    widget.pauseLoad(true);
+
+    GeneralModel.checCk(
+        //connect
+        () async {
+      // setErrorNotif({});
+      ProyekFrelencerModel.ratingProyek(id, res).then((v) {
+        widget.pauseLoad(false);
+
+        Navigator.pop(context);
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          widget.reloadFunc();
+        }
+      });
+    },
+        //disconect
+        () {
+      Navigator.pop(context);
+      widget.pauseLoad(false);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
 
   // refresh user
   void _loadDataApi() async {
@@ -538,7 +583,13 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                         // itemExtent: 100.0,
                         itemBuilder: (c, i) {
                           return ProyekCard(
-                            saveFile:(url)=>_saveFile(url),
+                            formRating: (Map res) {
+                              komenOwner(context, res);
+                            },
+                            reload: () {
+                              widget.reloadFunc();
+                            },
+                            saveFile: (url) => _saveFile(url),
                             changeProgress: (res) {
                               setState(() {
                                 dataProyek = res;
@@ -566,6 +617,8 @@ class ProyekCard extends StatelessWidget {
   const ProyekCard({
     Key key,
     this.saveFile,
+    this.reload,
+    this.formRating,
     this.marginLeftRight,
     this.marginCard,
     this.deleteBid,
@@ -581,6 +634,8 @@ class ProyekCard extends StatelessWidget {
   final double marginCard;
   final Function(Map res) changeProgress;
   final Function(String url) saveFile;
+  final Function(Map res) formRating;
+  final Function() reload;
 
   transColor(i) {
     int res = 0;
@@ -739,7 +794,7 @@ class ProyekCard extends StatelessWidget {
                       // TODO::REDIRECT PENGERJAAN
                       changeProgress(data);
                     }),
-                  InkWell(
+                    InkWell(
                       onTap: () {
                         // openAlertBox(
                         //     context,
@@ -824,125 +879,6 @@ class ProyekCard extends StatelessWidget {
     );
   }
 
-  komenOwner(context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            backgroundColor: Color(0xfff7f7f7),
-            // shape: RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.all(Radius.circular(32.0))),
-            contentPadding: EdgeInsets.only(top: 10.0),
-            content: Container(
-              margin: EdgeInsets.only(bottom: 10),
-              width: 400.0,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 15, right: 15),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      'ULASAN ANDA',
-                      style: TextStyle(
-                        color: AppTheme.textBlue,
-                      ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        border: Border.all(width: 1, color: AppTheme.geyCustom),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            alignment: Alignment.topRight,
-                            // padding: EdgeInsets.only(right: 5),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: FaIcon(
-                                FontAwesomeIcons.times,
-                                color: AppTheme.geyCustom,
-                                size: 16,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Ratings',
-                            style: TextStyle(
-                              color: AppTheme.geyCustom,
-                              fontSize: 18,
-                            ),
-                          ),
-                          Container(
-                            alignment: Alignment.topLeft,
-                            width: double.infinity,
-                            child: RatingBar(
-                              maxRating: 5,
-                              onRatingChanged: (rating) {
-                                //TODO:: SET RANTING
-                                //  starEvent(rating);
-                              },
-                              filledIcon: Icons.star,
-                              emptyIcon: Icons.star_border,
-                              halfFilledIcon: Icons.star_half,
-                              isHalfAllowed: true,
-                              filledColor: Colors.amber,
-                              size: 36,
-                            ),
-                          ),
-                          Text(
-                            'Ulasan Anda',
-                            style: TextStyle(
-                              color: AppTheme.geyCustom,
-                              fontSize: 18,
-                            ),
-                          ),
-                          TextField(
-                            style: TextStyle(fontSize: 12),
-                            maxLines: 3,
-                            decoration: new InputDecoration(
-                                border: new OutlineInputBorder(
-                                  borderRadius: const BorderRadius.all(
-                                    const Radius.circular(10.0),
-                                  ),
-                                ),
-                                filled: true,
-                                hintStyle:
-                                    new TextStyle(color: Colors.grey[800]),
-                                hintText: "Ulasan",
-                                fillColor: Colors.white70),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 80),
-                            alignment: Alignment.topRight,
-                            child: RaisedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              color: AppTheme.bgChatBlue,
-                              child: Text(
-                                'Simpan',
-                                style: TextStyle(color: AppTheme.nearlyWhite),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
   Widget komenCard(context, double paddingCard, double widthCard, Map data) {
     final sizeu = MediaQuery.of(context).size;
 
@@ -972,72 +908,48 @@ class ProyekCard extends StatelessWidget {
             ),
           ),
           Stack(children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //photo comment
-              Container(
-                alignment: Alignment.center,
-                height: photoWidth,
-                width: photoWidth,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(60),
-                ),
-                child: data['pekerja']['foto'] != null
-                    ? imageLoad(
-                        data['pekerja']['foto'], true, photoWidth, photoWidth)
-                    : Image.asset(
-                        'assets/general/user.png',
-                        width: photoWidth,
-                        fit: BoxFit.fitWidth,
-                      ),
-              ),
-              Stack(
-                children: [
-                  // nama & bintang
-                  Container(
-                    padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/general/user_place.png',
-                              width: 12,
-                              fit: BoxFit.fitWidth,
-                            ),
-                            Text(
-                              ' ' +
-                                  (data['pekerja'].containsKey('nama')
-                                      ? data['pekerja']['nama']
-                                      : tanpaNama),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              maxLines: 1,
-                            )
-                          ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //photo comment
+                Container(
+                  alignment: Alignment.center,
+                  height: photoWidth,
+                  width: photoWidth,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(60),
+                  ),
+                  child: data['pekerja']['foto'] != null
+                      ? imageLoad(
+                          data['pekerja']['foto'], true, photoWidth, photoWidth)
+                      : Image.asset(
+                          'assets/general/user.png',
+                          width: photoWidth,
+                          fit: BoxFit.fitWidth,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Row(
+                ),
+                Stack(
+                  children: [
+                    // nama & bintang
+                    Container(
+                      padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow,
-                                size: 16,
+                              Image.asset(
+                                'assets/general/user_place.png',
+                                width: 12,
+                                fit: BoxFit.fitWidth,
                               ),
                               Text(
                                 ' ' +
-                                    (data['pekerja'].containsKey('bintang')
-                                        ? data['pekerja']['bintang']
-                                        : '0'),
+                                    (data['pekerja'].containsKey('nama')
+                                        ? data['pekerja']['nama']
+                                        : tanpaNama),
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -1046,58 +958,87 @@ class ProyekCard extends StatelessWidget {
                               )
                             ],
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.yellow,
+                                  size: 16,
+                                ),
+                                Text(
+                                  ' ' +
+                                      (data['pekerja'].containsKey('bintang')
+                                          ? data['pekerja']['bintang']
+                                          : '0'),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    //komen frelencer
+                    Container(
+                      width: sizeu.width - photoWidth - 74,
+                      padding: EdgeInsets.only(
+                        left: pembatas,
+                        top: 33,
+                        bottom: 5,
+                      ),
+                      margin: EdgeInsets.only(left: pembatas),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(
+                              width: wightboder,
+                              color: AppTheme.geySolidCustom),
                         ),
-                      ],
-                    ),
-                  ),
-                  //komen frelencer
-                  Container(
-                    width: sizeu.width - photoWidth - 74,
-                    padding: EdgeInsets.only(
-                      left: pembatas,
-                      top: 33,
-                      bottom: 5,
-                    ),
-                    margin: EdgeInsets.only(left: pembatas),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                            width: wightboder, color: AppTheme.geySolidCustom),
+                      ),
+                      child: Text(
+                        (data['pekerja'].containsKey('summary')
+                            ? data['pekerja']['summary']
+                            : empty),
+                        // '',
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                        maxLines: 4,
                       ),
                     ),
-                    child: Text(
-                      (data['pekerja'].containsKey('summary')
-                          ? data['pekerja']['summary']
-                          : empty),
-                      // '',
-                      style: TextStyle(
-                        fontSize: 15,
-                      ),
-                      maxLines: 4,
-                    ),
+                  ],
+                ),
+              ],
+            ),
+            InkWell(
+              onTap: () {
+                saveFile(
+                    "https://undagi.my.id/akun/dashboard/pekerja/proyek/download/contract/${data['id'].toString()}");
+              },
+              child: Container(
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(left: sizeu.width - 175),
+                child: Stack(children: [
+                  Text(
+                    'Surat Kontrak',
+                    style: TextStyle(fontSize: 12),
                   ),
-                ],
+                  Padding(
+                      padding: EdgeInsets.only(left: 80),
+                      child: FaIcon(FontAwesomeIcons.download, size: 11))
+                ]),
+                width: widthBtnShort,
+                height: 25,
+                color: Colors.white,
               ),
-            ],
-          ),
-              InkWell(onTap:(){
-                saveFile("https://undagi.my.id/akun/dashboard/pekerja/proyek/download/contract/${data['id'].toString()}");
-              }
-                    ,child: Container(
-                      alignment: Alignment.center,
-                        margin: EdgeInsets.only(left:sizeu.width-175),
-                      child: Stack(children:[
-                        Text('Surat Kontrak',style: TextStyle(fontSize:12),),
-                        Padding(
-                          padding: EdgeInsets.only(left:80),
-                          child:
-                        FaIcon(FontAwesomeIcons.download,size:11)
-
-                        )
-                      ]),
-                      width:widthBtnShort ,height: 25,color:Colors.white,),),
-                  
-          
+            ),
           ]),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1149,11 +1090,32 @@ class ProyekCard extends StatelessWidget {
                         top: 3,
                         bottom: 6,
                       ),
-                      child: Text(
-                        data['tautan'] != null
-                            ? data['tautan'].toString()
-                            : empty,
-                        style: TextStyle(fontSize: 12),
+                      child: InkWell(
+                        onTap: () async {
+                          if (data['tautan'] != null) {
+                            String url = data['tautan'];
+                            if (await canLaunch(url)) {
+                              await launch(url);
+                            } else {
+                              // throw 'Could not launch $url';
+                              print(url);
+                            }
+                          }
+                        },
+                        child: Text(
+                          data['tautan'] != null
+                              ? data['tautan'].toString()
+                              : empty,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: data['tautan'] != null
+                                ? AppTheme.bgChatBlue
+                                : Colors.black,
+                            decoration: data['tautan'] != null
+                                ? TextDecoration.underline
+                                : TextDecoration.none,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -1174,7 +1136,18 @@ class ProyekCard extends StatelessWidget {
                           BorderRadius.circular(30.0),
                           50, () {
                         if (data['progressable'] == 1) {
-                          print('asd');
+                          return showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return FileHasilModal(
+                                  reload: (msg) {
+                                    openAlertSuccessBoxGoon(
+                                        context, 'Berhasil', msg, 'OK');
+                                    reload();
+                                  },
+                                  proyekId: data['proyek_id'],
+                                );
+                              });
                         } else {
                           openAlertBox(
                               context,
@@ -1207,7 +1180,16 @@ class ProyekCard extends StatelessWidget {
                           'assets/more_icon/file_alt.png',
                           BorderRadius.circular(30.0),
                           50, () {
-                        //TODO: DATA FILE HASIL VIEW
+                        if (data['file_hasil'].length > 0) {
+                          lampiranPopup(context, data['file_hasil']);
+                        } else {
+                          openAlertBox(
+                              context,
+                              'File Hasil Masih Kosong',
+                              'Harap isi File Hasil dengan mengisi Form File Hasil',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                       }),
                     ]),
               ),
@@ -1523,10 +1505,10 @@ class ProyekCard extends StatelessWidget {
                           'assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0),
                           50, () {
-                        if( data['ratingable'].toString() == '1'){
-
-                        }else{
-                           openAlertBox(
+                        if (data['ratingable'].toString() == '1') {
+                          formRating(data);
+                        } else {
+                          openAlertBox(
                               context,
                               'Form Ulasan Klien Belum Tersedia',
                               'Form akan Tersedia ketika klien sudah melakukan ulasan...',
@@ -1541,6 +1523,163 @@ class ProyekCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  lampiranPopup(context, dataLampiran) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: Color(0xfff7f7f7),
+            // shape: RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.all(Radius.circular(32.0))),
+            contentPadding: EdgeInsets.only(top: 10.0),
+            content: Container(
+              margin: EdgeInsets.only(bottom: 10),
+              width: 400.0,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 15, right: 15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      'FILE HASIL',
+                      style: TextStyle(
+                        color: AppTheme.textBlue,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 1, color: AppTheme.geyCustom),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            alignment: Alignment.topRight,
+                            // padding: EdgeInsets.only(right: 5),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: FaIcon(
+                                FontAwesomeIcons.times,
+                                color: AppTheme.geyCustom,
+                                size: 16,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.only(top: 15),
+                            height: 250,
+                            child: dataLampiran.length == 0
+                                ? dataKosong()
+                                : ListView.builder(
+                                    itemCount: dataLampiran.length,
+                                    // itemExtent: 100.0,
+                                    itemBuilder: (c, i) {
+                                      String nama =
+                                          dataLampiran[i].split('/').last;
+                                      String otherExt = '';
+                                      String ext = nama.split('.').last;
+                                      bool imgExt = [
+                                                'jpg',
+                                                'jpeg',
+                                                'gif',
+                                                'png'
+                                              ].indexOf(ext) >=
+                                              0
+                                          ? true
+                                          : false;
+                                      if (!imgExt) {
+                                        if ('pdf' == ext) {
+                                          otherExt = 'assets/ext/pdf.png';
+                                        } else if (['ppt', 'pptx']
+                                                    .indexOf(ext) >=
+                                                0
+                                            ? true
+                                            : false) {
+                                          otherExt = 'assets/ext/ppt.png';
+                                        } else if (['xls', 'xlsx']
+                                                    .indexOf(ext) >=
+                                                0
+                                            ? true
+                                            : false) {
+                                          otherExt = 'assets/ext/excel.png';
+                                        } else if (['doc', 'docx', 'odt']
+                                                    .indexOf(ext) >=
+                                                0
+                                            ? true
+                                            : false) {
+                                          otherExt = 'assets/ext/doc.png';
+                                        } else {
+                                          otherExt = 'assets/ext/files.png';
+                                        }
+                                      }
+                                      // transColor();
+                                      return Container(
+                                        alignment: Alignment.centerLeft,
+                                        margin: EdgeInsets.only(bottom: 5),
+                                        height: 30,
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              alignment: Alignment.centerRight,
+                                              height: 40,
+                                              width: double.infinity,
+                                              child: InkWell(
+                                                onTap: () async {
+                                                  saveFile(dataLampiran[i]);
+                                                },
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.download,
+                                                  color: Colors.grey[700],
+                                                  size: 16,
+                                                ),
+                                              ),
+                                            ),
+                                            imgExt
+                                                ? SizedBox(
+                                                    width: 30,
+                                                    child: imageLoad(
+                                                        dataLampiran[i],
+                                                        false,
+                                                        30,
+                                                        30))
+                                                : Image.asset(
+                                                    otherExt,
+                                                    width: 30,
+                                                    height: 30,
+                                                  ),
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              margin: EdgeInsets.only(
+                                                  right: 50, left: 30),
+                                              height: 40,
+                                              padding: EdgeInsets.only(left: 5),
+                                              child: Text(
+                                                nama,
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   Widget btnTool(bool active, String locationImg, BorderRadius radius,

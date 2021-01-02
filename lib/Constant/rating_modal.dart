@@ -13,10 +13,12 @@ class RatingModal extends StatefulWidget {
     this.isLunas,
     this.isProyek: false,
     this.nama,
+    this.hiddenInputPuas:false,
   }) : super(key: key);
 
   final Function(Map res) eventRes;
   final bool isLunas;
+  final bool hiddenInputPuas;
   final bool isProyek;
   final String nama;
 }
@@ -131,7 +133,7 @@ class _RatingModalState extends State<RatingModal> {
                             hintText: "Ulasan",
                             fillColor: Colors.white70),
                       ),
-                      Padding(
+                      widget.hiddenInputPuas?Container():Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: InkWell(
                           onTap: () {

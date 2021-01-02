@@ -518,7 +518,7 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
               ),
               onSelected: (newValue) {
                 if (newValue == 0) {
-                  // Navigator.pushNamed(context, '/ganti_password');
+                  Navigator.pushNamed(context, '/publik');
                 }
               },
               itemBuilder: (context) => [

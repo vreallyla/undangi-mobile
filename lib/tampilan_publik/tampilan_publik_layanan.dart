@@ -207,6 +207,9 @@ class _TampilanPublikLayananState extends State<TampilanPublikLayanan> {
                                       color: AppTheme.geySolidCustom,
                                       size: 18,
                                     ),
+                                       SizedBox(
+                                      width: sizeu.width-74,
+                                      child:
                                     Text(
                                       ' Layanan ' +
                                           (nameUser != null ? nameUser : ''),
@@ -214,6 +217,7 @@ class _TampilanPublikLayananState extends State<TampilanPublikLayanan> {
                                           color: AppTheme.geySolidCustom,
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500),
+                                    ),
                                     ),
                                   ],
                                 ),

@@ -64,7 +64,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
   String proyekId = '';
   Map dataProyek = {};
 
-    //DOWNLOADER
+  //DOWNLOADER
   ReceivePort _receivePort = ReceivePort();
   bool loadDownloadLampiran = false;
   int progress = 0;
@@ -90,7 +90,9 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
       final id = await FlutterDownloader.enqueue(
         url: fileUrl,
         savedDir: externalDir.path,
-        fileName: fileUrl.split('/').last.indexOf('.')>=0? fileUrl.split('/').last:'Surat Kontrak',
+        fileName: fileUrl.split('/').last.indexOf('.') >= 0
+            ? fileUrl.split('/').last
+            : 'Surat Kontrak',
         showNotification: true,
         openFileFromNotification: true,
       );
@@ -107,7 +109,6 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
 
   @override
   void initState() {
- 
     super.initState();
 
     ///register a send port for the other isolates
@@ -141,13 +142,10 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
           _unbindBackgroundIsolate();
         }
       }
-
-
     });
 
     FlutterDownloader.registerCallback(downloadingCallback);
   }
-
 
   setLoadingProgress(bool kond) {
     setState(() {
@@ -650,7 +648,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                       // itemExtent: 100.0,
                       itemBuilder: (c, i) {
                         return TabPengerjaanCard(
-                          downloadFile:(v)=>_saveFile(v),
+                            downloadFile: (v) => _saveFile(v),
                             waktuLoadRepeat: (c) => widget.waktuLoadRepeat(c),
                             pauseLoad: (c) => widget.pauseLoad(c),
                             marginLeftRight: marginLeftRight,
@@ -701,7 +699,6 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
   }
 
   komenOwner(context, Map data) {
-    
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -709,14 +706,13 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
             nama: data['judul'],
             isLunas: data['isLunas'] == 1,
             eventRes: (Map res) {
-              
               _ratingApi(data['id'].toString(), res);
             },
           );
         });
   }
 
-    _ratingApi(String id, Map res) async {
+  _ratingApi(String id, Map res) async {
     onLoading(context);
     widget.pauseLoad(true);
 
@@ -731,9 +727,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
 
         if (v.error) {
           errorRespon(context, v.data);
-        } else {
-          
-        }
+        } else {}
       });
     },
         //disconect
@@ -1119,7 +1113,7 @@ class TabPengerjaanCard extends StatelessWidget {
                                               width: double.infinity,
                                               child: InkWell(
                                                 onTap: () async {
-                                                 downloadFile(dataLampiran[i]);
+                                                  downloadFile(dataLampiran[i]);
                                                 },
                                                 child: FaIcon(
                                                   FontAwesomeIcons.download,
@@ -1194,74 +1188,49 @@ class TabPengerjaanCard extends StatelessWidget {
               style: TextStyle(fontSize: 12),
             ),
           ),
-          Stack(children:[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //photo comment
-              Container(
-                alignment: Alignment.center,
-                height: photoWidth,
-                width: photoWidth,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(60),
-                ),
-                child: data['pengerjaan'].containsKey('pekerja')
-                    ? imageLoad(data['pengerjaan']['pekerja']['foto'], true,
-                        photoWidth, photoWidth)
-                    : Image.asset(
-                        'assets/general/user.png',
-                        width: photoWidth,
-                        fit: BoxFit.fitWidth,
-                      ),
-              ),
-              Stack(
-                children: [
-                  // nama & bintang
-                  Container(
-                    padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/general/user_place.png',
-                              width: 12,
-                              fit: BoxFit.fitWidth,
-                            ),
-                            Text(
-                              ' ' +
-                                  (data['pengerjaan'].containsKey('pekerja')
-                                      ? data['pengerjaan']['pekerja']['nama']
-                                      : tanpaNama),
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              maxLines: 1,
-                            )
-                          ],
+          Stack(children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //photo comment
+                Container(
+                  alignment: Alignment.center,
+                  height: photoWidth,
+                  width: photoWidth,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(60),
+                  ),
+                  child: data['pengerjaan'].containsKey('pekerja')
+                      ? imageLoad(data['pengerjaan']['pekerja']['foto'], true,
+                          photoWidth, photoWidth)
+                      : Image.asset(
+                          'assets/general/user.png',
+                          width: photoWidth,
+                          fit: BoxFit.fitWidth,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Row(
+                ),
+                Stack(
+                  children: [
+                    // nama & bintang
+                    Container(
+                      padding: EdgeInsets.only(left: pembatas * 2 + wightboder),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow,
-                                size: 16,
+                              Image.asset(
+                                'assets/general/user_place.png',
+                                width: 12,
+                                fit: BoxFit.fitWidth,
                               ),
                               Text(
                                 ' ' +
                                     (data['pengerjaan'].containsKey('pekerja')
-                                        ? data['pengerjaan']['pekerja']
-                                            ['bintang']
-                                        : '0'),
+                                        ? data['pengerjaan']['pekerja']['nama']
+                                        : tanpaNama),
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -1270,58 +1239,88 @@ class TabPengerjaanCard extends StatelessWidget {
                               )
                             ],
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  color: Colors.yellow,
+                                  size: 16,
+                                ),
+                                Text(
+                                  ' ' +
+                                      (data['pengerjaan'].containsKey('pekerja')
+                                          ? data['pengerjaan']['pekerja']
+                                              ['bintang']
+                                          : '0'),
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  maxLines: 1,
+                                )
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    //komen frelencer
+                    Container(
+                      width: sizeu.width - photoWidth - 74,
+                      padding: EdgeInsets.only(
+                        left: pembatas,
+                        top: 33,
+                        bottom: 5,
+                      ),
+                      margin: EdgeInsets.only(left: pembatas),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          left: BorderSide(
+                              width: wightboder,
+                              color: AppTheme.geySolidCustom),
                         ),
-                      ],
-                    ),
-                  ),
-                  //komen frelencer
-                  Container(
-                    width: sizeu.width - photoWidth - 74,
-                    padding: EdgeInsets.only(
-                      left: pembatas,
-                      top: 33,
-                      bottom: 5,
-                    ),
-                    margin: EdgeInsets.only(left: pembatas),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        left: BorderSide(
-                            width: wightboder, color: AppTheme.geySolidCustom),
+                      ),
+                      child: Text(
+                        (data['pengerjaan'].containsKey('pekerja')
+                            ? data['pengerjaan']['pekerja']['status']
+                            : empty),
+                        // '',
+                        style: TextStyle(
+                          fontSize: 15,
+                        ),
+                        maxLines: 4,
                       ),
                     ),
-                    child: Text(
-                      (data['pengerjaan'].containsKey('pekerja')
-                          ? data['pengerjaan']['pekerja']['status']
-                          : empty),
-                      // '',
-                      style: TextStyle(
-                        fontSize: 15,
-                      ),
-                      maxLines: 4,
-                    ),
+                  ],
+                ),
+              ],
+            ),
+            InkWell(
+              onTap: () {
+                downloadFile(
+                    "https://undagi.my.id/akun/dashboard/pekerja/proyek/download/contract/${data['pengerjaan']['id'].toString()}");
+              },
+              child: Container(
+                alignment: Alignment.center,
+                margin: EdgeInsets.only(left: sizeu.width - 175),
+                child: Stack(children: [
+                  Text(
+                    'Surat Kontrak',
+                    style: TextStyle(fontSize: 12),
                   ),
-                ],
+                  Padding(
+                      padding: EdgeInsets.only(left: 80),
+                      child: FaIcon(FontAwesomeIcons.download, size: 11))
+                ]),
+                width: 100,
+                height: 25,
+                color: Colors.white,
               ),
-            ],
-          ),
-            InkWell(onTap:(){
-                downloadFile("https://undagi.my.id/akun/dashboard/pekerja/proyek/download/contract/${data['pengerjaan']['id'].toString()}");
-              }
-                    ,child: Container(
-                      alignment: Alignment.center,
-                        margin: EdgeInsets.only(left:sizeu.width-175),
-                      child: Stack(children:[
-                        Text('Surat Kontrak',style: TextStyle(fontSize:12),),
-                        Padding(
-                          padding: EdgeInsets.only(left:80),
-                          child:
-                        FaIcon(FontAwesomeIcons.download,size:11)
-
-                        )
-                      ]),
-                      width:100 ,height: 25,color:Colors.white,),),
-                  
-          
+            ),
           ]),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1642,10 +1641,12 @@ class TabPengerjaanCard extends StatelessWidget {
                         } else {
                           openAlertBox(
                               context,
-                              data['pengerjaan']['file_hasil'].length > 0?'Proyek telah Selesai':'Harap Tunggu Lampiran Hasil!',
-                              
-                                data['pengerjaan']['file_hasil'].length > 0?'Anda sudah menyelesaikan proyek...':
-                              'Setelah Lampiran pekerjaan selesai silakan berikan ulasan anda...',
+                              data['pengerjaan']['file_hasil'].length > 0
+                                  ? 'Proyek telah Selesai'
+                                  : 'Harap Tunggu Lampiran Hasil!',
+                              data['pengerjaan']['file_hasil'].length > 0
+                                  ? 'Anda sudah menyelesaikan proyek...'
+                                  : 'Setelah Lampiran pekerjaan selesai silakan berikan ulasan anda...',
                               'OK',
                               () => Navigator.pop(context));
                         }

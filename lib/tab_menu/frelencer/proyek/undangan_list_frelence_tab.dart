@@ -332,7 +332,7 @@ class ProyekCard extends StatelessWidget {
                                 MaterialPageRoute(
                                   builder: (BuildContext context) =>
                                       TampilanPublikProyekDetail(
-                                    id: data['proyek_id'],
+                                    id: parseInt(data['proyek_id']),
                                   ),
                                 ),
                               );

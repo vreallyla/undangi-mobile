@@ -211,14 +211,16 @@ class _TampilanPublikProyekState extends State<TampilanPublikProyek> {
                                       color: AppTheme.geySolidCustom,
                                       size: 18,
                                     ),
-                                    Text(
+                                    SizedBox(
+                                      width: sizeu.width-74,
+                                      child: Text(
                                       ' Proyek ' +
                                           (nameUser != null ? nameUser : ''),
                                       style: TextStyle(
                                           color: AppTheme.geySolidCustom,
                                           fontSize: 18,
                                           fontWeight: FontWeight.w500),
-                                    ),
+                                    ),),
                                   ],
                                 ),
                                 Container(

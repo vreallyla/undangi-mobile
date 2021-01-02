@@ -601,34 +601,51 @@ class _TampilanPublikProyekDetailState
                             298 +
                             5 +
                             75,
-                        child: (dataProyek['bid'] != null
-                                ? dataProyek['bid'].length > 0
-                                : false)
-                            ? ListView.builder(
-                                itemCount: dataProyek['bid'].length,
-                                // itemExtent: 100.0,
-                                itemBuilder: (c, i) => cardBidder(
-                                  loadDataApi: () => _loadDataApi(),
-                                  bottom: bottom,
-                                  proyekId: widget.id,
-                                  other: {"nama": dataProyek['judul']},
-                                  i: i,
-                                  data: dataProyek['bid'][i],
-                                  itsMe: itsMe,
+                        child: !itsMe && dataProyek['jenis'] == 'privat'
+                            ? Container(
+                              width: sizeu.width,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Image.asset(
+                                        'assets/general/notice_dung.jpeg',height: 60,width: 60,),
+                                        Padding
+                                        
+                                        (
+                                          padding: EdgeInsets.only(top:18),
+                                          child: Text('Data Bersifat Privat!',style: TextStyle(fontSize:19, fontWeight: FontWeight.w500, )))
+                                  ],
                                 ),
                               )
-                            : Container(
-                                alignment: Alignment.center,
-                                padding: EdgeInsets.only(
-                                  bottom: 50,
-                                ),
-                                child: Text(
-                                  'Data Bidder Kosong...',
-                                  style: TextStyle(
-                                      // color: Colors.grey,
-                                      fontSize: 22),
-                                ),
-                              ),
+                            : (dataProyek['bid'] != null
+                                    ? dataProyek['bid'].length > 0
+                                    : false)
+                                ? ListView.builder(
+                                    itemCount: dataProyek['bid'].length,
+                                    // itemExtent: 100.0,
+                                    itemBuilder: (c, i) => cardBidder(
+                                      loadDataApi: () => _loadDataApi(),
+                                      bottom: bottom,
+                                      proyekId: widget.id,
+                                      other: {"nama": dataProyek['judul']},
+                                      i: i,
+                                      data: dataProyek['bid'][i],
+                                      itsMe: itsMe,
+                                    ),
+                                  )
+                                : Container(
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.only(
+                                      bottom: 50,
+                                    ),
+                                    child: Text(
+                                      'Data Bidder Kosong...',
+                                      style: TextStyle(
+                                          // color: Colors.grey,
+                                          fontSize: 22),
+                                    ),
+                                  ),
                       ),
                     ],
                   ),

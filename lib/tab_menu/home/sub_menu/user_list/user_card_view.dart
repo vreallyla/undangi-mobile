@@ -140,7 +140,7 @@ class UserCardView extends StatelessWidget {
                     Container(
                         padding: EdgeInsets.only(left: 5),
                         width: (sizeu.width - 30) / 2 - 20 - 17,
-                        child: starJadi(double.parse(data['bintang']), data['ulasan'].toString(), 14,14))
+                        child: starJadi(double.parse(data['bintang']??'0'), data['ulasan'].toString(), 14,14))
                   ],
                 )
               ],

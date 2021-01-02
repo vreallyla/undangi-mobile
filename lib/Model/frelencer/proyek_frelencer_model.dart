@@ -102,9 +102,176 @@ class ProyekFrelencerModel {
     }
   }
 
-  static Future<ProyekFrelencerModel> getProgress(String id,Map res) async {
+  static Future<ProyekFrelencerModel> fileHasil(
+      Map other, List<File> lampiran,String proyekId) async {
+    var apiResult;
+    Map jsonObject = {};
+    String urll =
+                globalBaseUrl + "pekerja/proyek/"+proyekId+"/final"
+
+         ;
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+
+    if ( lampiran.length > 0) {
+    
+
+      var uri = Uri.parse(
+        urll,
+      );
+
+      var request = new http.MultipartRequest("POST", uri);
+
+      request.headers.addAll({'Authorization': tokenJWT + tokenFixed});
+      request.fields.addAll({
+        'tautan': other['tautan'],
+      });
+     
+
+      lampiran.forEach((element) async {
+        print(element);
+        var lengthLampiran = await element.length();
+        var streamLampiran =
+            new http.ByteStream(DelegatingStream.typed(element.openRead()));
+
+        var multipartLampiran = new http.MultipartFile(
+            "file_hasil[]", streamLampiran, lengthLampiran,
+            filename: path.basename(element.path));
+
+        request.files.add(multipartLampiran);
+      });
+
+      apiResult = await request.send();
+
+      await apiResult.stream.transform(utf8.decoder).listen((value) {
+        jsonObject = json.decode(value);
+        print(value);
+      });
+    } else {
+      String apiURL = urll;
+      print(apiURL);
+      apiResult = await http.post(apiURL,
+          headers: {
+            "Accept": "application/json",
+            "Authorization": tokenJWT + tokenFixed
+          },
+          body: other);
+      print(apiResult.statusCode);
+      jsonObject = json.decode(apiResult.body);
+    }
+
+    print('file hasil status code : ' + apiResult.statusCode.toString());
+    print(jsonObject);
+    // listen for response
+
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
+
+    try {
+      if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
+        return ProyekFrelencerModel(
+          error: false,
+          data: {"message": jsonObject['message']},
+        );
+      } else if (apiResult.statusCode == 422) {
+        return ProyekFrelencerModel(
+          error: true,
+          data: {"message": jsonObject['data']['message'], 'notValid': true},
+        );
+      } else {
+        if (apiResult.statusCode == 401) {
+          await GeneralModel.destroyToken().then((value) => null);
+          return ProyekFrelencerModel(
+            error: true,
+            data: {
+              'message': message,
+              'not_login': apiResult.statusCode == 401,
+            },
+          );
+        } else {
+          return ProyekFrelencerModel(
+            error: true,
+            data: {
+              'message': message,
+            },
+          );
+        }
+      }
+    } catch (e) {
+      print('error catch');
+      print(e);
+      return ProyekFrelencerModel(
+        error: true,
+        data: {
+          'message': e.toString(),
+        },
+      );
+    }
+  }
+
+  static Future<ProyekFrelencerModel> ratingProyek(String id, Map res) async {
     // final LocalStorage storage = new LocalStorage('auth');
-    String apiURL = globalBaseUrl + "pekerja/proyek/"+id+"/progress";
+    String apiURL = globalBaseUrl + "pekerja/proyek/" + id + '/rating';
+
+    print(apiURL);
+
+    await GeneralModel.token().then((value) {
+      tokenFixed = value.res;
+    });
+
+    var apiResult = await http.post(apiURL, body: res, headers: {
+      "Accept": "application/json",
+      "Authorization": tokenJWT + tokenFixed
+    });
+
+    print('rating pekerja status code : ' + apiResult.statusCode.toString());
+    Map jsonObject = json.decode(apiResult.body);
+    String message = jsonObject.containsKey('message')
+        ? jsonObject['message'].toString()
+        : notice;
+
+    try {
+      if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
+        return ProyekFrelencerModel(
+          error: false,
+          data: {"message": 'asd'},
+        );
+      } else {
+        if (apiResult.statusCode == 401) {
+          await GeneralModel.destroyToken().then((value) => null);
+          return ProyekFrelencerModel(
+            error: true,
+            data: {
+              'message': message,
+              'not_login': apiResult.statusCode == 401,
+            },
+          );
+        } else {
+          return ProyekFrelencerModel(
+            error: true,
+            data: {
+              'message': message,
+            },
+          );
+        }
+      }
+    } catch (e) {
+      print('error catch');
+      print(e);
+      return ProyekFrelencerModel(
+        error: true,
+        data: {
+          'message': e.toString(),
+        },
+      );
+    }
+  }
+
+  static Future<ProyekFrelencerModel> getProgress(String id, Map res) async {
+    // final LocalStorage storage = new LocalStorage('auth');
+    String apiURL = globalBaseUrl + "pekerja/proyek/" + id + "/progress";
     String params = '';
     int z = 0;
 
@@ -175,16 +342,15 @@ class ProyekFrelencerModel {
   }
 
   static Future<ProyekFrelencerModel> saveProgress(
-    String proyekId,  Map other, File thumb) async {
+      String proyekId, Map other, File thumb) async {
     var apiResult;
     Map jsonObject = {};
-    String urll =
-        globalBaseUrl + "pekerja/proyek/"+proyekId+"/progress" ;
+    String urll = globalBaseUrl + "pekerja/proyek/" + proyekId + "/progress";
     await GeneralModel.token().then((value) {
       tokenFixed = value.res;
     });
 
-    if (thumb != null ) {
+    if (thumb != null) {
       var multipartThumb;
       if (thumb != null) {
         var lengthThumb = await thumb.length();
@@ -200,7 +366,6 @@ class ProyekFrelencerModel {
         urll,
       );
 
-
       var request = new http.MultipartRequest("POST", uri);
 
       request.headers.addAll({'Authorization': tokenJWT + tokenFixed});
@@ -211,7 +376,6 @@ class ProyekFrelencerModel {
         request.files.add(multipartThumb);
       }
 
-     
       apiResult = await request.send();
 
       await apiResult.stream.transform(utf8.decoder).listen((value) {
@@ -219,7 +383,6 @@ class ProyekFrelencerModel {
         print(value);
       });
     } else {
-      
       String apiURL = urll;
       print(apiURL);
       apiResult = await http.post(apiURL,
@@ -232,7 +395,8 @@ class ProyekFrelencerModel {
       jsonObject = json.decode(apiResult.body);
     }
 
-    print('tambah progress proyek status code : ' + apiResult.statusCode.toString());
+    print('tambah progress proyek status code : ' +
+        apiResult.statusCode.toString());
     print(jsonObject);
     // listen for response
 
@@ -244,7 +408,7 @@ class ProyekFrelencerModel {
       if (apiResult.statusCode == 201 || apiResult.statusCode == 200) {
         return ProyekFrelencerModel(
           error: false,
-          data:jsonObject['data'],
+          data: jsonObject['data'],
         );
       } else if (apiResult.statusCode == 422) {
         return ProyekFrelencerModel(
@@ -281,7 +445,6 @@ class ProyekFrelencerModel {
       );
     }
   }
-
 
 //TODO:: USE IMAGE EXAMPLE
   static Future<ProyekFrelencerModel> addLayanan(
@@ -479,7 +642,8 @@ class ProyekFrelencerModel {
       "Authorization": tokenJWT + tokenFixed
     });
 
-    print('KONFIRM UNDANGAN pekerja status code : ' + apiResult.statusCode.toString());
+    print('KONFIRM UNDANGAN pekerja status code : ' +
+        apiResult.statusCode.toString());
     Map jsonObject = json.decode(apiResult.body);
     String message = jsonObject.containsKey('message')
         ? jsonObject['message'].toString()

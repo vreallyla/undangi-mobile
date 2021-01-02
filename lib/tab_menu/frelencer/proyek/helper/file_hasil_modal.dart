@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,10 +12,10 @@ import 'package:undangi/Model/dompet_model.dart';
 import 'package:undangi/Model/frelencer/proyek_frelencer_model.dart';
 import 'package:undangi/Model/general_model.dart';
 
-class ProgressModal extends StatefulWidget {
+class FileHasilModal extends StatefulWidget {
   @override
-  _ProgressModalState createState() => _ProgressModalState();
-  const ProgressModal({
+  _FileHasilModalState createState() => _FileHasilModalState();
+  const FileHasilModal({
     Key key,
     this.reload,
     this.proyekId,
@@ -24,16 +25,23 @@ class ProgressModal extends StatefulWidget {
   final String proyekId;
 }
 
-class _ProgressModalState extends State<ProgressModal> {
+class _FileHasilModalState extends State<FileHasilModal> {
   TextEditingController gambarController = new TextEditingController();
-  TextEditingController deskripsiController = new TextEditingController();
+  TextEditingController tautanController = new TextEditingController();
 
-  File gambar;
-  final picker = ImagePicker();
-  String imgBase64;
+  List<File> fileHasil = <File>[];
 
   //ERROR DATA INPUT
   Map error = {};
+
+  @override
+  void initState() {
+      // TODO: implement initState
+      setState(() {
+              tautanController.text='https://';
+            });
+      super.initState();
+    }
 
   void setErrorNotif(Map res) {
     setState(() {
@@ -44,15 +52,14 @@ class _ProgressModalState extends State<ProgressModal> {
   _saveApi() async {
     onLoading(context);
     Map dataSend = {
-      'deskripsi': deskripsiController.text.toString(),
-      
+      'tautan': tautanController.text.toString(),
     };
 
     GeneralModel.checCk(
         //connect
         () async {
       setErrorNotif({});
-      ProyekFrelencerModel.saveProgress(widget.proyekId,dataSend,gambar)
+      ProyekFrelencerModel.fileHasil(dataSend, fileHasil, widget.proyekId)
           .then((v) {
         Navigator.pop(context);
 
@@ -68,8 +75,7 @@ class _ProgressModalState extends State<ProgressModal> {
         } else {
           //TODO::RELOAD PROGRESS
           Navigator.pop(context);
-          widget.reload(v.data['message']);
-        
+          widget.reload('Berhasil dibuat..');
         }
       });
     },
@@ -83,98 +89,63 @@ class _ProgressModalState extends State<ProgressModal> {
     });
   }
 
+  void tambahlampiranSet() async {
+    List<File> lampiran = [];
+    FilePickerResult result = await FilePicker.platform.pickFiles(
+      allowMultiple: true,
+      type: FileType.custom,
+      allowedExtensions: [
+        'jpg',
+        'jpeg',
+        'gif',
+        'png',
+        'pdf',
+        'doc',
+        'docx',
+        'xls',
+        'xlsx',
+        'odt',
+        'ppt',
+        'pptx'
+      ],
+      allowCompression: true,
+    );
 
-  //ambil gambar camera
-  Future getImageCamera(context) async {
-    final pickedFile =
-        await picker.getImage(source: ImageSource.camera, imageQuality: 50);
+    List<File> selectionLamp = <File>[];
+    List<String> moreThan5Mb = [];
 
-    if (pickedFile != null) {
-    setState(() {
-          gambar=File(pickedFile.path);
-        });
+    if (result != null) {
+      result.paths.map((path) => File(path)).toList().forEach((element) {
+        if (element.lengthSync() <= 5e+6) {
+          selectionLamp.add(element);
+        }
+      });
 
-      // File imageResized = await FlutterNativeImage.compressImage(widget.image.path,
-      //     quality: 100, targetWidth: 120, targetHeight: 120);
-
-      // List<int> imageBytes = File(pickedFile.path).readAsBytesSync();
-
-      // imgBase64 = base64Encode(imageBytes);
-      setState(() {});
-
-      setThumb(File(pickedFile.path));
-
-      // _showPicker(context);
+      setState(() {
+              fileHasil=selectionLamp;
+            });
     } else {
-      print('No image selected.');
+      // User canceled the picker
+    }
+
+    if (moreThan5Mb.length > 0) {
+      openAlertBox(
+          context,
+          'Pemberitahuan!',
+          moreThan5Mb.join(', ') + ' melebih quota 5MB/lampiran',
+          'OK',
+          () => Navigator.pop(context));
+    } else {
+      setThumb(fileHasil.length.toString());
     }
   }
 
-//image from galery
-  Future getImageGalerry(context) async {
-    final pickedFile =
-        await picker.getImage(source: ImageSource.gallery, imageQuality: 50);
-
-      setState(() {
-          gambar=File(pickedFile.path);
-        });
-
-    // List<int> imageBytes = widget.image.readAsBytesSync();
-
-    // imgBase64 = base64Encode(imageBytes);
-
+  setThumb(String numb) {
     setState(() {
-      if (pickedFile != null) {
-        // _showPicker(context);
-      } else {
-        print('No image selected.');
-      }
+      gambarController.text = numb + ' File Hasil';
     });
-    setThumb(File(pickedFile.path));
   }
 
-  setThumb(File img){
-    setState(() {
-          gambarController.text=img.path.split('/').last;
-        });
-  }
-
-  //op imgae picker
-  void _showPicker(context) {
-    showModalBottomSheet(
-        context: context,
-        builder: (BuildContext bc) {
-          return SafeArea(
-            child: Container(
-              child: new Wrap(
-                children: <Widget>[
-                  Wrap(
-                    children: [
-                      new ListTile(
-                          leading: new Icon(Icons.photo_library),
-                          title: new Text('Ambil dari galleri'),
-                          onTap: () {
-                            getImageGalerry(context);
-                            Navigator.of(context).pop();
-                          }),
-                      new ListTile(
-                        leading: new Icon(Icons.photo_camera),
-                        title: new Text('Ambil dari kamera'),
-                        onTap: () {
-                          getImageCamera(context);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
- 
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.of(context).viewInsets.bottom;
@@ -255,18 +226,17 @@ class _ProgressModalState extends State<ProgressModal> {
               ),
 
               SizedBox(
-                height: 285,
+                height: 260,
                 child: ListView(
                   children: [
                     //GAMBAR
                     Padding(
                       padding: EdgeInsets.fromLTRB(10, 20, 10, 5),
-                      child:
-                          Text('Bukti Gambar', style: TextStyle(fontSize: 14)),
+                      child: Text('File Hasil', style: TextStyle(fontSize: 14)),
                     ),
                     InkWell(
                       onTap: () {
-                        _showPicker(context);
+                        tambahlampiranSet();
                       },
                       child: Padding(
                         padding:
@@ -286,7 +256,7 @@ class _ProgressModalState extends State<ProgressModal> {
                                 filled: true,
                                 hintStyle:
                                     new TextStyle(color: Colors.grey[800]),
-                                hintText: "Pilih Gambar",
+                                hintText: "Tekan Untuk Pilih File",
                                 fillColor: Colors.white70),
                           ),
                         ),
@@ -294,20 +264,20 @@ class _ProgressModalState extends State<ProgressModal> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10, bottom: 5),
-                      child: noticeText('bukti_gambar', error),
+                      child: noticeText('file_hasil', error),
                     ),
 
                     //NEW PIN
                     Padding(
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 5),
-                      child: Text('Deskripsi', style: TextStyle(fontSize: 14)),
+                      child: Text('Tautan', style: TextStyle(fontSize: 14)),
                     ),
                     Padding(
                         padding:
                             EdgeInsets.only(left: 10.0, right: 10.0, bottom: 0),
                         child: TextField(
-                          maxLines: 3,
-                          controller: deskripsiController,
+                          maxLines: 1,
+                          controller: tautanController,
                           // keyboardType: TextInputType.number,
                           style: TextStyle(fontSize: 14, height: 1),
                           decoration: new InputDecoration(
@@ -319,12 +289,12 @@ class _ProgressModalState extends State<ProgressModal> {
                               ),
                               filled: true,
                               hintStyle: new TextStyle(color: Colors.grey[800]),
-                              hintText: "Masukkan Deskripsi",
+                              hintText: "Masukkan Tautan",
                               fillColor: Colors.white70),
                         )),
                     Padding(
                       padding: const EdgeInsets.only(left: 10, bottom: 15),
-                      child: noticeText('deskripsi', error),
+                      child: noticeText('tautan', error),
                     ),
 
                     InkWell(
