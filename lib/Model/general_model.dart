@@ -42,18 +42,18 @@ class GeneralModel {
 
   static Future<GeneralModel> checCk(Function a, Function b) async {
     bool internet = false;
-    // try {
-    //   final result = await InternetAddress.lookup('google.com');
-    //   if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-    //     internet = true;
-    //     a();
-    //   }
-    // } on SocketException catch (_) {
-    //   b();
-    // }
-
-    internet = true;
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        internet = true;
         a();
+      }
+    } on SocketException catch (_) {
+      b();
+    }
+
+    // internet = true;
+    //     a();
 
     return GeneralModel(res: internet);
   }

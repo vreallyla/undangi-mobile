@@ -13,13 +13,21 @@ class SplashScreenState extends State<SplashScreen>
   var _visible = true;
   String token;
 
-  AnimationController animationController;
-  Animation<double> animation;
+  bool showVersion = false;
 
-  startTime(bool kond) async {
-    var _duration = new Duration(seconds: 0);
-    return new Timer(_duration, navigationPage(kond));
-  }
+  String imgLoc = "assets/general/logo_circle.png";
+
+  double heightImg = 0;
+  double widthImg = 0;
+  double marginLe = 0;
+
+  // AnimationController animationController;
+  // Animation<double> animation;
+
+  // startTime(bool kond) async {
+  //   var _duration = new Duration(seconds: 0);
+  //   return new Timer(_duration, navigationPage(kond));
+  // }
 
   navigationPage(kond) {
     // Navigator.of(context).pushReplacementNamed(PAY_TM);
@@ -32,16 +40,7 @@ class SplashScreenState extends State<SplashScreen>
 
   _tokenCheck() async {
     await GeneralModel.token().then((v) {
-      print(v.res);
-      if (v.res == null) {
-        startTime(false);
-      } else {
-        GeneralModel.checCk(() {
-          startTime(true);
-        }, () {
-          startTime(false);
-        });
-      }
+      navigationPage(v.res != null);
     });
   }
 
@@ -49,42 +48,56 @@ class SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    animationController = new AnimationController(
-      vsync: this,
-      duration: new Duration(seconds: 2),
-    );
-    animation =
-        new CurvedAnimation(parent: animationController, curve: Curves.easeOut);
+    Future.delayed(Duration(milliseconds: 0), () {
+      final sizeu = MediaQuery.of(context).size;
+      setState(() {
+        heightImg = 60;
+        widthImg = 60;
+        marginLe = sizeu.width / 2 - 20;
+      });
+      Future.delayed(Duration(milliseconds: 1500), () {
+        setState(() {
+          imgLoc = "assets/general/logo.png";
+          marginLe = sizeu.width / 2 - 100;
+        });
+        Future.delayed(Duration(milliseconds: 1000), () {
+          setState(() {
+            showVersion = true;
 
-    animation.addListener(() => this.setState(() {}));
-    animationController.forward();
-
-    setState(() {
-      _visible = !_visible;
+            Future.delayed(Duration(milliseconds: 500), () {
+              _tokenCheck();
+            });
+          });
+        });
+      });
     });
-    _tokenCheck();
   }
 
   @override
   Widget build(BuildContext context) {
+    final sizeu = MediaQuery.of(context).size;
+
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          new Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              new Image.asset(
-                "assets/general/logo_circle.png",
-                width: animation.value * 150,
-                height: animation.value * 150,
-                fit: BoxFit.fitHeight,
-              ),
-            ],
+        backgroundColor: Colors.white,
+        body: Stack(children: [
+          AnimatedContainer(
+            margin: EdgeInsets.only(top: sizeu.height / 2 - 20, left: marginLe),
+            duration: Duration(milliseconds: 1500),
+            height: heightImg,
+            curve: Curves.fastOutSlowIn,
+            child: Image.asset(
+              imgLoc,
+              height: heightImg,
+              fit: BoxFit.fitHeight,
+            ),
           ),
-        ],
-      ),
-    );
+          !showVersion
+              ? Container()
+              : Container(
+                  alignment: Alignment.bottomCenter,
+                  margin: EdgeInsets.only(bottom: 40),
+                  child: Text('Version 1.0'),
+                )
+        ]));
   }
 }

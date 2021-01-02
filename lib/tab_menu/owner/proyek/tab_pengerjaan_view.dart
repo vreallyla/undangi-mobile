@@ -1,12 +1,18 @@
 import 'dart:developer';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rating_bar/rating_bar.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/app_var.dart';
 import 'package:undangi/Constant/app_widget.dart';
+import 'package:undangi/Constant/rating_modal.dart';
 import 'package:undangi/Constant/shimmer_indicator.dart';
 import 'package:undangi/Constant/zoomable_single_with_download.dart';
 import 'package:undangi/Model/general_model.dart';
@@ -57,6 +63,91 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
   List dataProgress = [];
   String proyekId = '';
   Map dataProyek = {};
+
+    //DOWNLOADER
+  ReceivePort _receivePort = ReceivePort();
+  bool loadDownloadLampiran = false;
+  int progress = 0;
+
+  static downloadingCallback(id, status, progress) {
+    ///Looking up for a send port
+    SendPort sendPort = IsolateNameServer.lookupPortByName("Undangi");
+
+    ///ssending the data
+    sendPort.send([id, status, progress]);
+  }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  void _saveFile(String fileUrl) async {
+    final status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      final externalDir = await getExternalStorageDirectory();
+
+      final id = await FlutterDownloader.enqueue(
+        url: fileUrl,
+        savedDir: externalDir.path,
+        fileName: fileUrl.split('/').last.indexOf('.')>=0? fileUrl.split('/').last:'Surat Kontrak',
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+    } else {
+      print("Permission deined");
+    }
+  }
+
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+ 
+    super.initState();
+
+    ///register a send port for the other isolates
+    IsolateNameServer.registerPortWithName(
+        _receivePort.sendPort, "downloading");
+
+    ///Listening for the data is comming other isolataes
+    _receivePort.listen((message) {
+      setState(() {
+        progress = message[2];
+      });
+
+      if (!loadDownloadLampiran) {
+        setState(() {
+          loadDownloadLampiran = true;
+        });
+        onLoading(context);
+      }
+
+      if (progress >= 100) {
+        if (loadDownloadLampiran) {
+          Navigator.pop(context);
+          openAlertSuccessBox(
+              context, 'Berhasil!', 'File Hasil Berhasil didownload...', 'OK',
+              () {
+            setState(() {
+              loadDownloadLampiran = false;
+            });
+            Navigator.pop(context);
+          });
+          _unbindBackgroundIsolate();
+        }
+      }
+
+
+    });
+
+    FlutterDownloader.registerCallback(downloadingCallback);
+  }
+
 
   setLoadingProgress(bool kond) {
     setState(() {
@@ -559,10 +650,14 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
                       // itemExtent: 100.0,
                       itemBuilder: (c, i) {
                         return TabPengerjaanCard(
+                          downloadFile:(v)=>_saveFile(v),
                             waktuLoadRepeat: (c) => widget.waktuLoadRepeat(c),
                             pauseLoad: (c) => widget.pauseLoad(c),
                             marginLeftRight: marginLeftRight,
                             marginCard: marginCard,
+                            formRating: (Map res) {
+                              komenOwner(context, res);
+                            },
                             changeProgress: (Map data) {
                               setState(() {
                                 proyekId =
@@ -604,6 +699,54 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
       // ),
     );
   }
+
+  komenOwner(context, Map data) {
+    
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return RatingModal(
+            nama: data['judul'],
+            isLunas: data['isLunas'] == 1,
+            eventRes: (Map res) {
+              
+              _ratingApi(data['id'].toString(), res);
+            },
+          );
+        });
+  }
+
+    _ratingApi(String id, Map res) async {
+    onLoading(context);
+    widget.pauseLoad(true);
+
+    GeneralModel.checCk(
+        //connect
+        () async {
+      // setErrorNotif({});
+      ProyekOwnerModel.ratingProyek(id, res).then((v) {
+        widget.pauseLoad(false);
+
+        Navigator.pop(context);
+
+        if (v.error) {
+          errorRespon(context, v.data);
+        } else {
+          
+        }
+      });
+    },
+        //disconect
+        () {
+      Navigator.pop(context);
+      widget.pauseLoad(false);
+
+      openAlertBox(context, noticeTitle, notice, konfirm1, () {
+        Navigator.pop(context, false);
+      });
+    });
+  }
+
 }
 
 int colorChange = 0;
@@ -612,12 +755,14 @@ class TabPengerjaanCard extends StatelessWidget {
   const TabPengerjaanCard({
     Key key,
     this.data,
+    this.downloadFile,
     this.index,
     this.waktuLoadRepeat,
     this.pauseLoad,
     this.marginLeftRight: 0,
     this.marginCard: 0,
     this.changeProgress,
+    this.formRating,
     this.star,
     this.starEvent,
   }) : super(key: key);
@@ -628,9 +773,11 @@ class TabPengerjaanCard extends StatelessWidget {
   final int index;
   final Function(Map res) changeProgress;
   final Function(double st) starEvent;
+  final Function(Map res) formRating;
 
   final Function(int v) waktuLoadRepeat;
   final Function(bool v) pauseLoad;
+  final Function(String url) downloadFile;
 
   final double star;
   transColor(i) {
@@ -781,13 +928,13 @@ class TabPengerjaanCard extends StatelessWidget {
                     }),
                     InkWell(
                       onTap: () {
-                        openAlertBox(
-                            context,
-                            'APAKAH ANDA YAKIN?',
-                            'Untuk menyelesaikan PEKERJAAN ini',
-                            'KONFIRMASI', () {
-                          Navigator.pop(context);
-                        });
+                        // openAlertBox(
+                        //     context,
+                        //     'APAKAH ANDA YAKIN?',
+                        //     'Untuk menyelesaikan PEKERJAAN ini',
+                        //     'KONFIRMASI', () {
+                        //   Navigator.pop(context);
+                        // });
                       },
                       child: Container(
                         margin: EdgeInsets.only(top: 20),
@@ -864,7 +1011,7 @@ class TabPengerjaanCard extends StatelessWidget {
     );
   }
 
-  komenOwner(context) {
+  lampiranPopup(context, dataLampiran) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -884,7 +1031,7 @@ class TabPengerjaanCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Text(
-                      'ULASAN ANDA',
+                      'FILE HASIL',
                       style: TextStyle(
                         color: AppTheme.textBlue,
                       ),
@@ -912,63 +1059,104 @@ class TabPengerjaanCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Text(
-                            'Ratings',
-                            style: TextStyle(
-                              color: AppTheme.geyCustom,
-                              fontSize: 18,
-                            ),
-                          ),
                           Container(
-                            alignment: Alignment.topLeft,
-                            width: double.infinity,
-                            child: RatingBar(
-                              maxRating: 5,
-                              onRatingChanged: (rating) => starEvent(rating),
-                              filledIcon: Icons.star,
-                              emptyIcon: Icons.star_border,
-                              halfFilledIcon: Icons.star_half,
-                              isHalfAllowed: true,
-                              filledColor: Colors.amber,
-                              size: 36,
-                            ),
+                            padding: EdgeInsets.only(top: 15),
+                            height: 250,
+                            child: dataLampiran.length == 0
+                                ? dataKosong()
+                                : ListView.builder(
+                                    itemCount: dataLampiran.length,
+                                    // itemExtent: 100.0,
+                                    itemBuilder: (c, i) {
+                                      String nama =
+                                          dataLampiran[i].split('/').last;
+                                      String otherExt = '';
+                                      String ext = nama.split('.').last;
+                                      bool imgExt = [
+                                                'jpg',
+                                                'jpeg',
+                                                'gif',
+                                                'png'
+                                              ].indexOf(ext) >=
+                                              0
+                                          ? true
+                                          : false;
+                                      if (!imgExt) {
+                                        if ('pdf' == ext) {
+                                          otherExt = 'assets/ext/pdf.png';
+                                        } else if (['ppt', 'pptx']
+                                                    .indexOf(ext) >=
+                                                0
+                                            ? true
+                                            : false) {
+                                          otherExt = 'assets/ext/ppt.png';
+                                        } else if (['xls', 'xlsx']
+                                                    .indexOf(ext) >=
+                                                0
+                                            ? true
+                                            : false) {
+                                          otherExt = 'assets/ext/excel.png';
+                                        } else if (['doc', 'docx', 'odt']
+                                                    .indexOf(ext) >=
+                                                0
+                                            ? true
+                                            : false) {
+                                          otherExt = 'assets/ext/doc.png';
+                                        } else {
+                                          otherExt = 'assets/ext/files.png';
+                                        }
+                                      }
+                                      // transColor();
+                                      return Container(
+                                        alignment: Alignment.centerLeft,
+                                        margin: EdgeInsets.only(bottom: 5),
+                                        height: 30,
+                                        child: Stack(
+                                          children: [
+                                            Container(
+                                              alignment: Alignment.centerRight,
+                                              height: 40,
+                                              width: double.infinity,
+                                              child: InkWell(
+                                                onTap: () async {
+                                                 downloadFile(dataLampiran[i]);
+                                                },
+                                                child: FaIcon(
+                                                  FontAwesomeIcons.download,
+                                                  color: Colors.grey[700],
+                                                  size: 16,
+                                                ),
+                                              ),
+                                            ),
+                                            imgExt
+                                                ? SizedBox(
+                                                    width: 30,
+                                                    child: imageLoad(
+                                                        dataLampiran[i],
+                                                        false,
+                                                        30,
+                                                        30))
+                                                : Image.asset(
+                                                    otherExt,
+                                                    width: 30,
+                                                    height: 30,
+                                                  ),
+                                            Container(
+                                              alignment: Alignment.centerLeft,
+                                              margin: EdgeInsets.only(
+                                                  right: 50, left: 30),
+                                              height: 40,
+                                              padding: EdgeInsets.only(left: 5),
+                                              child: Text(
+                                                nama,
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
                           ),
-                          Text(
-                            'Ulasan Anda',
-                            style: TextStyle(
-                              color: AppTheme.geyCustom,
-                              fontSize: 18,
-                            ),
-                          ),
-                          TextField(
-                            style: TextStyle(fontSize: 12),
-                            maxLines: 3,
-                            decoration: new InputDecoration(
-                                border: new OutlineInputBorder(
-                                  borderRadius: const BorderRadius.all(
-                                    const Radius.circular(10.0),
-                                  ),
-                                ),
-                                filled: true,
-                                hintStyle:
-                                    new TextStyle(color: Colors.grey[800]),
-                                hintText: "Ulasan",
-                                fillColor: Colors.white70),
-                          ),
-                          Container(
-                            padding: EdgeInsets.only(top: 80),
-                            alignment: Alignment.topRight,
-                            child: RaisedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              color: AppTheme.bgChatBlue,
-                              child: Text(
-                                'Simpan',
-                                style: TextStyle(color: AppTheme.nearlyWhite),
-                              ),
-                            ),
-                          )
                         ],
                       ),
                     ),
@@ -1006,6 +1194,7 @@ class TabPengerjaanCard extends StatelessWidget {
               style: TextStyle(fontSize: 12),
             ),
           ),
+          Stack(children:[
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1115,6 +1304,25 @@ class TabPengerjaanCard extends StatelessWidget {
               ),
             ],
           ),
+            InkWell(onTap:(){
+                downloadFile("https://undagi.my.id/akun/dashboard/pekerja/proyek/download/contract/${data['pengerjaan']['id'].toString()}");
+              }
+                    ,child: Container(
+                      alignment: Alignment.center,
+                        margin: EdgeInsets.only(left:sizeu.width-175),
+                      child: Stack(children:[
+                        Text('Surat Kontrak',style: TextStyle(fontSize:12),),
+                        Padding(
+                          padding: EdgeInsets.only(left:80),
+                          child:
+                        FaIcon(FontAwesomeIcons.download,size:11)
+
+                        )
+                      ]),
+                      width:100 ,height: 25,color:Colors.white,),),
+                  
+          
+          ]),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1141,9 +1349,12 @@ class TabPengerjaanCard extends StatelessWidget {
                         top: 3,
                       ),
                       child: Text(
-                        (data.containsKey('file_hasil') &&
+                        (data.containsKey('pengerjaan') &&
                                 data['pengerjaan']['file_hasil'].length > 0
-                            ? data['pengerjaan']['file_hasil'].length.toString() + ' lampiran'
+                            ? data['pengerjaan']['file_hasil']
+                                    .length
+                                    .toString() +
+                                ' lampiran'
                             : empty),
                         style: TextStyle(fontSize: 12),
                       ),
@@ -1214,7 +1425,10 @@ class TabPengerjaanCard extends StatelessWidget {
                           'assets/more_icon/file_alt.png',
                           BorderRadius.circular(30.0),
                           50, () {
-                        //TODO:: FILE SHOW
+                        if (data['pengerjaan']['file_hasil'].length > 0) {
+                          lampiranPopup(
+                              context, data['pengerjaan']['file_hasil']);
+                        }
                       }),
                       Padding(
                         padding: EdgeInsets.only(
@@ -1223,25 +1437,31 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       btnTool(data['isLunas'] == 0, 'assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
-                       if(data['isLunas']==0){
+                        print(data['isLunas']);
+                        if (data['isLunas'] == 0) {
                           waktuLoadRepeat(560);
-                        pauseLoad(true);
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                PaymentProyekScreen(
-                              proyekId: data['id'],
-                              pengerjaanId:data['pengerjaan']['id'],
+                          pauseLoad(true);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  PaymentProyekScreen(
+                                proyekId: data['id'],
+                                pengerjaanId: data['pengerjaan']['id'],
+                              ),
                             ),
-                          ),
-                        ).then((value) {
-                          waktuLoadRepeat(3);
-                          pauseLoad(false);
-                        });
-                       }else{
-                         openAlertBox(context,'Pembayaran Sudah Lunas!','Anda tidak perlu melakukan pembayaran lagi','OK',()=>Navigator.pop(context));
-                       }
+                          ).then((value) {
+                            waktuLoadRepeat(3);
+                            pauseLoad(false);
+                          });
+                        } else {
+                          openAlertBox(
+                              context,
+                              'Pembayaran Sudah Lunas!',
+                              'Anda tidak perlu melakukan pembayaran lagi',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                       }),
                     ]),
               ),
@@ -1416,12 +1636,19 @@ class TabPengerjaanCard extends StatelessWidget {
                           'assets/more_icon/edit-button.png',
                           BorderRadius.circular(30.0),
                           50, () {
-                            if(data['ratingable'] == 1){
-                        komenOwner(context);
-                            }else{
-                         openAlertBox(context,'Harap Tunggu Lampiran Hasil!','Setelah Lampiran pekerjaan selesai silakan berikan ulasan anda...','OK',()=>Navigator.pop(context));
+                        if (data['ratingable'] == 1) {
+                          print(data['ratingable']);
+                          formRating(data);
+                        } else {
+                          openAlertBox(
+                              context,
+                              data['pengerjaan']['file_hasil'].length > 0?'Proyek telah Selesai':'Harap Tunggu Lampiran Hasil!',
                               
-                            }
+                                data['pengerjaan']['file_hasil'].length > 0?'Anda sudah menyelesaikan proyek...':
+                              'Setelah Lampiran pekerjaan selesai silakan berikan ulasan anda...',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                       }),
                     ],
                   ),

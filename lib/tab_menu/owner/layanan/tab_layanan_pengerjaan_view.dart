@@ -1139,10 +1139,10 @@ class TabPengerjaanCard extends StatelessWidget {
                           top: 5,
                         ),
                       ),
-                      btnTool(data['isPaidOff'] == '0', 'assets/more_icon/cc.png',
+                      btnTool(data['isPaidOff'].toString() == '0', 'assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
                         print(data['isPaidOff']);
-                        if (data['isPaidOff'] == '0') {
+                        if (data['isPaidOff'].toString() == '0') {
                           setStopRepeat(true);
 
                           //TODO::link to pembayran

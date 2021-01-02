@@ -337,14 +337,14 @@ class ProyekCard extends StatelessWidget {
                               );
                             }),
                             btnTool(
-                                data['deleteable'] == 1 ? true : false,
+                                data['deleteable'].toString() == '1' ? true : false,
                                 'assets/more_icon/remove-file.png',
                                 BorderRadius.only(
                                   topRight: Radius.circular(30.0),
                                   bottomRight: Radius.circular(30.0),
                                 ),
                                 () => deleteBid(
-                                    data['id'].toString(), (data['deleteable'] == 1))),
+                                    data['id'].toString(), (data['deleteable'].toString() == '1'))),
                           ],
                         ),
                         Padding(

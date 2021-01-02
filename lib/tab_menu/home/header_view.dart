@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:undangi/Constant/app_theme.dart';
 import 'package:undangi/Constant/search_box.dart';
+import 'package:undangi/tab_menu/owner/proyek/owner_proyek_screen.dart';
 
 class HomeHeaderView extends StatefulWidget {
   @override
@@ -92,37 +93,48 @@ class _HomeHeaderViewState extends State<HomeHeaderView> {
                       )),
                 ),
                 SizedBox(
-                  width: 140,
-                  height: 40,
-                  child: RaisedButton(
-                    shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(10.0)),
-                    onPressed: () {},
-                    color: AppTheme.primaryBlue,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                          width: 90,
-                          child: Text(
-                            'Buat',
-                            style: TextStyle(
-                              color: Colors.white,
+                    width: 140,
+                    height: 40,
+                    child: RaisedButton(
+                      shape: new RoundedRectangleBorder(
+                          borderRadius: new BorderRadius.circular(10.0)),
+                      onPressed: () {
+
+                         Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  OwnerProyekScreen(
+                                toAdd: true,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
+                          );
+                      },
+                      color: AppTheme.primaryBlue,
+                      child:  Row(
+                          children: [
+                            SizedBox(
+                              width: 90,
+                              child: Text(
+                                'Buat',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 10,
+                              child: Icon(
+                                Icons.arrow_forward,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(
-                          width: 10,
-                          child: Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                            size: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                      ),
+                    )
               ],
             )),
         // gambar tidur

@@ -38,7 +38,7 @@ void main() async {
   await FlutterDownloader.initialize(
       debug: true // optional: set false to disable printing logs to console
       );
-   if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  //  if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   
 
   WidgetsFlutterBinding.ensureInitialized();

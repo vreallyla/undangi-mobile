@@ -9,6 +9,7 @@ import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/owner/payment_owner_layanan_model.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:undangi/tab_menu/owner/layanan/sub/helper/midtrans_layanan_modal.dart';
 
 class PaymentLayananScreen extends StatefulWidget {
   @override
@@ -27,8 +28,10 @@ class _PaymentLayananScreenState extends State<PaymentLayananScreen> {
 
   TextEditingController hargaTotal = new TextEditingController();
   TextEditingController hargaTagihan = new TextEditingController();
-  MoneyMaskedTextController hargaAmbil =
-      MoneyMaskedTextController(decimalSeparator: ',', thousandSeparator: '.',);
+  MoneyMaskedTextController hargaAmbil = MoneyMaskedTextController(
+    decimalSeparator: ',',
+    thousandSeparator: '.',
+  );
   FocusNode ambilFocus = new FocusNode();
   FocusNode otherFocus = new FocusNode();
 
@@ -175,8 +178,8 @@ class _PaymentLayananScreenState extends State<PaymentLayananScreen> {
     // TODO: implement initState
     super.initState();
     ambilFocus.addListener(_onFocusChange);
-    loadMore = Timer.periodic(
-        Duration(seconds: 5), (Timer t) => _loadDataApi());
+    loadMore =
+        Timer.periodic(Duration(seconds: 5), (Timer t) => _loadDataApi());
   }
 
   void _onFocusChange() {
@@ -528,7 +531,7 @@ class _PaymentLayananScreenState extends State<PaymentLayananScreen> {
                                                 setState(() {
                                                   stopLoad = false;
                                                 });
-                                                  _loadDataApi();
+                                                _loadDataApi();
                                               });
                                             },
                                             child: Row(
@@ -731,14 +734,42 @@ class _PaymentLayananScreenState extends State<PaymentLayananScreen> {
                                 25,
                             left: _width - 165),
                         child: RaisedButton(
-                          onPressed: () {
-                            if (!stopLoad) {
-                              if (metode == 'dompet') {
-                                viaDompet();
-                              } else {
-                                //TODO::via midtrans
-                              }
+                          onPressed: () async {
+                            // if (!stopLoad) {
+                            if (metode == 'dompet') {
+                              viaDompet();
+                            } else {
+                              onLoading(context);
+                              await GeneralModel.token().then((v) {
+                                setState(() {
+                                  stopLoad = true;
+                                });
+                                Navigator.pop(context);
+                                return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return MidtransLayananModal(
+                                        other: {
+                                          'jumlah_pembayaran': hargaAmbil
+                                              .numberValue
+                                              .round()
+                                              .toString(),
+                                          'token': v.res,
+                                          'pengerjaan_layanan_id':
+                                              widget.layananId.toString(),
+                                          'dp': isDP ? 1 : 0,
+                                        },
+                                        loadAgain: () {
+                                          setState(() {
+                                            stopLoad = true;
+                                          });
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    });
+                              });
                             }
+                            // }
                           },
                           color: metode == null
                               ? AppTheme.geyCustom

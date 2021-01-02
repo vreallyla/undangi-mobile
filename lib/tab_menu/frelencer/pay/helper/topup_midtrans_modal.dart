@@ -40,9 +40,11 @@ class _TopupMidtransModalState extends State<TopupMidtransModal> {
 
   @override
   void initState() {
-    // print(widget.other);
+
     super.initState();
     // Enable hybrid composition.
+       if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+
   }
 
   @override
@@ -80,7 +82,8 @@ class _TopupMidtransModalState extends State<TopupMidtransModal> {
                             WebView(
                               javascriptMode: JavascriptMode.unrestricted,
                               initialUrl:
-                                  globalBaseUrl+'dompet/midtrans?jumlah=${widget.other['jumlah']}&token=${widget.other['token']}',
+                                  
+                                    'https://undagi.my.id/api/'+'dompet/midtrans?jumlah=${widget.other['jumlah']}&token=${widget.other['token']}',
                               // navigationDelegate: (NavigationRequest request) {
                               //   if (request.url
                               //       .startsWith('https://www.youtube.com/')) {
@@ -112,13 +115,17 @@ class _TopupMidtransModalState extends State<TopupMidtransModal> {
 
                                     break;
                                   }
-                                  print(url.substring(keya+8));
+                                  
                                 }
                               },
                               onPageFinished: (String url) async{
                                 print('Page finished loading: $url');
+              
                                 if (url.indexOf('dompet/midtrans') >= 0) {
+
+
                                  Future.delayed(Duration(seconds: 1),(){
+                                   
                                    setState(() {
                                                                         loading=false;
                                                                       });

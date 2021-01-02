@@ -230,7 +230,7 @@ class _PayFrelenceScreenState extends State<PayFrelenceScreen> {
                                             builder: (BuildContext context) {
                                               return TopupMidtransModal(
                                                 other: {
-                                                  'jumlah': nominal,
+                                                  'jumlah': double.parse(nominal.toString()).round().toString(),
                                                   'token': v.res,
                                                 },
                                                 loadAgain: () {

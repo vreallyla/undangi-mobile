@@ -7,20 +7,22 @@ import 'package:undangi/Constant/app_var.dart';
 
 import 'package:undangi/Constant/app_widget.dart';
 
+
 import 'package:webview_flutter/webview_flutter.dart';
 
-class MidtransModal extends StatefulWidget {
+class MidtransLayananModal extends StatefulWidget {
   @override
-  _MidtransModalState createState() => _MidtransModalState();
+  _MidtransLayananModalState createState() => _MidtransLayananModalState();
 
-  const MidtransModal({Key key, this.loadAgain, this.other}) : super(key: key);
+  const MidtransLayananModal({Key key, this.loadAgain, this.other})
+      : super(key: key);
 
   final Function loadAgain;
 
   final Map other;
 }
 
-class _MidtransModalState extends State<MidtransModal> {
+class _MidtransLayananModalState extends State<MidtransLayananModal> {
   InputDecoration textfieldDesign(String hint) {
     return InputDecoration(
       border: InputBorder.none,
@@ -41,11 +43,13 @@ class _MidtransModalState extends State<MidtransModal> {
     // print(widget.other);
     super.initState();
     // Enable hybrid composition.
-    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+   if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+
   }
 
   @override
   Widget build(BuildContext context) {
+    
     final sizeu = MediaQuery.of(context).size;
 
     return new GestureDetector(
@@ -55,7 +59,7 @@ class _MidtransModalState extends State<MidtransModal> {
         child: Container(
           // height: sizeu.height,
           width: sizeu.width,
-          margin: EdgeInsets.only(top: loading ? sizeu.height / 2 - 60 : 40),
+          margin: EdgeInsets.only(top:loading? sizeu.height/2-60:40),
 
           child: Align(
             alignment: Alignment(0, -1),
@@ -71,13 +75,14 @@ class _MidtransModalState extends State<MidtransModal> {
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
                     Container(
-                        height: loading ? 40 : 480,
+                      
+                        height: loading?40:480,
                         child: Stack(
                           children: [
                             WebView(
                               javascriptMode: JavascriptMode.unrestricted,
-                              initialUrl: globalBaseUrl +
-                                  'klien/proyek/payment/midtrans?jumlah_pembayaran=${widget.other['jumlah_pembayaran']}&token=${widget.other['token']}&proyek_id=${widget.other['proyek_id']}&dp=${widget.other['dp']}',
+                              initialUrl:
+                                  globalBaseUrl+'klien/layanan/payment/midtrans?jumlah_pembayaran=${widget.other['jumlah_pembayaran']}&token=${widget.other['token']}&pengerjaan_layanan_id=${widget.other['pengerjaan_layanan_id']}&dp=${widget.other['dp']}',
                               // navigationDelegate: (NavigationRequest request) {
                               //   if (request.url
                               //       .startsWith('https://www.youtube.com/')) {
@@ -89,57 +94,47 @@ class _MidtransModalState extends State<MidtransModal> {
                               // },
                               onPageStarted: (String url) {
                                 print('Page started loading: $url');
-                                if (url.indexOf('payment/midtrans') >= 0) {
-                                  // onLoading(context);
+                                 if (url.indexOf('payment/midtrans') >= 0) {
+                                // onLoading(context);
                                 }
                                 print(url);
-                                int keya = url.indexOf('?status=');
-                                if (keya >= 0) {
-                                  switch (url.substring(keya + 8)) {
+                                int keya=url.indexOf('?status=');
+                                if(keya>=0){
+                                  switch(url.substring(keya+8)){
                                     case 'gagal':
-                                      Navigator.pop(context);
-                                      break;
+                                    Navigator.pop(context);
+                                    break;
                                     case 'berhasil':
-                                      Navigator.pop(context);
-                                      widget.loadAgain();
-                                      openAlertSuccessBoxGoon(
-                                          context,
-                                          'Berhasil',
-                                          'Transaksi berhasil! Semoga Anda dan keluarga sehat selalu :) #dirumahaja',
-                                          'OK');
-                                      break;
+                                    Navigator.pop(context);
+                                    widget.loadAgain();
+                                    openAlertSuccessBoxGoon(context,'Berhasil','Transaksi berhasil! Semoga Anda dan keluarga sehat selalu :) #dirumahaja','OK');
+                                    break;
                                     default:
-                                      Navigator.pop(context);
-                                      openAlertBox(
-                                          context,
-                                          'Pemeritahuan',
-                                          url.substring(keya + 8),
-                                          'OK',
-                                          () => Navigator.pop(context));
+                                    Navigator.pop(context);
+                                    openAlertBox(context,'Pemeritahuan',url.substring(keya+8),'OK',()=>Navigator.pop(context));
 
-                                      break;
+                                    break;
                                   }
-                                  print(url.substring(keya + 8));
+                                  print(url.substring(keya+8));
                                 }
                               },
-                              onPageFinished: (String url) async {
+                              onPageFinished: (String url) async{
                                 print('Page finished loading: $url');
                                 if (url.indexOf('payment/midtrans') >= 0) {
-                                  Future.delayed(Duration(seconds: 1), () {
-                                    setState(() {
-                                      loading = false;
-                                    });
+                                 Future.delayed(Duration(seconds: 1),(){
+                                   setState(() {
+                                                                        loading=false;
+                                                                      });
 // Navigator.pop(context);
-                                  });
+                                 });
                                 }
                               },
                             ),
-                            loading
-                                ? Container(
-                                    color: Colors.white,
-                                    child: onLoading2(),
-                                  )
-                                : Container()
+                            loading?Container(
+                              color: Colors.white,
+                              child: onLoading2(),
+                            ):Container()
+                         
                           ],
                         ))
                   ],

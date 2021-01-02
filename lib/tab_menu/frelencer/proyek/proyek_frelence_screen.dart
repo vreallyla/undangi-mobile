@@ -61,6 +61,7 @@ class _ProyekFrenlenceScreenState extends State<ProyekFrenlenceScreen> {
       tabChange = kond;
       loadingPosisi = tabChange;
       toProgress = false;
+      stopLoad=false;
     });
     _loadDataApi();
   }

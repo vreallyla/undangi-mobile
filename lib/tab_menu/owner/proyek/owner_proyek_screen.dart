@@ -16,6 +16,13 @@ import 'tab_proyek_view.dart';
 class OwnerProyekScreen extends StatefulWidget {
   @override
   _OwnerProyekScreenState createState() => _OwnerProyekScreenState();
+
+  const OwnerProyekScreen({
+    Key key,
+    this.toAdd:false,
+  }) : super(key: key);
+
+  final bool toAdd;
 }
 
 class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
@@ -131,8 +138,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     setState(() {
       tabChange = kond;
       setLoading(!tabChange ? 0 : 1, true);
-      toProgress=false;
-      stopLoad=false;
+      toProgress = false;
+      stopLoad = false;
       _loadDataApi();
     });
   }
@@ -242,6 +249,9 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
 
   @override
   void initState() {
+    setState(() {
+      toAdd = widget.toAdd;
+    });
     setLoading(2, true);
     _loadDataApi();
 
@@ -377,7 +387,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                                   data: Theme.of(context).copyWith(
                                       splashColor: Colors.transparent),
                                   child: TextField(
-                                    enabled: !tabChange?!toAdd:!toProgress,
+                                    enabled: !tabChange ? !toAdd : !toProgress,
                                     autofocus: false,
                                     style: TextStyle(fontSize: 15.0),
                                     controller: searchController,
@@ -427,7 +437,7 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
               //tab proyek
               tabChange
                   ? TabPengerjaanView(
-                      searchText:searchController.text,
+                      searchText: searchController.text,
                       waktuLoadRepeat: (int v) {
                         setState(() {
                           timerRepeat = v;
@@ -437,6 +447,9 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
                         setState(() {
                           stopLoad = e;
                         });
+                        if (!e) {
+                          _loadDataApi();
+                        }
                       },
                       dataReresh: _loadDataApi,
                       dataNext: _nextDataApi,
@@ -615,9 +628,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     //pengerjaan
     if (tabChange && toProgress) {
       toProgress = !toProgress;
-      stopLoad=false;
+      stopLoad = false;
       _loadDataApi();
-
     }
 
     ///proyek

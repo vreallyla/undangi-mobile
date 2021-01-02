@@ -727,6 +727,9 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                             } else {
                               onLoading(context);
                               await GeneralModel.token().then((v) {
+                                setState(() {
+                                                                  stopLoad=true;
+                                                                });
                                 Navigator.pop(context);
                                 return showDialog(
                                     context: context,
@@ -734,12 +737,16 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                                       return MidtransModal(
                                         other: {
                                           'jumlah_pembayaran':
-                                              hargaAmbil.numberValue.toString(),
+                                              hargaAmbil.numberValue.round().toString(),
                                           'token': v.res,
                                           'proyek_id':widget.pengerjaanId.toString(),
+                                          'dp':isDP?1:0,
                                         },
                                         loadAgain: () {
-                                          _loadDataApi();
+                                            setState(() {
+                                                                  stopLoad=false;
+                                                                });
+                                          Navigator.pop(context);
                                         },
                                       );
                                     });

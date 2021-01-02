@@ -340,7 +340,7 @@ class ProyekCard extends StatelessWidget {
                             InkWell(
                               onTap: () {
                                 makeDealing(data['id'].toString(),
-                                    data['approveable'] == 1);
+                                    data['approveable'].toString() == '1');
                               },
                               child: Container(
                                 width: 40,
@@ -348,7 +348,7 @@ class ProyekCard extends StatelessWidget {
                                 alignment: Alignment.center,
                                 padding: EdgeInsets.all(5),
                                 decoration: BoxDecoration(
-                                  color: data['approveable'] == 1
+                                  color: data['approveable'].toString() == '1'
                                       ? Colors.white
                                       : Colors.white.withOpacity(0.4),
                                   borderRadius: BorderRadius.only(

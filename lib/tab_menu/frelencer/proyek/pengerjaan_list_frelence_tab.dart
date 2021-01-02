@@ -1,4 +1,10 @@
+import 'dart:isolate';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rating_bar/rating_bar.dart';
@@ -47,7 +53,95 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
   String proyekId = '';
   Map dataProyek = {};
 
-   // refresh user
+  
+    //DOWNLOADER
+  ReceivePort _receivePort = ReceivePort();
+  bool loadDownloadLampiran = false;
+  int progress = 0;
+
+  static downloadingCallback(id, status, progress) {
+    ///Looking up for a send port
+    SendPort sendPort = IsolateNameServer.lookupPortByName("Undangi");
+
+    ///ssending the data
+    sendPort.send([id, status, progress]);
+  }
+
+  void _unbindBackgroundIsolate() {
+    IsolateNameServer.removePortNameMapping('downloader_send_port');
+  }
+
+  void _saveFile(String fileUrl) async {
+    final status = await Permission.storage.request();
+
+    if (status.isGranted) {
+      final externalDir = await getExternalStorageDirectory();
+
+      final id = await FlutterDownloader.enqueue(
+        url: fileUrl,
+        savedDir: externalDir.path,
+        fileName: fileUrl.split('/').last.indexOf('.')>=0? fileUrl.split('/').last:'Surat Kontrak',
+        showNotification: true,
+        openFileFromNotification: true,
+      );
+    } else {
+      print("Permission deined");
+    }
+  }
+
+  @override
+  void dispose() {
+    _unbindBackgroundIsolate();
+    super.dispose();
+  }
+
+  
+  @override
+  void initState() {
+ 
+    super.initState();
+
+    ///register a send port for the other isolates
+    IsolateNameServer.registerPortWithName(
+        _receivePort.sendPort, "downloading");
+
+    ///Listening for the data is comming other isolataes
+    _receivePort.listen((message) {
+      setState(() {
+        progress = message[2];
+      });
+
+      if (!loadDownloadLampiran) {
+        setState(() {
+          loadDownloadLampiran = true;
+        });
+        onLoading(context);
+      }
+
+      if (progress >= 100) {
+        if (loadDownloadLampiran) {
+          Navigator.pop(context);
+          openAlertSuccessBox(
+              context, 'Berhasil!', 'File Hasil Berhasil didownload...', 'OK',
+              () {
+            setState(() {
+              loadDownloadLampiran = false;
+            });
+            Navigator.pop(context);
+          });
+          _unbindBackgroundIsolate();
+        }
+      }
+
+
+    });
+
+    FlutterDownloader.registerCallback(downloadingCallback);
+  }
+
+
+
+  // refresh user
   void _loadDataApi() async {
     setLoadingProgress(true);
     GeneralModel.checCk(
@@ -78,7 +172,6 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
     });
   }
 
-
   setLoadingProgress(bool kond) {
     setState(() {
       loadingProgress = kond;
@@ -93,8 +186,6 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
     widget.toProgressFunc(proyekId);
   }
 
-  
-
   String jnsProyek = 'publik';
   @override
   Widget build(BuildContext context) {
@@ -105,41 +196,39 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
     final sizeu = MediaQuery.of(context).size;
     double gangInput = 5;
 
-    return widget.toProgress?
-    (loadingProgress
-                  ? onLoading2()
-                  : (dataProgress.length == 0
-                      ? dataKosong()
-                      : Container(
-                          height: sizeu.height -
-                              340 -
-                              widget.bottomKey -
-                              paddingPhone.bottom -
-                              paddingPhone.top,
-                          margin: EdgeInsets.only(
-                              left: marginLeftRight, right: marginLeftRight),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(
-                              width: .5,
-                              color: Colors.black,
-                            ),
-                          ),
-                          child: ListView.builder(
-                              itemCount: dataProgress.length,
-                              // itemExtent: 100.0,
-                              itemBuilder: (c, i) {
-                                Map data = dataProgress[i];
-                                return progressScreen(
-                                    marginLeftRight, marginCard, sizeu.width, data);
-                              }),
-                        )))
-             
-    :proyekList((id) {});
+    return widget.toProgress
+        ? (loadingProgress
+            ? onLoading2()
+            : (dataProgress.length == 0
+                ? dataKosong()
+                : Container(
+                    height: sizeu.height -
+                        340 -
+                        widget.bottomKey -
+                        paddingPhone.bottom -
+                        paddingPhone.top,
+                    margin: EdgeInsets.only(
+                        left: marginLeftRight, right: marginLeftRight),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(
+                        width: .5,
+                        color: Colors.black,
+                      ),
+                    ),
+                    child: ListView.builder(
+                        itemCount: dataProgress.length,
+                        // itemExtent: 100.0,
+                        itemBuilder: (c, i) {
+                          Map data = dataProgress[i];
+                          return progressScreen(
+                              marginLeftRight, marginCard, sizeu.width, data);
+                        }),
+                  )))
+        : proyekList((id) {});
   }
 
-  
   Widget progressScreen(marginLeftRight, marginCard, _width, data) {
     return Container(
       padding: EdgeInsets.all(marginCard),
@@ -158,7 +247,8 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                   height: 50,
                   width: 50,
                   margin: EdgeInsets.only(right: 10),
-                  child: imageLoad(dataProyek['proyek']['thumbnail'], false, 50, 50),
+                  child: imageLoad(
+                      dataProyek['proyek']['thumbnail'], false, 50, 50),
                 ),
                 Container(
                   width: _width - 201,
@@ -190,8 +280,9 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                       //harga
                       RichText(
                           text: TextSpan(
-                        text:
-                            'Rp' + decimalPointTwo(dataProyek['proyek']['harga'] ?? '0'),
+                        text: 'Rp' +
+                            decimalPointTwo(
+                                dataProyek['proyek']['harga'] ?? '0'),
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
@@ -229,17 +320,17 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                 ),
                 InkWell(
                   onTap: () {
-                     Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                ZoomAbleSingleWithDownload(
-                              imgUrl:data['bukti_gambar'].toString(),
-                              min:0.1,
-                              max:6,
-                            ),
-                          ),
-                        );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            ZoomAbleSingleWithDownload(
+                          imgUrl: data['bukti_gambar'].toString(),
+                          min: 0.1,
+                          max: 6,
+                        ),
+                      ),
+                    );
                   },
                   child: Container(
                       width: 80,
@@ -265,7 +356,6 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                         ],
                       )),
                 )
-              
               ],
             ),
             Container(
@@ -275,14 +365,14 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Progress Pekerjaan #'+data['urutan'].toString(),
+                      'Progress Pekerjaan #' + data['urutan'].toString(),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
                     ),
                     Text(
-                      data['deskripsi']??kontenkosong,
+                      data['deskripsi'] ?? kontenkosong,
                       textAlign: TextAlign.justify,
                       style: TextStyle(
                         fontWeight: FontWeight.w300,
@@ -292,7 +382,7 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
-                       data['created_at'].toString() ,
+                        data['created_at'].toString(),
                         textAlign: TextAlign.justify,
                         style: TextStyle(
                           fontWeight: FontWeight.w300,
@@ -303,7 +393,7 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
-                        'Progress Pekerjaan #'+data['urutan'].toString(),
+                        'Progress Pekerjaan #' + data['urutan'].toString(),
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -327,7 +417,6 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
       ),
     );
   }
-
 
   Widget inputHug(String hint, FaIcon icon, TextEditingController controller) {
     final sizeu = MediaQuery.of(context).size;
@@ -449,10 +538,11 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
                         // itemExtent: 100.0,
                         itemBuilder: (c, i) {
                           return ProyekCard(
+                            saveFile:(url)=>_saveFile(url),
                             changeProgress: (res) {
                               setState(() {
                                 dataProyek = res;
-                                proyekId=res['proyek_id'];
+                                proyekId = res['proyek_id'];
                               });
                               print(dataProyek);
                               changeToProgress();
@@ -475,6 +565,7 @@ class _PengerjaanListFrelenceTabState extends State<PengerjaanListFrelenceTab> {
 class ProyekCard extends StatelessWidget {
   const ProyekCard({
     Key key,
+    this.saveFile,
     this.marginLeftRight,
     this.marginCard,
     this.deleteBid,
@@ -489,6 +580,7 @@ class ProyekCard extends StatelessWidget {
   final double marginLeftRight;
   final double marginCard;
   final Function(Map res) changeProgress;
+  final Function(String url) saveFile;
 
   transColor(i) {
     int res = 0;
@@ -575,7 +667,7 @@ class ProyekCard extends StatelessWidget {
               //kontent
               Container(
                 width: widthKonten,
-                height: heightCard,
+                // height: heightCard,
                 padding: EdgeInsets.only(
                   left: 5,
                   right: 5,
@@ -642,12 +734,12 @@ class ProyekCard extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    btnTool('assets/more_icon/progress_bar.png',
+                    btnTool(true, 'assets/more_icon/progress_bar.png',
                         BorderRadius.circular(30.0), widthBtnShort - 15, () {
                       // TODO::REDIRECT PENGERJAAN
                       changeProgress(data);
                     }),
-                    InkWell(
+                  InkWell(
                       onTap: () {
                         // openAlertBox(
                         //     context,
@@ -658,7 +750,7 @@ class ProyekCard extends StatelessWidget {
                         // });
                       },
                       child: Container(
-                        margin: EdgeInsets.only(top: 20),
+                        margin: EdgeInsets.only(top: 8),
                         padding: EdgeInsets.only(top: 5, bottom: 5),
                         decoration: BoxDecoration(
                           color: AppTheme.primarymenu,
@@ -715,10 +807,10 @@ class ProyekCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  pointGroup(int.parse(data['proyek'] != null &&
-                              data['proyek']['waktu_pengerjaan'] != null
-                          ? data['proyek']['waktu_pengerjaan'].toString()
-                          : 0)) +
+                  (data['proyek'] != null
+                          ? pointGroup(
+                              parseInt(data['proyek']['waktu_pengerjaan']))
+                          : '0') +
                       ' Hari',
                   style: TextStyle(
                     fontSize: 11,
@@ -862,6 +954,8 @@ class ProyekCard extends StatelessWidget {
     double btnRight = 60;
     double marginLeftKomen = 15;
     double widthSub = widthCard - marginLeft - marginLeftKomen - btnRight;
+    double widthBtnShort = 100;
+
     return Container(
       margin: EdgeInsets.only(
         left: marginLeft,
@@ -877,6 +971,7 @@ class ProyekCard extends StatelessWidget {
               style: TextStyle(fontSize: 12),
             ),
           ),
+          Stack(children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -985,6 +1080,25 @@ class ProyekCard extends StatelessWidget {
               ),
             ],
           ),
+              InkWell(onTap:(){
+                saveFile("https://undagi.my.id/akun/dashboard/pekerja/proyek/download/contract/${data['id'].toString()}");
+              }
+                    ,child: Container(
+                      alignment: Alignment.center,
+                        margin: EdgeInsets.only(left:sizeu.width-175),
+                      child: Stack(children:[
+                        Text('Surat Kontrak',style: TextStyle(fontSize:12),),
+                        Padding(
+                          padding: EdgeInsets.only(left:80),
+                          child:
+                        FaIcon(FontAwesomeIcons.download,size:11)
+
+                        )
+                      ]),
+                      width:widthBtnShort ,height: 25,color:Colors.white,),),
+                  
+          
+          ]),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1054,8 +1168,22 @@ class ProyekCard extends StatelessWidget {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      btnTool('assets/more_icon/edit-button.png',
-                          BorderRadius.circular(30.0), 50, () {
+                      btnTool(
+                          data['progressable'] == 1,
+                          'assets/more_icon/edit-button.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        if (data['progressable'] == 1) {
+                          print('asd');
+                        } else {
+                          openAlertBox(
+                              context,
+                              'Form File Hasil Belum Tersedia',
+                              'Form file hasil akan tersedia setelah klien melakukan pembayaran...',
+                              konfirm1, () {
+                            Navigator.pop(context, false);
+                          });
+                        }
                         //TODO:: REDIRECT MODAL file jadi
                         // waktuLoadRepeat(560);
                         // pauseLoad(true);
@@ -1074,9 +1202,12 @@ class ProyekCard extends StatelessWidget {
                           top: 5,
                         ),
                       ),
-                      btnTool('assets/more_icon/file_alt.png',
-                          BorderRadius.circular(30.0), 50, () {
-                        print('file');
+                      btnTool(
+                          data['file_hasil'].length > 0,
+                          'assets/more_icon/file_alt.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        //TODO: DATA FILE HASIL VIEW
                       }),
                     ]),
               ),
@@ -1387,9 +1518,21 @@ class ProyekCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      btnTool('assets/more_icon/edit-button.png',
-                          BorderRadius.circular(30.0), 50, () {
-                        komenOwner(context);
+                      btnTool(
+                          data['ratingable'].toString() == '1',
+                          'assets/more_icon/edit-button.png',
+                          BorderRadius.circular(30.0),
+                          50, () {
+                        if( data['ratingable'].toString() == '1'){
+
+                        }else{
+                           openAlertBox(
+                              context,
+                              'Form Ulasan Klien Belum Tersedia',
+                              'Form akan Tersedia ketika klien sudah melakukan ulasan...',
+                              'OK',
+                              () => Navigator.pop(context));
+                        }
                       }),
                     ],
                   ),
@@ -1400,8 +1543,8 @@ class ProyekCard extends StatelessWidget {
     );
   }
 
-  Widget btnTool(String locationImg, BorderRadius radius, double width,
-      Function linkRedirect) {
+  Widget btnTool(bool active, String locationImg, BorderRadius radius,
+      double width, Function linkRedirect) {
     return InkWell(
       onTap: () {
         linkRedirect();
@@ -1411,6 +1554,7 @@ class ProyekCard extends StatelessWidget {
         height: 30,
         padding: EdgeInsets.all(5),
         decoration: BoxDecoration(
+          color: active ? Colors.white : Colors.white.withOpacity(.4),
           borderRadius: radius,
           border: Border.all(
             width: 1,
