@@ -131,6 +131,8 @@ class _OwnerProyekScreenState extends State<OwnerProyekScreen> {
     setState(() {
       tabChange = kond;
       setLoading(!tabChange ? 0 : 1, true);
+      toProgress=false;
+      stopLoad=false;
       _loadDataApi();
     });
   }

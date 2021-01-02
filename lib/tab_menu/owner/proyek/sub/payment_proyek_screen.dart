@@ -9,6 +9,7 @@ import 'package:undangi/Constant/app_widget.dart';
 import 'package:undangi/Model/general_model.dart';
 import 'package:undangi/Model/owner/payment_owner_model.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:undangi/tab_menu/owner/proyek/sub/helper/midtrans_modal.dart';
 
 class PaymentProyekScreen extends StatefulWidget {
   @override
@@ -17,9 +18,11 @@ class PaymentProyekScreen extends StatefulWidget {
   const PaymentProyekScreen({
     Key key,
     this.proyekId = 0,
+    this.pengerjaanId = 0,
   }) : super(key: key);
 
   final int proyekId;
+  final int pengerjaanId;
 }
 
 class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
@@ -27,8 +30,10 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
 
   TextEditingController hargaTotal = new TextEditingController();
   TextEditingController hargaTagihan = new TextEditingController();
-  MoneyMaskedTextController hargaAmbil =
-      MoneyMaskedTextController(decimalSeparator: ',', thousandSeparator: '.',);
+  MoneyMaskedTextController hargaAmbil = MoneyMaskedTextController(
+    decimalSeparator: ',',
+    thousandSeparator: '.',
+  );
   FocusNode ambilFocus = new FocusNode();
   FocusNode otherFocus = new FocusNode();
 
@@ -130,7 +135,7 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
           setLoading(false);
           if (v.error) {
             setState(() {
-              stopLoad=true;
+              stopLoad = true;
             });
             errorRespon(context, v.data);
           } else {
@@ -175,8 +180,8 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
 
   void _onFocusChange() {
     // debugPrint("Focus: "+ambilFocus.hasFocus.toString());
-     setState(() {
-      stopLoad=ambilFocus.hasFocus;
+    setState(() {
+      stopLoad = ambilFocus.hasFocus;
     });
     setState(() {
       if (!ambilFocus.hasFocus && hargaAmbil.numberValue > tagihan) {
@@ -716,11 +721,29 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                                 25,
                             left: _width - 165),
                         child: RaisedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (metode == 'dompet') {
                               viaDompet();
                             } else {
-                              //TODO::via midtrans
+                              onLoading(context);
+                              await GeneralModel.token().then((v) {
+                                Navigator.pop(context);
+                                return showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return MidtransModal(
+                                        other: {
+                                          'jumlah_pembayaran':
+                                              hargaAmbil.numberValue.toString(),
+                                          'token': v.res,
+                                          'proyek_id':widget.pengerjaanId.toString(),
+                                        },
+                                        loadAgain: () {
+                                          _loadDataApi();
+                                        },
+                                      );
+                                    });
+                              });
                             }
                           },
                           color: metode == null

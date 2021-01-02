@@ -125,7 +125,7 @@ class _TabPengerjaanViewState extends State<TabPengerjaanView> {
               ? (loadingProgress
                   ? onLoading2()
                   : (dataProgress.length == 0
-                      ? dataKosong
+                      ? dataKosong()
                       : Container(
                           height: sizeu.height -
                               310 -
@@ -1223,7 +1223,7 @@ class TabPengerjaanCard extends StatelessWidget {
                       ),
                       btnTool(data['isLunas'] == 0, 'assets/more_icon/cc.png',
                           BorderRadius.circular(30.0), 50, () {
-                       if(data['isLunas']){
+                       if(data['isLunas']==0){
                           waktuLoadRepeat(560);
                         pauseLoad(true);
                         Navigator.push(
@@ -1232,6 +1232,7 @@ class TabPengerjaanCard extends StatelessWidget {
                             builder: (BuildContext context) =>
                                 PaymentProyekScreen(
                               proyekId: data['id'],
+                              pengerjaanId:data['pengerjaan']['id'],
                             ),
                           ),
                         ).then((value) {

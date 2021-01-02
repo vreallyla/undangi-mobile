@@ -379,7 +379,7 @@ class _PayFrelenceScreenState extends State<PayFrelenceScreen> {
 
           Container(
             height:
-                _height - 310 - bottom - paddingPhone.top - paddingPhone.bottom,
+                _height - 340 - bottom - paddingPhone.top - paddingPhone.bottom,
             margin: EdgeInsets.fromLTRB(20, 10, 20, 10),
             padding: EdgeInsets.all(5),
             decoration: BoxDecoration(

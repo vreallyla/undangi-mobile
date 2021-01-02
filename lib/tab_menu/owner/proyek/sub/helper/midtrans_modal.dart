@@ -10,11 +10,11 @@ import 'package:undangi/Constant/app_widget.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
 
-class TopupMidtransModal extends StatefulWidget {
+class MidtransModal extends StatefulWidget {
   @override
-  _TopupMidtransModalState createState() => _TopupMidtransModalState();
+  _MidtransModalState createState() => _MidtransModalState();
 
-  const TopupMidtransModal({Key key, this.loadAgain, this.other})
+  const MidtransModal({Key key, this.loadAgain, this.other})
       : super(key: key);
 
   final Function loadAgain;
@@ -22,7 +22,7 @@ class TopupMidtransModal extends StatefulWidget {
   final Map other;
 }
 
-class _TopupMidtransModalState extends State<TopupMidtransModal> {
+class _MidtransModalState extends State<MidtransModal> {
   InputDecoration textfieldDesign(String hint) {
     return InputDecoration(
       border: InputBorder.none,
@@ -80,7 +80,7 @@ class _TopupMidtransModalState extends State<TopupMidtransModal> {
                             WebView(
                               javascriptMode: JavascriptMode.unrestricted,
                               initialUrl:
-                                  globalBaseUrl+'dompet/midtrans?jumlah=${widget.other['jumlah']}&token=${widget.other['token']}',
+                                  globalBaseUrl+'klien/proyek/payment/midtrans?jumlah_pembayaran=${widget.other['jumlah_pembayaran']}&token=${widget.other['token']}&proyek_id=${widget.other['proyek_id']}',
                               // navigationDelegate: (NavigationRequest request) {
                               //   if (request.url
                               //       .startsWith('https://www.youtube.com/')) {
@@ -95,6 +95,7 @@ class _TopupMidtransModalState extends State<TopupMidtransModal> {
                                  if (url.indexOf('dompet/midtrans') >= 0) {
                                 // onLoading(context);
                                 }
+                                print(url);
                                 int keya=url.indexOf('?status=');
                                 if(keya>=0){
                                   switch(url.substring(keya+8)){

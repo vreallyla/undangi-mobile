@@ -4,6 +4,8 @@ import 'package:undangi/Constant/app_theme.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
 import 'package:undangi/Splash_screen.dart';
 import 'package:undangi/auth/login_screen.dart';
 import 'package:undangi/auth/register_screen.dart';
@@ -36,6 +38,8 @@ void main() async {
   await FlutterDownloader.initialize(
       debug: true // optional: set false to disable printing logs to console
       );
+   if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  
 
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
