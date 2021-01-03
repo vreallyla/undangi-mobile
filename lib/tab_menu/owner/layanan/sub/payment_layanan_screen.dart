@@ -757,7 +757,7 @@ class _PaymentLayananScreenState extends State<PaymentLayananScreen> {
                                           'token': v.res,
                                           'pengerjaan_layanan_id':
                                               widget.layananId.toString(),
-                                          'dp': isDP ? 1 : 0,
+                                          'dp':!(_pilihPembayaran=='lunas')?1:0,
                                         },
                                         loadAgain: () {
                                           setState(() {

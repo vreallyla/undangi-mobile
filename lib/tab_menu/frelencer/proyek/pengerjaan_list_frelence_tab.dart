@@ -946,10 +946,12 @@ class ProyekCard extends StatelessWidget {
                                 fit: BoxFit.fitWidth,
                               ),
                               Text(
-                                ' ' +
-                                    (data['pekerja'].containsKey('nama')
+                                ' ' 
+                                +
+                                    (data['pekerja']['nama']!=null
                                         ? data['pekerja']['nama']
-                                        : tanpaNama),
+                                        : tanpaNama)
+                                        ,
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w500,
@@ -970,10 +972,12 @@ class ProyekCard extends StatelessWidget {
                                   size: 16,
                                 ),
                                 Text(
-                                  ' ' +
+                                  ' ' 
+                                  +
                                       (data['pekerja'].containsKey('bintang')
                                           ? data['pekerja']['bintang']
-                                          : '0'),
+                                          : '0')
+                                          ,
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
@@ -1003,7 +1007,7 @@ class ProyekCard extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        (data['pekerja'].containsKey('summary')
+                        (data['pekerja']['summary']!=null
                             ? data['pekerja']['summary']
                             : empty),
                         // '',

@@ -50,6 +50,8 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
 
   String metode;
 
+  String pengerjaanId;
+
   _changePemb(String val) {
     setState(() {
       _pilihPembayaran = val;
@@ -104,6 +106,7 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
   }
 
   _setData(Map res) {
+    print(res);
     setState(() {
       hargaTotal.text = decimalPointTwo(
           res['gross_bill'] != null ? res['gross_bill'].toString() : '0');
@@ -119,6 +122,7 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
           double.parse(res['saldo'] != null ? res['saldo'].toString() : '0');
       fotoUrl = res['user'] != null ? res['user']['foto'] : null;
       isDP = res['is_dp'];
+      pengerjaanId=res['pengerjaan_id'].toString();
     });
   }
 
@@ -725,8 +729,11 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                             if (metode == 'dompet') {
                               viaDompet();
                             } else {
+                                      
+
                               onLoading(context);
                               await GeneralModel.token().then((v) {
+                                
                                 setState(() {
                                                                   stopLoad=true;
                                                                 });
@@ -734,13 +741,14 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                                 return showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
+                                      
                                       return MidtransModal(
                                         other: {
                                           'jumlah_pembayaran':
                                               hargaAmbil.numberValue.round().toString(),
                                           'token': v.res,
-                                          'proyek_id':widget.pengerjaanId.toString(),
-                                          'dp':isDP?1:0,
+                                          'proyek_id':pengerjaanId,
+                                          'dp':!(_pilihPembayaran=='lunas')?1:0,
                                         },
                                         loadAgain: () {
                                             setState(() {
@@ -749,7 +757,9 @@ class _PaymentProyekScreenState extends State<PaymentProyekScreen> {
                                           Navigator.pop(context);
                                         },
                                       );
+                                
                                     });
+                             
                               });
                             }
                           },
